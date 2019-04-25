@@ -180,121 +180,9 @@
         
           
         
-          
-        
       
     
     
-      
-        
-          <div class="post-wrapper">
-            <article class="post reveal no-title">
-  
-
-
-  <section class="meta">
-    
-    
-    <div class="meta" id="header-meta">
-      
-        
-  <h2 class="title">
-    <a href="/2019/04/24/fluid_simulation/">
-      2019-04-24
-    </a>
-  </h2>
-
-
-      
-      <div class="new-meta-box">
-        
-          
-        
-          
-            
-  <div class="new-meta-item author">
-    <a href="http://yoursite.com" rel="nofollow">
-      
-        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
-      
-      <p>WC Yang</p>
-    </a>
-  </div>
-
-
-          
-        
-          
-            <div class="new-meta-item date">
-  <a class="notlink">
-    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2019-04-24</p>
-  </a>
-</div>
-
-          
-        
-          
-            
-
-          
-        
-          
-            
-
-          
-        
-          
-            
-
-          
-        
-      </div>
-      
-        <hr>
-      
-    </div>
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      <h1 id="学习周报"><a href="#学习周报" class="headerlink" title="学习周报"></a>学习周报</h1><font size="5">杨文聪 29/4/2019</font>
-
-
-
-<h2 id="Main-Task"><a href="#Main-Task" class="headerlink" title="Main Task:"></a>Main Task:</h2><ul>
-<li>nothing</li>
-</ul>
-<h2 id="Specifications"><a href="#Specifications" class="headerlink" title="Specifications:"></a>Specifications:</h2><center><font size="6">第1部分 流体力学理论</font></center>
-
-<h3 id="一、水平集（Level-Set）"><a href="#一、水平集（Level-Set）" class="headerlink" title="一、水平集（Level Set）"></a>一、水平集（Level Set）</h3><p>&emsp;&emsp;在进行半拉格朗日对流时，在边界情况我们遇到以下的几个问题：</p>
-<ul>
-<li>什么时候我们逆向追踪的点会落在固体墙的内？</li>
-<li>与一些几何图形表面距离最近的点是什么？</li>
-<li>如何根据一个区域的值外推出另外一个区域的值？</li>
-</ul>
-<p>&emsp;&emsp;前两个问题在流体求解器中尤为常见，为此我们将用到一个非常实用的工具，<strong>水平集</strong>（Level Set）。</p>
-<h3 id="1、符号距离（Signed-Distance）"><a href="#1、符号距离（Signed-Distance）" class="headerlink" title="1、符号距离（Signed Distance）"></a>1、符号距离（Signed Distance）</h3><p>&emsp;&emsp;我们采用一个连续的标量函数$\phi(x,y,z)$来隐式地描述一个几何表面，$\phi(\vec x)$函数就是符号距离函数，通常被简称为$SDF$。首先我们定义距离函数，对任意于一个给定的点集$S$，点$\vec x$到这个点集的距离函数定义为：<br>$$<br>distance_s(\vec x)=\min_{\vec p \in S}|||\vec x-\vec p| \tag {1.1}<br>$$<br>&emsp;&emsp;即点$\vec x$到$S$最近的点的距离。倘若点集$S$将空间划分成了良定义的内部和外部，那么符号距离函数则为：<br>$$<br>\phi_S(\vec x)=<br>\begin{cases}<br>distance_S(\vec x):\vec x \ is \ outside,\<br>-distance_S(\vec x):\vec x \ is \ inside<br>\end{cases} \tag {1.2}<br>$$<br>&emsp;&emsp;符号距离函数有一些良好的性质。由于$\phi$在几何内部取负值，在几何外部取正值，即$\phi$由里到外沿着表面的法线单调递增，则符号距离函数的梯度向量$\nabla\phi(\vec x)$恰好就是指向朝外的表面的法向量。对于几何外部的某一点$\vec x$，记$\vec p$为$\vec x$到表面距离最近的点。在几何体的外部，$-\nabla\phi(\vec x)$指向距离表面上的最近点$\vec p$；在几何体的内部，$\nabla\phi(\vec x)$指向距离表面上的最近点$\vec p$。记$\vec c$为指向最近点$\vec p$的单位方向向量：<br>$$<br>\vec c=\frac{\vec p-\vec x}{||\vec p-\vec x||} \tag {1.3}<br>$$<br>&emsp;&emsp;若将$\vec x$沿着$\vec c$方向移动一段很小的距离$\epsilon$，即$\vec x^<em>=\vec x+\epsilon\vec c$，那么$\vec x^</em>$到表面的最近点依然是$\vec p$。故而$\phi(\vec x^*)$就等于$\phi(\vec x)-\epsilon$，由此我们可得$\phi(\vec x)$沿着$\vec c$的方向偏导数为：<br>$$<br>\frac{\partial \phi(\vec x)}{\partial \vec c}=\lim_{\epsilon\to0}\frac{\phi(\vec + \epsilon\vec c)-\phi(\vec x)}{\epsilon}\<br>=\lim_{\epsilon\to0}\frac{\phi(\vec x)-\epsilon-\phi(\vec x)}{\epsilon}\<br>=\lim_{\epsilon\to0}\frac{-\epsilon}{\epsilon}=-1. \tag{1.4}<br>$$<br>&emsp;&emsp;我们已经知道$\nabla\phi(\vec x)$指向与$\vec c$相反的方向，而方向导数等于梯度向量与指定方向的点乘，即$\partial \phi/\partial \vec c=\nabla\phi\cdot\vec c$，因此我们可以通过$-\vec c$得出梯度向量$\nabla\phi(\vec x)=-\vec c$。总结一下就是：</p>
-<ul>
-<li>在几何体的外部，$-\nabla\phi(\vec x)$为指向到表面上的最近点的单位向量；</li>
-<li>在几何体的内部，$\nabla\phi(\vec x)$为指向到表面上的最近点的单位向量；</li>
-<li>在集合体的表面上，$\nabla\phi(\vec x)$就是指向外部的单位法线向量。</li>
-</ul>
-<p>&emsp;&emsp;再加上$\phi$的函数的绝对值就是最短的距离，因此对于任意的一点$\vec x$，我们可以通过下式得出到表面的距离最近的点：<br>$$<br>\vec x-\phi(\vec x)\nabla\phi(\vec x) \tag {1.5}<br>$$<br>&emsp;&emsp;除此之外，$\nabla\phi(\vec x)$把法线的概念扩展到非表面区域。例如，对于不在固体表面上但在其周围的流体，我们也可以简单地把速度$\vec u$分成到表面的法线方向分量$\vec u\cdot \vec n$和切线方向的分量$\vec u-(\vec u\cdot \vec n)\vec n$，其中$\vec n=\nabla \phi$。</p>
-<p>&emsp;&emsp;符号距离函数除了在中轴线以外的地方都是平滑的。这里说的中轴线就是它到表面的最近点不止一个，例如球体的中心点到球面的最近点有无穷多个。一般情况下，中轴线区域非常小，是一个低维的水平集，我们并不用过多地去考虑它。因为即便在中轴区域，$\phi$函数依旧连续，只是有点扭曲。特别低，只要表面本身是平滑的，那么符号函数$\phi$也必定是平滑的。但是有一点必须注意，符号函数在中轴区域不可微，所以不存在梯度$\nabla\phi(\vec x)$。</p>
-<h3 id="2、符号距离函数的离散化"><a href="#2、符号距离函数的离散化" class="headerlink" title="2、符号距离函数的离散化"></a>2、符号距离函数的离散化</h3><p>&emsp;&emsp;目前为止我们讨论的都是精准的符号距离函数，对于一些简单的几何物体，我们可以很容地写出符号距离函数的解析表达式。例如，对于一个以$r$为半径、以$\vec c$为球心的球体，它的符号距离函数为：<br>$$<br>\phi_{sphere}(\vec x)=||\vec x-\vec c||-r. \tag {1.6}<br>$$<br>&emsp;&emsp;又如，一个过$\vec p$点、法线为$\vec n$的无限平面，其符号距离函数为：<br>$$<br>\phi_{sphere}(\vec x)=(\vec x-\vec p)\cdot \vec n \tag {1.7}<br>$$<br>&emsp;&emsp;但是在图形学中，我们更多接触到的是不规则的三角形网格，如何计算一个给定三角形网格的符号距离函数明显复杂得多，而且实现的算法可能因为复杂度过高导致符号距离函数的效率甚至还不如直接暴力计算。这时候就是水平集发挥作用的地方了，与根据几何信息求出符号距离的解析函数的方法不同，我们会直接将符号距离的信息存储到流体模拟的欧拉网格上，正如其他流体变量一样。然后对于给定的$\vec x$，我们需要估算$\phi(\vec x)$，因此可以通过周边的欧拉网格点进行插值得到。这种方法会带来一些误差，但通常来说是可以接受的。</p>
-<p>&emsp;一旦将符号距离值存储在欧拉网格上了，我们就可以简单快速地通过插值获取符号距离函数值$\phi$，从而可以采用有限差分法计算$\phi$的梯度。</p>
-<h3 id="3、符号距离函数的计算"><a href="#3、符号距离函数的计算" class="headerlink" title="3、符号距离函数的计算"></a>3、符号距离函数的计算</h3><p>&emsp;给定一个没有简单解析表达式的的几何体，若我们想计算它的水平集，就需要采用一些算法来计算几何体网格到欧拉网格点的符号距离。有两种主要的方法来计算水平集，这里主要介绍从几何的角度来计算，这种方法更准确也更容易理解。</p>
-
-      
-    </div>
-    
-  </section>
-</article>
-
-          </div>
-        
       
         
           <div class="post-wrapper">
@@ -820,7 +708,9 @@ setInterval("createtime()",250);
   
   <!--数字雨背景-->
   <canvas id="canvas" width="1440" height="900" >
-  <script type="text/javascript" src="/js/DigitalRain.js"></script>
+  <script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.js"></script>
+  <script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript" src="/js/snow.js"></script>
 	
 </body>
 </html>
