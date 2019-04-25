@@ -37,11 +37,11 @@
       
         <tags>
             
-            <tag> AI </tag>
-            
             <tag> PSO </tag>
             
             <tag> DE </tag>
+            
+            <tag> AI </tag>
             
         </tags>
       
@@ -60,11 +60,11 @@
       
         <tags>
             
+            <tag> AI </tag>
+            
             <tag> Maze </tag>
             
             <tag> BFS &amp; DFS </tag>
-            
-            <tag> AI </tag>
             
         </tags>
       
@@ -129,9 +129,9 @@
       
         <tags>
             
-            <tag> Naiver-Stokes Equations </tag>
-            
             <tag> Computer Graphics </tag>
+            
+            <tag> Naiver-Stokes Equations </tag>
             
             <tag> Fluid Simulation </tag>
             
