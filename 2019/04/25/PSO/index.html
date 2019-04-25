@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>粒子群优化算法、差分进化算法 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/css/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+</head>
+
+<body>
+  
+  
+  <header class="l_header pure">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="pure"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/categories/" rel="nofollow" id="blogcategories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;大佬
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/blog/tags/" rel="nofollow" id="blogtags">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;关于我
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-clock fa-fw"></i>&nbsp;近期文章
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/blog/archives/" rel="nofollow" id="blogarchives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;文章归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/projects/" id="projects">
+								<i class="fas fa-code-branch fa-fw"></i>&nbsp;开源项目
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-link fa-fw"></i>&nbsp;我的友链
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="https://xaoxuu.com/wiki/material-x/" rel="nofollow" id="https:xaoxuu.comwikimaterial-x">
+								<i class="fas fa-book fa-fw"></i>&nbsp;主题文档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于小站
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2019/04/25/PSO/">
+        粒子群优化算法、差分进化算法
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-04-25</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>本次带来粒子群优化算法和差分进化算法，解决单目标连续优化问题。算法的benchmark全部来自<a href="http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm" target="_blank" rel="noopener">http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm</a> 。这上面有30个测试函数，每个函数基本上有2维、10维、20维、30维、50维、100维的版本，提供了一个c语言的function文件，包含了全部benchmark函数，测试可直接调用。<br><a id="more"></a></p>
+<ul>
+<li>前言</li>
+<li>算法理论</li>
+<li>算法实践</li>
+<li>可视化</li>
+</ul>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本次带来粒子群优化算法和差分进化算法，解决单目标连续优化问题。算法的benchmark全部来自<a href="http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm。这上面有30个测试函数，每个函数基本上有2维、10维、20维、30维、50维、100维的版本，提供了一个c语言的function文件，包含了全部benchmark函数，测试可直接调用。这也是本人的一项课程的课程作业，如有错误，欢迎指出，共同学习！谢谢。" target="_blank" rel="noopener">http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm。这上面有30个测试函数，每个函数基本上有2维、10维、20维、30维、50维、100维的版本，提供了一个c语言的function文件，包含了全部benchmark函数，测试可直接调用。这也是本人的一项课程的课程作业，如有错误，欢迎指出，共同学习！谢谢。</a><br>整个项目源码可在github下载:<br><a href="https://github.com/ZeusYang/AILearning/tree/master/SingleObjectiveOpt" target="_blank" rel="noopener">https://github.com/ZeusYang/AILearning/tree/master/SingleObjectiveOpt</a><br><img src="https://img-blog.csdn.net/2018051712095810?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"><br><img src="https://img-blog.csdn.net/20180517121246595?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<h2 id="算法理论"><a href="#算法理论" class="headerlink" title="算法理论"></a>算法理论</h2><h4 id="粒子群优化算法"><a href="#粒子群优化算法" class="headerlink" title="粒子群优化算法"></a>粒子群优化算法</h4><p><strong>简介</strong></p>
+<p>粒子群优化算法( Particle Swarm Optimization，PSO）是进化计算的一个分支，<strong>是一种模拟自然界的生物活动的随机搜索算法</strong>。PSO模拟了自然界鸟群捕食和鱼群捕食的过程。通过群体中的协作寻找到问题的全局最优解。它是1995年由美国学者Eberhart和Kennedy提出的，现在已经广泛应用于各种工程领域的优化问题之中。<br>PSO从鸟群觅食模型中得到启示并用于解决优化问题。<strong>PSO中，每个优化问题的解都是搜索空间中的一只鸟。我们称之为“粒子”。所有的粒子都有一个由被优化的函数决定的适应值(fitness value)，每个粒子还有一个速度决定他们飞翔的方向和距离。然后粒子们就追随当前的最优粒子在解空间中搜索。</strong></p>
+<p><strong>算法流程及伪代码</strong></p>
+<p>PSO 初始化为一群随机粒子(随机解)。然后通过迭代找到最优解。在每一次迭代中，粒子通过跟踪两个”极值”来更新自己。第一个就是粒子本身所找到的最优解，这个解叫做<strong>个体极值pBest</strong>。另一个极值是整个种群目前找到的最优解，这个极值是<strong>全局极值gBest</strong>。另外也可以不用整个种群而只是用其中一部分作为粒子的邻居，那么在所有邻居中的极值就是局部极值。<br><img src="https://img-blog.csdn.net/20180517105926277?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"></p>
+<p><strong>更新公式及其参数说明</strong><br>每个粒子个体的速度和位置更新的公式如下：<br><strong>v[]</strong>和<strong>present[]</strong>为个体的速度数组和位置数组，每个粒子都有它相应的速度和位置，速度的维度和变量的维度保持一致。<strong>w</strong>为惯性权重，它控制着前一速度对当前速度的影响，用于平衡算法的探索和开发能力。<strong>c1</strong>和<strong>c2</strong>是加速系数，它代表了粒子向自身极值<strong>pBest</strong>和全局极值<strong>gBest</strong>推进的加速权值。除了这些参数之外，还有种群规模N，也就是用多少个粒子实例去优化，它影响着算法的搜索能力和计算量。结束条件可以用一定的迭代次数替换，达到一定的迭代次数之后算法就会收敛，不再推进。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">v[] = w * v[] + c1 * rand() * (pbest[] - present[]) + c2 * rand() * (gbest[] - present[])</span><br><span class="line">present[] = present[] + v[]</span><br></pre></td></tr></table></figure></p>
+<p>PSO对种群规模要求不高，一般取20-40就可以达到很好的求解效果，不过对于比较难的问题或者特定类别的问题，粒子数可以取到100或200。</p>
+<p>惯性权重我这里取0.5，代表前一速度对当前速度有一半的贡献。</p>
+<p>c1和c2通常都等于2.0，代表着对两个引导方向的同等重视 。</p>
+<p>终止条件决定算法运行的结束，由具体的应用和问题本身确定。有几种做法：<br>(1)将最大循环数设定为500，1000，5000，或者最大的函数评估次数，等等;<br>(2)也可以使用算法求解得到一个可接受的解作为终止条件;<br>(3)或者是当算法在很长一段迭代中没有得到任何改善，则可以终止算法.</p>
+<h4 id="差分进化算法"><a href="#差分进化算法" class="headerlink" title="差分进化算法"></a>差分进化算法</h4><p><strong>简介</strong></p>
+<p>差分进化算法（DE）是Rainer Storn 和Kenneth Price在1996 年为求解切比雪夫多项式而提出。<strong>DE是一种随机的并行直接搜索算法,它可对非线性不可微连续空间函数进行最小化</strong>,以其易用性、稳健性和强大的全局寻优能力在多个领域取得成功。<br>DE也是基于群体的启发式搜索算法，群中的每个个体对应一个解向量。差分进化算法的进化流程则与遗传算法非常类似，都包括变异、杂交和选择操作，但这些操作的具体定义与遗传算法有所不同。 </p>
+<p><strong>算法流程及伪码</strong></p>
+<p>DE算法通过采用浮点矢量进行编码生成种群个体。<br>在DE算法寻优的过程中，<br>首先，从父代个体间选择两个个体进行向量做差生成差分矢量；<br>其次，选择另外一个个体与差分矢量求和生成实验个体；<br>然后，对父代个体与相应的实验个体进行交叉操作，生成新的子代个体；<br>最后在父代个体和子代个体之间进行选择操作，将符合要求的个体保存到下一代群体中去。</p>
+<p>具体流程如下：<br><strong>(1)</strong>、确定差分进化算法控制参数，确定适应度函数。差分进化算法控制参数包括：种群大小NP、缩放因子F与杂交概率CR。<br><strong>(2)、</strong>随机产生初始种群。<br><strong>(3)、</strong>对初始种群进行评价，即计算初始种群中每个个体的适应度值。<br><strong>(4)、</strong>判断是否达到终止条件或进化代数达到最大。若是，则终止进化，将得到最佳个体作为最优解输出；若否，继续。<br><strong>(5)、</strong>进行变异和交叉操作，得到中间种群。<br><strong>(6)、</strong>在原种群和中间种群中选择个体，得到新一代种群。<br><strong>(7)、</strong>进化代数g=g+1，转步骤(4)</p>
+<p><strong>更新公式及其参数说明</strong><br>差异演化算法主要涉及<strong>群体规模M</strong> 、<strong>缩放因子F</strong>以及<strong>交叉概率CR</strong>三个参数的设定。<br>M：一般介于5×n 与10×n 之间, 但不能少于4, 否则无法进行变异操作，n是维度;<br> F  ：一般在[ 0, 2 ]之间选择, 通常取0. 5;<br>CR：一般在[ 0, 1 ]之间选择, 比较好的选择应在0. 3 左右, CR 大些收敛速度会加快, 但易发生早熟现象。</p>
+<h2 id="算法实践"><a href="#算法实践" class="headerlink" title="算法实践"></a>算法实践</h2><h4 id="粒子群优化算法-1"><a href="#粒子群优化算法-1" class="headerlink" title="粒子群优化算法"></a>粒子群优化算法</h4><ul>
+<li><p>随机初始化每个粒子</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">srand((unsigned)time(NULL));</span><br><span class="line"> int population = static_cast&lt;int&gt;(getParameters(tr(&quot;population&quot;)));//种群大小</span><br><span class="line"> int dimension = static_cast&lt;int&gt;(getParameters(tr(&quot;dimension&quot;)));//维度</span><br><span class="line"> int generation = static_cast&lt;int&gt;(getParameters(tr(&quot;generation&quot;)));//迭代次数</span><br><span class="line"> double lowbounding = getParameters(tr(&quot;lowbounding&quot;));</span><br><span class="line"> double upbounding = getParameters(tr(&quot;upbounding&quot;));</span><br><span class="line"> group.clear();</span><br><span class="line"> group.resize(generation,std::vector&lt;std::vector&lt;double&gt; &gt;(population,</span><br><span class="line">                         std::vector&lt;double&gt;(dimension,0.0)));</span><br><span class="line"> for (int i = 0; i &lt; population; i++) &#123;</span><br><span class="line">     for (int j = 0; j &lt; dimension; j++) &#123;</span><br><span class="line">         group[0][i][j] = lowbounding +</span><br><span class="line">                 (double)(rand() / (double)RAND_MAX) * (upbounding - lowbounding);</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新每个粒子的速度和位置</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">void PSOAlgorithm::update(int curGeneration)</span><br><span class="line">&#123;//更新速度和位置</span><br><span class="line">    int dimension = static_cast&lt;int&gt;(getParameters(tr(&quot;dimension&quot;)));</span><br><span class="line">    int population = static_cast&lt;int&gt;(getParameters(tr(&quot;population&quot;)));</span><br><span class="line">    double w = getParameters(tr(&quot;w&quot;));//惯性权重</span><br><span class="line">    double c1 = getParameters(tr(&quot;c1&quot;));//加速系数</span><br><span class="line">    double c2 = getParameters(tr(&quot;c2&quot;));//加速系数</span><br><span class="line">    double upbounding = getParameters(tr(&quot;upbounding&quot;));//上界</span><br><span class="line">    double lowbounding = getParameters(tr(&quot;lowbounding&quot;));//下界</span><br><span class="line"></span><br><span class="line">    for(auto i = 0;i &lt; population;++i)&#123;</span><br><span class="line">        for(auto j = 0;j &lt; dimension;++j)&#123;</span><br><span class="line">            double pre = velocity[i][j];</span><br><span class="line">            //更新速度</span><br><span class="line">            velocity[i][j] = w*pre +</span><br><span class="line">                    c1*(double)(rand()/(double)RAND_MAX)*</span><br><span class="line">                    (pBest[i][j] - group[curGeneration - 1][i][j])</span><br><span class="line">                    +</span><br><span class="line">                    c2*(double)(rand()/(double)RAND_MAX)*</span><br><span class="line">                    (gBest[j] - group[curGeneration - 1][i][j]);</span><br><span class="line">            if(velocity[i][j] &gt; 200)velocity[i][j] = 200;</span><br><span class="line">            //位置更新</span><br><span class="line">            group[curGeneration][i][j] = group[curGeneration-1][i][j] + velocity[i][j];</span><br><span class="line">            //边界处理</span><br><span class="line">            if(group[curGeneration][i][j] &gt; upbounding)</span><br><span class="line">                group[curGeneration][i][j] = upbounding;</span><br><span class="line">            if(group[curGeneration][i][j] &lt; lowbounding)</span><br><span class="line">                group[curGeneration][i][j] = lowbounding;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>更新每个粒子的历史最优和全局最优、</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">void PSOAlgorithm::curAndgloBest(int curGeneration)</span><br><span class="line">&#123;//计算当前最优解和全局最优解</span><br><span class="line">    int population = static_cast&lt;int&gt;(getParameters(tr(&quot;population&quot;)));</span><br><span class="line">    int dimension = static_cast&lt;int&gt;(getParameters(tr(&quot;dimension&quot;)));</span><br><span class="line">    int func_num = static_cast&lt;int&gt;(getParameters(tr(&quot;function&quot;)));//函数编号</span><br><span class="line">    for (auto i = 0; i &lt; population; ++i) &#123;</span><br><span class="line">            double value = functions(group[curGeneration][i], func_num, dimension);</span><br><span class="line">            if (value &lt; functions(pBest[i], func_num, dimension))</span><br><span class="line">                pBest[i] = group[curGeneration][i];</span><br><span class="line">            if (functions(pBest[i], func_num, dimension) &lt; functions(gBest, func_num, dimension))&#123;</span><br><span class="line">                gBest = pBest[i];</span><br><span class="line">                bestValue.first = i;</span><br><span class="line">                bestValue.second = functions(pBest[i], func_num, dimension);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>算法核心</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">void PSOAlgorithm::process()</span><br><span class="line">&#123;</span><br><span class="line">    curAndgloBest(0);//计算初始代最优解</span><br><span class="line">    int generation = static_cast&lt;int&gt;(getParameters(tr(&quot;generation&quot;)));//迭代次数</span><br><span class="line">    for (auto current = 1; current &lt; generation; ++current) &#123;</span><br><span class="line">        update(current);</span><br><span class="line">        curAndgloBest(current);</span><br><span class="line">        calcCurrentValue(pBest);</span><br><span class="line">        if(generation &lt;= 100 || (generation &gt; 100 &amp;&amp; generation % 2 == 0))</span><br><span class="line">            emit frameUpdate(avgValue,currentValue,minY,maxY,current,generation,bestValue);</span><br><span class="line">    &#125;</span><br><span class="line">    emit processFinished(getResult(gBest));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="粒子群优化算法-2"><a href="#粒子群优化算法-2" class="headerlink" title="粒子群优化算法"></a>粒子群优化算法</h4><ul>
+<li><p>随机产生初始种群</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">srand((unsigned)time(NULL));</span><br><span class="line"> int population = static_cast&lt;int&gt;(getParameters(tr(&quot;population&quot;)));//种群大小</span><br><span class="line"> int dimension = static_cast&lt;int&gt;(getParameters(tr(&quot;dimension&quot;)));//维度</span><br><span class="line"> int generation = static_cast&lt;int&gt;(getParameters(tr(&quot;generation&quot;)));//迭代次数</span><br><span class="line"> double lowbounding = getParameters(tr(&quot;lowbounding&quot;));</span><br><span class="line"> double upbounding = getParameters(tr(&quot;upbounding&quot;));</span><br><span class="line"> group.clear();</span><br><span class="line"> group.resize(generation,std::vector&lt;std::vector&lt;double&gt; &gt;(population,</span><br><span class="line">                         std::vector&lt;double&gt;(dimension,0.0)));</span><br><span class="line"> for (int i = 0; i &lt; population; i++) &#123;</span><br><span class="line">     for (int j = 0; j &lt; dimension; j++) &#123;</span><br><span class="line">         group[0][i][j] = lowbounding +</span><br><span class="line">                 (double)(rand() / (double)RAND_MAX) * (upbounding - lowbounding);</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>核心算法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">void DEAlgorithm::process()</span><br><span class="line">&#123;</span><br><span class="line">    int population = static_cast&lt;int&gt;(getParameters(tr(&quot;population&quot;)));//种群大小</span><br><span class="line">    int dimension = static_cast&lt;int&gt;(getParameters(tr(&quot;dimension&quot;)));//维度</span><br><span class="line">    int generation = static_cast&lt;int&gt;(getParameters(tr(&quot;generation&quot;)));//迭代次数</span><br><span class="line">    double lowbounding = getParameters(tr(&quot;lowbounding&quot;));</span><br><span class="line">    double upbounding = getParameters(tr(&quot;upbounding&quot;));</span><br><span class="line">    double DE_F = getParameters(tr(&quot;F&quot;));//缩放因子</span><br><span class="line">    double DE_CR = getParameters(tr(&quot;CR&quot;));//交叉概率</span><br><span class="line">    int func_num = static_cast&lt;int&gt;(getParameters(tr(&quot;function&quot;)));//函数编号</span><br><span class="line">    double bestSolution = 100000000;//目前全局最优解</span><br><span class="line">    //开始迭代</span><br><span class="line">    for(auto t=1;t&lt;generation;t++)&#123;</span><br><span class="line">        //变异</span><br><span class="line">        for(int i=0;i&lt;population;i++)&#123;</span><br><span class="line">            //随机选三个向量</span><br><span class="line">            std::vector&lt;bool&gt; selected(population,false);</span><br><span class="line">            selected[i] = true;</span><br><span class="line">            int pick[3];</span><br><span class="line">            for(auto k=0;k&lt;3;k++)&#123;</span><br><span class="line">                pick[k] = rand() % population;</span><br><span class="line">                while(selected[pick[k]])pick[k] = rand() % population;</span><br><span class="line">                selected[pick[k]] = true;</span><br><span class="line">            &#125;</span><br><span class="line">            for(auto j=0;j&lt;dimension;j++)&#123;</span><br><span class="line">                //变异操作公式</span><br><span class="line">                group[t][i][j] = group[t-1][pick[0]][j] +</span><br><span class="line">                        DE_F * (group[t-1][pick[1]][j] - group[t-1][pick[2]][j]);</span><br><span class="line">                //边界处理</span><br><span class="line">                if(group[t][i][j]&lt;lowbounding) group[t][i][j] = lowbounding;</span><br><span class="line">                else if(group[t][i][j]&gt;upbounding) group[t][i][j] = upbounding;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        //交叉</span><br><span class="line">        for(auto i=0;i&lt;population;i++)&#123;</span><br><span class="line">            for(auto j=0;j&lt;dimension;j++)&#123;</span><br><span class="line">                if(((rand() % 100) / 100.0) &lt;= DE_CR || j == (rand() % dimension))</span><br><span class="line">                    group[t][i][j] = group[t][i][j];</span><br><span class="line">                else</span><br><span class="line">                    group[t][i][j] = group[t-1][i][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        //选择替换，贪心策略</span><br><span class="line">        for(auto i=0;i&lt;population;i++)&#123;</span><br><span class="line">            if(functions(group[t][i],func_num,dimension) &lt;=</span><br><span class="line">                    functions(group[t-1][i],func_num,dimension))&#123;</span><br><span class="line">                group[t][i] = group[t][i];</span><br><span class="line">                bestSolution =</span><br><span class="line">                        bestSolution &lt; functions(group[t][i],func_num,dimension)</span><br><span class="line">                        ? bestSolution : functions(group[t][i],func_num,dimension);</span><br><span class="line">                if(bestSolution &lt; functions(group[t][i],func_num,dimension))&#123;</span><br><span class="line">                    bestValue.first = i;</span><br><span class="line">                    bestValue.second = bestSolution;</span><br><span class="line">                    solution = group[t][i];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            else&#123;</span><br><span class="line">                group[t][i] = group[t-1][i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        //计算当前种群的全部值</span><br><span class="line">        calcCurrentValue(group[t]);</span><br><span class="line">        if(generation &gt; 300 &amp;&amp; generation % 2 == 0)&#123;</span><br><span class="line">            emit frameUpdate(avgValue,currentValue,minY,maxY,t,generation,bestValue);</span><br><span class="line">        &#125;</span><br><span class="line">        else&#123;</span><br><span class="line">            emit frameUpdate(avgValue,currentValue,minY,maxY,t,generation,bestValue);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    emit processFinished(getResult(solution));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>以上只是算法的核心部分，更多的细节请看源码。</p>
+<h2 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h2><p>用Qt做了个可视化，可以调节参数，显示了种群个体的每个个体的适应值以及整个种群的适应值收敛曲线。<br>粒子群算法：<br><img src="https://img-blog.csdn.net/2018051712010655?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"><br>可以看到最后粒子都收敛了，在同一条直线上：<br><img src="https://img-blog.csdn.net/20180517120220887?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"><br>差分进化算法：<br><img src="https://img-blog.csdn.net/20180517120543178?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"><br><img src="https://img-blog.csdn.net/20180517120552273?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="这里写图片描述"><br>总的来说，差分进化算法略占优势，收敛的速度也比较快，粒子群算法比较没那么稳定.</p>
+<p>整个项目源码可在github下载：<a href="https://github.com/ZeusYang/AILearning/tree/master/SingleObjectiveOpt" target="_blank" rel="noopener">https://github.com/ZeusYang/AILearning/tree/master/SingleObjectiveOpt</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-25T20:40:08+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2019年4月25日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/AI/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>AI</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/PSO/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>PSO</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/DE/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>DE</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/04/25/PSO/&title=粒子群优化算法、差分进化算法 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本次带来粒子群优化算法和差分进化算法，解决单目标连续优化问题。算法的benchmark全部来自http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm 。这上面有30个测试函数，每个函数基本上有2维、10维、20维、30维、50维、100维的版本，提供了一个c语言的function文件，包含了全部benchmark函数，测试可直接调用。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/04/25/PSO/&title=粒子群优化算法、差分进化算法 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本次带来粒子群优化算法和差分进化算法，解决单目标连续优化问题。算法的benchmark全部来自http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm 。这上面有30个测试函数，每个函数基本上有2维、10维、20维、30维、50维、100维的版本，提供了一个c语言的function文件，包含了全部benchmark函数，测试可直接调用。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/04/25/PSO/&title=粒子群优化算法、差分进化算法 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本次带来粒子群优化算法和差分进化算法，解决单目标连续优化问题。算法的benchmark全部来自http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm 。这上面有30个测试函数，每个函数基本上有2维、10维、20维、30维、50维、100维的版本，提供了一个c语言的function文件，包含了全部benchmark函数，测试可直接调用。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                    <section class="prev">
+                        <span class="art-item-left">
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h4>
+                                <a href="/2019/04/25/LSystem/" rel="prev" title="L-系统语法规则构建三维分形树">
+                                  
+                                      L-系统语法规则构建三维分形树
+                                  
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphic/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>Computer Graphic</a> <a class="tag" href="/tags/L-System/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>L-System</a> <a class="tag" href="/tags/Tree-modeling/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>Tree modeling</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2019/04/25/maze/" rel="prev" title="迷宫生成、寻路">
+                                    
+                                        迷宫生成、寻路
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Maze/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>Maze</a> <a class="tag" href="/tags/BFS-DFS/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>BFS & DFS</a> <a class="tag" href="/tags/AI/"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i>AI</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+
+
+  <script>
+    window.subData = {
+      title: '粒子群优化算法、差分进化算法',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content pure">
+    
+      <div class="avatar">
+        <img class="avatar" src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@master/avatar/avatar.png">
+      </div>
+    
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://www.zhihu.com/people/4146bb31e7ea6abe568420e83dcc62c0" class="social fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="pure">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content pure">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#算法理论"><span class="toc-text">算法理论</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#粒子群优化算法"><span class="toc-text">粒子群优化算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#差分进化算法"><span class="toc-text">差分进化算法</span></a></li></ol></li></ol><li class="toc-item toc-level-2"><a class="toc-link" href="#算法实践"><span class="toc-text">算法实践</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#粒子群优化算法-1"><span class="toc-text">粒子群优化算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#粒子群优化算法-2"><span class="toc-text">粒子群优化算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#可视化"><span class="toc-text">可视化</span></a></li>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="pure">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content pure">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/blog/archives/" href="/blog/archives/" rel="nofollow" id="blogarchives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/projects/" href="/projects/" id="projects">
+          
+            <i class="fas fa-code-branch fa-fw" aria-hidden="true"></i>
+          
+          开源项目
+        </a></li>
+      
+        <li><a class="flat-box" title="/friends/" href="/friends/" rel="nofollow" id="friends">
+          
+            <i class="fas fa-link fa-fw" aria-hidden="true"></i>
+          
+          我的友链
+        </a></li>
+      
+        <li><a class="flat-box" title="https://xaoxuu.com/wiki/material-x/" href="https://xaoxuu.com/wiki/material-x/" rel="nofollow" id="https:xaoxuu.comwikimaterial-x">
+          
+            <i class="fas fa-book fa-fw" aria-hidden="true"></i>
+          
+          主题文档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于小站
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="pure">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/blog/categories/" title="blog/categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(0)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(0)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/云服务器/" href="/categories/云服务器/"><div class="name">云服务器</div><div class="badge">(0)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="pure">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/blog/tags/" title="blog/tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      <a href="/tags/AI/" style="font-size: 24px; color: #555">AI</a> <a href="/tags/Advection/" style="font-size: 14px; color: #999">Advection</a> <a href="/tags/Atomsphere-Rendering/" style="font-size: 14px; color: #999">Atomsphere Rendering</a> <a href="/tags/BFS-DFS/" style="font-size: 14px; color: #999">BFS & DFS</a> <a href="/tags/BRDF/" style="font-size: 14px; color: #999">BRDF</a> <a href="/tags/Computer-Graphic/" style="font-size: 14px; color: #999">Computer Graphic</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #555">Computer Graphics</a> <a href="/tags/DE/" style="font-size: 14px; color: #999">DE</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #999">Fluid Simulation</a> <a href="/tags/Greedy-Snake/" style="font-size: 14px; color: #999">Greedy Snake</a> <a href="/tags/L-System/" style="font-size: 14px; color: #999">L-System</a> <a href="/tags/Maze/" style="font-size: 14px; color: #999">Maze</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #999">Naiver-Stokes Equations</a> <a href="/tags/OpenGL/" style="font-size: 14px; color: #999">OpenGL</a> <a href="/tags/PSO/" style="font-size: 14px; color: #999">PSO</a> <a href="/tags/Particle-Effect/" style="font-size: 14px; color: #999">Particle Effect</a> <a href="/tags/Tree-modeling/" style="font-size: 14px; color: #999">Tree modeling</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+
+
+  <section class="widget music">
+    
+<header class="pure">
+  <div><i class="fas fa-compact-disc fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;最近在听</div>
+  
+    <a class="rightBtn" rel="external nofollow noopener noreferrer" target="_blank" href="https://music.163.com/#/user/home?id=63035382" title="https://music.163.com/#/user/home?id=63035382">
+    <i class="far fa-heart fa-fw"></i></a>
+  
+</header>
+
+    <div class="content pure">
+      
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.7.0/dist/APlayer.min.css">
+  <div class="aplayer" data-theme="#1BCDFC" data-mode="circulation" data-server="netease" data-type="playlist" data-id="2615636388" data-volume="0.7">
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/aplayer@1.7.0/dist/APlayer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/meting@1.1.0/dist/Meting.min.js"></script>
+
+
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://www.zhihu.com/people/4146bb31e7ea6abe568420e83dcc62c0" class="social fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+</footer>
+
+<span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+<script>
+    var now = new Date(); 
+    function createtime() { 
+        var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+        now.setTime(now.getTime()+250); 
+        days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+        hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+        if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+        mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+        seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+        snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+        document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+        document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+    } 
+setInterval("createtime()",250);
+</script>
+
+<script>setLoadingBarProgress(80);</script>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+  <script>setLoadingBarProgress(100);</script>
+  
+  <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" >
+  <script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.js"></script>
+  <script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+  <script type="text/javascript" src="/js/snow.js"></script>
+	
+</body>
+</html>
