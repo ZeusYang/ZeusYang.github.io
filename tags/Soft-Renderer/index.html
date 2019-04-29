@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <title>Tag: PSO | YangWC&#39;s Blog</title>
+  <title>Tag: Soft Renderer | YangWC&#39;s Blog</title>
   
   
   <meta name="description" content="Personal blog website.">
@@ -222,8 +222,8 @@
       
         
   <h2 class="title">
-    <a href="/2019/04/25/PSO/">
-      粒子群优化算法、差分进化算法
+    <a href="/2019/04/29/SoftRenderer-Math/">
+      软渲染器Soft Renderer：3D数学篇
     </a>
   </h2>
 
@@ -251,7 +251,7 @@
             <div class="new-meta-item date">
   <a class="notlink">
     <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2019-04-25</p>
+    <p>2019-04-29</p>
   </a>
 </div>
 
@@ -261,9 +261,9 @@
             
   
   <div class="new-meta-item category">
-    <a href="/categories/Algorithm/" rel="nofollow">
+    <a href="/categories/Soft-Renderer/" rel="nofollow">
       <i class="fas fa-folder-open" aria-hidden="true"></i>
-      <p>Algorithm</p>
+      <p>Computer Graphics&nbsp;/&nbsp;Soft Renderer</p>
     </a>
   </div>
 
@@ -290,24 +290,24 @@
 
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
-      <p>本次带来粒子群优化算法和差分进化算法，解决单目标连续优化问题。算法的benchmark全部来自<a href="http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm" target="_blank" rel="noopener">http://www.ntu.edu.sg/home/epnsugan/index_files/CEC2018/CEC2018.htm</a> 。这上面有30个测试函数，每个函数基本上有2维、10维、20维、30维、50维、100维的版本，提供了一个c语言的function文件，包含了全部benchmark函数，测试可直接调用。<br>
+      <p>本章开始博主将手动搭建一个渲染管线，深入理解3D渲染的整个流程。线性代数中的向量和矩阵是计算机图形学的常客，深入理解和掌握对于图形渲染有着非常重要的意义，本节主要是关于3D数学库的内容。</p>
       
         <div class="readmore">
-          <a href="/2019/04/25/PSO/" class="flat-box">
+          <a href="/2019/04/29/SoftRenderer-Math/" class="flat-box">
             <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
             阅读全文
           </a>
         </div>
       
-    </p></div>
+    </div>
     
       <div class="full-width auto-padding tags">
         
-          <a href="/tags/PSO/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>PSO</a>
+          <a href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Computer Graphics</a>
         
-          <a href="/tags/DE/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>DE</a>
+          <a href="/tags/Soft-Renderer/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Soft Renderer</a>
         
-          <a href="/tags/AI/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>AI</a>
+          <a href="/tags/3D-Math/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>3D Math</a>
         
       </div>
     
@@ -323,6 +323,42 @@
     
     <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
     
+    
+      <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
     
 
   

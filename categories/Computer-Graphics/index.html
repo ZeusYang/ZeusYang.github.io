@@ -53,8 +53,8 @@
     })();
     </script>
   
+  
 </head>
-
 <body>
   
   
@@ -209,9 +209,119 @@
         
           
         
+          
+        
       
     
     
+      
+        
+          <div class="post-wrapper">
+            <article class="post reveal ">
+  
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  <h2 class="title">
+    <a href="/2019/04/29/SoftRenderer-Math/">
+      软渲染器Soft Renderer：3D数学篇
+    </a>
+  </h2>
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-04-29</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Soft-Renderer/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Soft Renderer</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      <p>本章开始博主将手动搭建一个渲染管线，深入理解3D渲染的整个流程。线性代数中的向量和矩阵是计算机图形学的常客，深入理解和掌握对于图形渲染有着非常重要的意义，本节主要是关于3D数学库的内容。</p>
+      
+        <div class="readmore">
+          <a href="/2019/04/29/SoftRenderer-Math/" class="flat-box">
+            <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
+            阅读全文
+          </a>
+        </div>
+      
+    </div>
+    
+      <div class="full-width auto-padding tags">
+        
+          <a href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Computer Graphics</a>
+        
+          <a href="/tags/Soft-Renderer/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Soft Renderer</a>
+        
+          <a href="/tags/3D-Math/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>3D Math</a>
+        
+      </div>
+    
+  </section>
+</article>
+
+          </div>
+        
       
         
           <div class="post-wrapper">
@@ -546,6 +656,42 @@
     <!-- 根据主题中的设置决定是否在archive中针对摘要部分的MathJax公式加载mathjax.js文件 -->
     
     
+      <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+    
 
   
 
@@ -694,9 +840,11 @@
         
           <li><a class="flat-box" title="/categories/Algorithm/" href="/categories/Algorithm/"><div class="name">Algorithm</div><div class="badge">(3)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(3)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(4)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(1)</div></a></li>
         
       </ul>
     </div>
@@ -721,7 +869,7 @@
 </header>
 
     <div class="content material">
-      <a href="/tags/AI/" style="font-size: 24px; color: #fff">AI</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Atomsphere-Rendering/" style="font-size: 14px; color: #bbb">Atomsphere Rendering</a> <a href="/tags/BFS-DFS/" style="font-size: 14px; color: #bbb">BFS & DFS</a> <a href="/tags/BRDF/" style="font-size: 14px; color: #bbb">BRDF</a> <a href="/tags/Computer-Graphic/" style="font-size: 14px; color: #bbb">Computer Graphic</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/DE/" style="font-size: 14px; color: #bbb">DE</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Greedy-Snake/" style="font-size: 14px; color: #bbb">Greedy Snake</a> <a href="/tags/L-System/" style="font-size: 14px; color: #bbb">L-System</a> <a href="/tags/Maze/" style="font-size: 14px; color: #bbb">Maze</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/OpenGL/" style="font-size: 14px; color: #bbb">OpenGL</a> <a href="/tags/PSO/" style="font-size: 14px; color: #bbb">PSO</a> <a href="/tags/Particle-Effect/" style="font-size: 14px; color: #bbb">Particle Effect</a> <a href="/tags/Tree-modeling/" style="font-size: 14px; color: #bbb">Tree modeling</a>
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/AI/" style="font-size: 19px; color: #ddd">AI</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Atomsphere-Rendering/" style="font-size: 14px; color: #bbb">Atomsphere Rendering</a> <a href="/tags/BFS-DFS/" style="font-size: 14px; color: #bbb">BFS & DFS</a> <a href="/tags/BRDF/" style="font-size: 14px; color: #bbb">BRDF</a> <a href="/tags/Computer-Graphic/" style="font-size: 14px; color: #bbb">Computer Graphic</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/DE/" style="font-size: 14px; color: #bbb">DE</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Greedy-Snake/" style="font-size: 14px; color: #bbb">Greedy Snake</a> <a href="/tags/L-System/" style="font-size: 14px; color: #bbb">L-System</a> <a href="/tags/Maze/" style="font-size: 14px; color: #bbb">Maze</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/OpenGL/" style="font-size: 14px; color: #bbb">OpenGL</a> <a href="/tags/PSO/" style="font-size: 14px; color: #bbb">PSO</a> <a href="/tags/Particle-Effect/" style="font-size: 14px; color: #bbb">Particle Effect</a> <a href="/tags/Soft-Renderer/" style="font-size: 14px; color: #bbb">Soft Renderer</a> <a href="/tags/Tree-modeling/" style="font-size: 14px; color: #bbb">Tree modeling</a>
     </div>
   </section>
 
@@ -789,8 +937,12 @@
 		} 
 	setInterval("createtime()",250);
    </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
 </footer>
-<script>setLoadingBarProgress(80);</script>
 
 
       <script>setLoadingBarProgress(60);</script>

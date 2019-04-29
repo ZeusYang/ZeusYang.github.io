@@ -53,8 +53,8 @@
     })();
     </script>
   
+  
 </head>
-
 <body>
   
   
@@ -358,7 +358,7 @@
 <h2 id="渲染方程及其实现"><a href="#渲染方程及其实现" class="headerlink" title="渲染方程及其实现"></a>渲染方程及其实现</h2><p>为了便于论述，我们记$L(x,v,s)$为视点$x$从方向$v$接收的总的辐射度，其中$s$是太阳方向向量。记$x_0(x,v)$为视线$v$的终点（通常为地面、物体或大气顶层）。$x$到$x_0$之间的衰减因子$T$、$x_0$处的反射辐射度$I$、在某一点$y$向$-v$内散射的辐射度$J$定义如下：<br><img src="https://img-blog.csdnimg.cn/20190106185159448.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
 <p>$T(x,x_0)=exp(-\int_x^{x_0}(\beta_R^e\rho_R(y)+\beta_M^e\rho_M(y))dy)$    （12）</p>
 <p>$I<a href="x_0,s">L</a>=\frac{\alpha(x_0)}{\pi}\int_{2\pi}L(x_0,\omega,s)\cdot n(x_0)d\omega ,or  0$    （13）</p>
-<p>$J<a href="y,v,s">L</a>=\int_{4\pi}\sum_{i\in{R,M}}\beta_i^s(y)p_i(v\cdot w)L(y,\omega,s)d\omega$        （14）</p>
+<p>$J<a href="y,v,s">L</a>=\int_{4\pi}\sum_{i\in\{R,M\}}\beta_i^s(y)p_i(v\cdot w)L(y,\omega,s)d\omega$        （14）</p>
 <p>公式（12）、（13）、（14）对应上图的（a）、（b）、（c）。有了以上的函数表示，现在我们可以定义渲染方程了。</p>
 <p><strong>1、渲染方程</strong></p>
 <p>$L(x,v,s)=L_0(x,v,s)+R<a href="x,v,s">L</a>+S<a href="x,v,s">L</a>$    （15）</p>
@@ -376,7 +376,7 @@
 <p><strong>①</strong> <strong>点p到大气顶层的距离</strong>：即计算向量$pi$的长度。建立如图所示的坐标系，点$O$为地心，则向量$pi$距离点$p$为$d$的一点坐标($x$,$z$)为:($d\sqrt{1-u^2}$,$r+du$)</p>
 <p>那么设距离$d$为向量$pi$的长度，则($x$,$z$)即为点$i$的坐标。已知大气层半径为$r_{top}$，则由勾股定理有：$(d\sqrt{1-u^2})^2+(r+du)^2=r_{top}^2$，整理后即为二元一次方程：$d^2+2rud+r^2=r_{top}^2$，其中$r$、$u$和$r_{top}$已知，可求出距离$d$。同样可通过该二元一次方程的判别式判断是否有解，从判断射线($r$,$u$)是否与大气层（或地表）存在交点。</p>
 <p>点p到地球表面交点的距离同理，将$r_{top}$换成$r_{bottom}$即可。</p>
-<p><strong>②</strong> <strong>计算点p到i（与大气顶层的交点）的光学长度</strong>：计算衰减因子需要计算点$p$到$i$的光学深度，也就是对$p$到$i$的散射系数和空气密度乘积进行积分。其中散射系数（包括Rayleigh散射和Mie散射）系数我们取海平面上相应的散射系数，故我们只需对$p$到$i$路径的空气密度进行积分，这就是光学长度–$\int_p^i\rho(s)ds$。</p>
+<p><strong>②</strong> <strong>计算点p到i（与大气顶层的交点）的光学长度</strong>：计算衰减因子需要计算点$p$到$i$的光学深度，也就是对$p$到$i$的散射系数和空气密度乘积进行积分。其中散射系数（包括Rayleigh散射和Mie散射）系数我们取海平面上相应的散射系数，故我们只需对$p$到$i$路径的空气密度进行积分，这就是光学长度—$\int_p^i\rho(s)ds$。</p>
 <p>计算积分我们采用梯度法，以光线步进（Ray Marching）循环采样计算累加和。如下图所示，假设我们取$P_1$-$P_5$这五个采样点，依次计算每个点的空气密度乘上积分步长，累加计算。<br><img src="https://img-blog.csdnimg.cn/20190106185443195.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMxNjE1OTE5,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/20190106185535773.png" alt="在这里插入图片描述"><br>计算Rayleigh光学长度和Mie光学长度均采用以上的方法计算。分别采用以上方法计算之后，再乘上相应的散射系数，就是光学深度，然后衰减因子就按照公式（12）计算即可。</p>
 <p><strong>③</strong> <strong>坐标映射</strong>：我们把预计算的结果存入一张2D的纹理中，所以需要将($r$,$u$)映射到纹理坐标($u_r$,$v_u$)中。我们知道纹理坐标数值范围是$[0,1]$，故对于一个数值$x$，我们首先要将$x$映射到$[0,1]$，设$x$的值域为$[min,max]$。则令$x = (x-min)/(max-min)$，可将其映射到$[0,1]$。</p>
 <p>然而值得注意的是，将$x$映射到$[0,1]$之后，边界部分我们应该要去掉。这是因为我们在对纹理进行查找时需要线性插值，边界部分会产生一些外推值。为了避免这种情况，我们进一步令$x$（此时$x$已属于$[0,1]$）：</p>
@@ -501,10 +501,10 @@
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-27T16:50:42+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-04-29T19:14:38+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年4月27日</p>
+    <p>最后更新于 2019年4月29日</p>
   </a>
 </div>
 
@@ -635,6 +635,42 @@
 
 
 <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
 
 
 
@@ -801,9 +837,11 @@
         
           <li><a class="flat-box" title="/categories/Algorithm/" href="/categories/Algorithm/"><div class="name">Algorithm</div><div class="badge">(3)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(3)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(4)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(1)</div></a></li>
         
       </ul>
     </div>
@@ -828,7 +866,7 @@
 </header>
 
     <div class="content material">
-      <a href="/tags/AI/" style="font-size: 24px; color: #fff">AI</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Atomsphere-Rendering/" style="font-size: 14px; color: #bbb">Atomsphere Rendering</a> <a href="/tags/BFS-DFS/" style="font-size: 14px; color: #bbb">BFS & DFS</a> <a href="/tags/BRDF/" style="font-size: 14px; color: #bbb">BRDF</a> <a href="/tags/Computer-Graphic/" style="font-size: 14px; color: #bbb">Computer Graphic</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/DE/" style="font-size: 14px; color: #bbb">DE</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Greedy-Snake/" style="font-size: 14px; color: #bbb">Greedy Snake</a> <a href="/tags/L-System/" style="font-size: 14px; color: #bbb">L-System</a> <a href="/tags/Maze/" style="font-size: 14px; color: #bbb">Maze</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/OpenGL/" style="font-size: 14px; color: #bbb">OpenGL</a> <a href="/tags/PSO/" style="font-size: 14px; color: #bbb">PSO</a> <a href="/tags/Particle-Effect/" style="font-size: 14px; color: #bbb">Particle Effect</a> <a href="/tags/Tree-modeling/" style="font-size: 14px; color: #bbb">Tree modeling</a>
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/AI/" style="font-size: 19px; color: #ddd">AI</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Atomsphere-Rendering/" style="font-size: 14px; color: #bbb">Atomsphere Rendering</a> <a href="/tags/BFS-DFS/" style="font-size: 14px; color: #bbb">BFS & DFS</a> <a href="/tags/BRDF/" style="font-size: 14px; color: #bbb">BRDF</a> <a href="/tags/Computer-Graphic/" style="font-size: 14px; color: #bbb">Computer Graphic</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/DE/" style="font-size: 14px; color: #bbb">DE</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Greedy-Snake/" style="font-size: 14px; color: #bbb">Greedy Snake</a> <a href="/tags/L-System/" style="font-size: 14px; color: #bbb">L-System</a> <a href="/tags/Maze/" style="font-size: 14px; color: #bbb">Maze</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/OpenGL/" style="font-size: 14px; color: #bbb">OpenGL</a> <a href="/tags/PSO/" style="font-size: 14px; color: #bbb">PSO</a> <a href="/tags/Particle-Effect/" style="font-size: 14px; color: #bbb">Particle Effect</a> <a href="/tags/Soft-Renderer/" style="font-size: 14px; color: #bbb">Soft Renderer</a> <a href="/tags/Tree-modeling/" style="font-size: 14px; color: #bbb">Tree modeling</a>
     </div>
   </section>
 
@@ -896,8 +934,12 @@
 		} 
 	setInterval("createtime()",250);
    </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
 </footer>
-<script>setLoadingBarProgress(80);</script>
 
 
       <script>setLoadingBarProgress(60);</script>
