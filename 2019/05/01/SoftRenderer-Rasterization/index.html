@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>软渲染器Soft Renderer：光栅化篇 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+									<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2019/05/01/SoftRenderer-Rasterization/">
+        软渲染器Soft Renderer：光栅化篇
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-05-01</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Soft-Renderer/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Soft Renderer</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>本章开始构建基于Qt平台软渲染器的初步框架，当然Qt相关的内容并不是软渲染器的重点，我只是借助Qt平台将渲染出来的像素矩阵用Qt的控件显示出来。光栅化是当今图形学渲染的一种方式，与之对应的是光线追踪渲染方式，本章我根据自己的理解着重讲述线框光栅化的Bresenham画线算法以及三角形填充光栅化的Edge-Walking算法。<strong>注意：初学者慎入</strong>。本篇相关的完整代码请看<a href="https://github.com/ZeusYang/Soft-Renderer/releases/tag/1.0.0" target="_blank" rel="noopener">这里</a>。</p>
+<a id="more"></a>
+<ul>
+<li><p>渲染管线框架</p>
+</li>
+<li><p>光栅化算法</p>
+</li>
+</ul>
+<h1 id="渲染管线框架"><a href="#渲染管线框架" class="headerlink" title="渲染管线框架"></a>渲染管线框架</h1><p>&emsp;&emsp;渲染管线的搭建主要包含像素显示、网格数据封装、渲染循环、帧率fps计算、帧缓冲、着色器、渲染逻辑、光栅化等等，其中光栅化作为重点对象抽出来放在后面。当然我们不会一下子就完成渲染管线的基本功能，我们现在是要搭建一个框架，大部分的内容不用写入或者仅仅是做简单的处理，这样后面完善软渲染器的时候只需在相应的位置填写相应的代码逻辑即可。本章目标就是搭建一个渲染管线，用光栅化算法画三角形。当然，如果仅仅是画一个三角形，当然不用这么麻烦，但是我的目标是实现三维的软渲染器，深入理解三维渲染的整个流程，得从基础一步一步慢慢来。</p>
+<h2 id="像素显示的画布"><a href="#像素显示的画布" class="headerlink" title="像素显示的画布"></a>像素显示的画布</h2><p>&emsp;&emsp;渲染器最终渲染出来的是一个像素矩阵，我们要把这个像素矩阵显示出来。显示的方法有很多，因人而异，这里我采用自己最熟悉的$Qt$来实现。显示的窗口继承一个普通的$QWidget$父类，然后我们通过重写它的$paintEvent$函数，将渲染出来的像素画到$QWidget$上。但是采用$QPainter$直接画上去的方式效率非常低，我通过查询资料得知，若想要快速地绘制给定的像素矩阵，可以利用$QImage$来实现。话不多说，上代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Window</span> :</span> <span class="keyword">public</span> QWidget</span><br><span class="line">&#123;</span><br><span class="line">    Q_OBJECT</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">Window</span><span class="params">(QWidget *parent = <span class="literal">nullptr</span>)</span></span>;</span><br><span class="line">    ~Window();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">paintEvent</span><span class="params">(QPaintEvent *)</span> override</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Ui::Window *ui;</span><br><span class="line">    QImage *canvas;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;接收到一帧的像素之后，在重绘事件里面利用$QImage$绘制给定的像素数组（记得调用$update$触发重绘事件）。<strong>由于篇幅原因，我不会讲太多细节方面的东西，代码也不会全部放出来，那样没意义。想看完整源代码的朋友直接去本人的github上看。</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Window::receiveFrame(<span class="keyword">unsigned</span> <span class="keyword">char</span> *image)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(canvas) <span class="keyword">delete</span> canvas;</span><br><span class="line">    canvas = <span class="keyword">new</span> QImage(image, width(), height(), QImage::Format_RGBA8888);</span><br><span class="line">    update();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Window::paintEvent(QPaintEvent *event)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(canvas)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="function">QPainter <span class="title">painter</span><span class="params">(<span class="keyword">this</span>)</span></span>;</span><br><span class="line">        painter.drawImage(<span class="number">0</span>, <span class="number">0</span>, *canvas);</span><br><span class="line">    &#125;</span><br><span class="line">    QWidget::paintEvent(event);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="帧缓冲类"><a href="#帧缓冲类" class="headerlink" title="帧缓冲类"></a>帧缓冲类</h2><p>&emsp;&emsp;帧缓冲通常包含基本的颜色缓冲附件、深度缓冲附件等，这里我们暂且只实现颜色缓冲附件（四通道，格式为$RGBA$，各占一个字节），深度缓冲附件后面再加上。渲染管线最终的渲染结果是写入帧缓冲的，我们采用一个一维的单字节数组作为帧缓冲的颜色缓冲。帧缓冲的最基本的功能就是清楚缓冲区、写入像素：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FrameBuffer</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> m_width, m_height, m_channel;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt; m_colorBuffer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    FrameBuffer(<span class="keyword">int</span> width, <span class="keyword">int</span> height);</span><br><span class="line">    ~FrameBuffer() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getWidth</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> m_width;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getHeight</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> m_height;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">getColorBuffer</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> m_colorBuffer.data();&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearColorBuffer</span><span class="params">(<span class="keyword">const</span> Vector4D &amp;color)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">drawPixel</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> x, <span class="keyword">unsigned</span> <span class="keyword">int</span> y, <span class="keyword">const</span> Vector4D &amp;color)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">FrameBuffer::FrameBuffer(<span class="keyword">int</span> width, <span class="keyword">int</span> height)</span><br><span class="line">    :m_channel(<span class="number">4</span>), m_width(width), m_height(height)</span><br><span class="line">&#123;</span><br><span class="line">    m_colorBuffer.resize(m_width*m_height*m_channel, <span class="number">255</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> FrameBuffer::clearColorBuffer(<span class="keyword">const</span> Vector4D &amp;color)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// fill the color buffer.</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> red = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.x);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> green = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.y);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> blue = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.z);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> alpha = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.w);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> row = <span class="number">0</span>;row &lt; m_height;++ row)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> col = <span class="number">0</span>;col &lt; m_width;++ col)</span><br><span class="line">        &#123;</span><br><span class="line">            m_colorBuffer[row*m_width*m_channel+col*m_channel + <span class="number">0</span>] = red;</span><br><span class="line">            m_colorBuffer[row*m_width*m_channel+col*m_channel + <span class="number">1</span>] = green;</span><br><span class="line">            m_colorBuffer[row*m_width*m_channel+col*m_channel + <span class="number">2</span>] = blue;</span><br><span class="line">            m_colorBuffer[row*m_width*m_channel+col*m_channel + <span class="number">3</span>] = alpha;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> FrameBuffer::drawPixel(<span class="keyword">unsigned</span> <span class="keyword">int</span> x, <span class="keyword">unsigned</span> <span class="keyword">int</span> y, <span class="keyword">const</span> Vector4D &amp;color)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(x &lt; <span class="number">0</span> || x &gt;= m_width || y &lt; <span class="number">0</span> || y &gt;= m_height)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> red = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.x);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> green = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.y);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> blue = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.z);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> alpha = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.w);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> index = y*m_width*m_channel + x*m_channel;</span><br><span class="line">    m_colorBuffer[index + <span class="number">0</span>] = red;</span><br><span class="line">    m_colorBuffer[index + <span class="number">1</span>] = green;</span><br><span class="line">    m_colorBuffer[index + <span class="number">2</span>] = blue;</span><br><span class="line">    m_colorBuffer[index + <span class="number">3</span>] = alpha;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="网格顶点数据"><a href="#网格顶点数据" class="headerlink" title="网格顶点数据"></a>网格顶点数据</h2><p>&emsp;&emsp;三维的渲染程序中的顶点数据通常包含顶点位置、顶点颜色、纹理坐标、顶点法线，然后在此基础上利用一组给定顺序的顶点数据表示一个网格，渲染时网格的数据将被送入管线进行处理。为此，有必要对顶点数据做一定的封装。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Vertex</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Vector4D position;</span><br><span class="line">    Vector4D color;</span><br><span class="line">    Vector2D texcoord;</span><br><span class="line">    Vector3D normal;</span><br><span class="line"></span><br><span class="line">    Vertex() = <span class="keyword">default</span>;</span><br><span class="line">    Vertex(Vector4D _pos, Vector4D _color, Vector2D _tex, Vector3D _normal)</span><br><span class="line">        :position(_pos),color(_color),texcoord(_tex),normal(_normal) &#123;&#125;</span><br><span class="line">    Vertex(<span class="keyword">const</span> Vertex &amp;rhs)</span><br><span class="line">  :position(rhs.position),color(rhs.color),texcoord(rhs.texcoord),normal(rhs.normal)&#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;顶点数据经过顶点着色器的处理之后，会被送到下一个渲染管线的阶段处理。顶点着色器的顶点数据输出与输入有些差异，为此我们也定义一个类表示为顶点着色器的输出，这对于构建渲染管线尤为重要。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VertexOut</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Vector4D posTrans;  <span class="comment">//世界变换后的坐标</span></span><br><span class="line">    Vector4D posH;      <span class="comment">//投影变换后的坐标</span></span><br><span class="line">    Vector2D texcoord;  <span class="comment">//纹理坐标</span></span><br><span class="line">    Vector3D normal;	<span class="comment">//法线</span></span><br><span class="line">    Vector4D color;	    <span class="comment">//颜色</span></span><br><span class="line">    <span class="keyword">double</span> oneDivZ;     <span class="comment">//1/z用于深度测试</span></span><br><span class="line"></span><br><span class="line">    VertexOut() = <span class="keyword">default</span>;</span><br><span class="line">    VertexOut(Vector4D _posT, Vector4D _posH, Vector2D _tex, </span><br><span class="line">              Vector3D _normal, Vector4D _color, <span class="keyword">double</span> _oneDivZ)</span><br><span class="line">        :posTrans(_posT),posH(_posH),texcoord(_tex),</span><br><span class="line">          normal(_normal),color(_color),oneDivZ(_oneDivZ) &#123;&#125;</span><br><span class="line">    VertexOut(<span class="keyword">const</span> VertexOut&amp; rhs) :posTrans(rhs.posTrans), </span><br><span class="line">        posH(rhs.posH), texcoord(rhs.texcoord), normal(rhs.normal),</span><br><span class="line">        color(rhs.color), oneDivZ(rhs.oneDivZ) &#123;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后就是关于网格的表示，为了节省空间（特别是对于很大的模型），我们直接采用索引来组织网格。若想详细了解OpenGL的顶点索引概念请看<a href="https://www.jianshu.com/p/c1a494288d73" target="_blank" rel="noopener">这里</a>。一个网格有两个数组，分别是$Vertex$数组和$Index$数组。下面的代码中，有一个$asTriangle$方法，这是一个三角形网格，调用这个方法之后网格存储的就是一个三角形，用于后面的光栅化调试，光栅化的基本单元就是三角形。<strong>通常情况，所有的网格模型都可以用一定数量的三角形构成，因而我们实现的软渲染器的基本图元就是三角形。</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mesh</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Vertex&gt; vertices;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt; indices;</span><br><span class="line"></span><br><span class="line">    Mesh() = <span class="keyword">default</span>;</span><br><span class="line">    ~Mesh() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">    Mesh(<span class="keyword">const</span> Mesh&amp; mesh)</span><br><span class="line">        :vertices(mesh.vertices), indices(mesh.indices)&#123;&#125;</span><br><span class="line"></span><br><span class="line">    Mesh&amp; <span class="keyword">operator</span>=(<span class="keyword">const</span> Mesh&amp; mesh)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (&amp;mesh == <span class="keyword">this</span>)</span><br><span class="line">            <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">        vertices = mesh.vertices;</span><br><span class="line">        indices = mesh.indices;</span><br><span class="line">        <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setVertices</span><span class="params">(Vertex* _vs, <span class="keyword">int</span> count)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        vertices.resize(count);</span><br><span class="line">        <span class="keyword">new</span>(&amp;vertices[<span class="number">0</span>])<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Vertex&gt;(_vs, _vs + count);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setIndices</span><span class="params">(<span class="keyword">int</span>* _es, <span class="keyword">int</span> count)</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        indices.resize(count);</span><br><span class="line">        <span class="keyword">new</span>(&amp;indices)<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt;(_es, _es + count);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">asBox</span><span class="params">(<span class="keyword">double</span> width, <span class="keyword">double</span> height, <span class="keyword">double</span> depth)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">asTriangle</span><span class="params">(<span class="keyword">const</span> Vector3D p1, <span class="keyword">const</span> Vector3D p2, <span class="keyword">const</span> Vector3D p3)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Mesh::asTriangle(Vector3D p1, Vector3D p2, Vector3D p3)</span><br><span class="line">&#123;</span><br><span class="line">    vertices.resize(<span class="number">3</span>);</span><br><span class="line">    indices.resize(<span class="number">3</span>);</span><br><span class="line">    vertices[<span class="number">0</span>].position = p1;</span><br><span class="line">    vertices[<span class="number">0</span>].normal = Vector3D(<span class="number">0.f</span>, <span class="number">0.f</span>, <span class="number">1.f</span>);</span><br><span class="line">    vertices[<span class="number">0</span>].color = Vector4D(<span class="number">1.f</span>, <span class="number">0.f</span>, <span class="number">0.f</span>, <span class="number">1.f</span>);</span><br><span class="line">    vertices[<span class="number">0</span>].texcoord = Vector2D(<span class="number">0.f</span>, <span class="number">0.f</span>);</span><br><span class="line">    vertices[<span class="number">1</span>].position = p2;</span><br><span class="line">    vertices[<span class="number">1</span>].normal = Vector3D(<span class="number">0.f</span>, <span class="number">0.f</span>, <span class="number">1.f</span>);</span><br><span class="line">    vertices[<span class="number">1</span>].color = Vector4D(<span class="number">0.f</span>, <span class="number">1.f</span>, <span class="number">0.f</span>, <span class="number">1.f</span>);</span><br><span class="line">    vertices[<span class="number">1</span>].texcoord = Vector2D(<span class="number">1.f</span>, <span class="number">0.f</span>);</span><br><span class="line">    vertices[<span class="number">2</span>].position = p3;</span><br><span class="line">    vertices[<span class="number">2</span>].normal = Vector3D(<span class="number">0.f</span>, <span class="number">0.f</span>, <span class="number">1.f</span>);</span><br><span class="line">    vertices[<span class="number">2</span>].color = Vector4D(<span class="number">0.f</span>, <span class="number">0.f</span>, <span class="number">1.f</span>, <span class="number">1.f</span>);</span><br><span class="line">    vertices[<span class="number">2</span>].texcoord = Vector2D(<span class="number">0.5f</span>, <span class="number">1.f</span>);</span><br><span class="line">    indices[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    indices[<span class="number">1</span>] = <span class="number">1</span>;</span><br><span class="line">    indices[<span class="number">2</span>] = <span class="number">2</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="简单的着色器"><a href="#简单的着色器" class="headerlink" title="简单的着色器"></a>简单的着色器</h2><p>&emsp;&emsp;着色器方面时软渲染中较为高级的内容，目前我们只是搭建一个框架，因而着色器不需要什么复杂的操作，只需简单地传递数据就行了。博主实现的软渲染器只包含必不可少的顶点着色器和片元着色器，目前的顶点着色器将顶点原封不动地输出，片元着色器也是如此，这样我们后面要实现光照效果的时候直接在着色器里写上就行了。为了更加有条理，我们设计一个着色器的虚类，这样实现不同效果的着色器时我们直接继承这个虚类即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BaseShader</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    BaseShader() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~BaseShader() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> VertexOut <span class="title">vertexShader</span><span class="params">(<span class="keyword">const</span> Vertex &amp;in)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Vector4D <span class="title">fragmentShader</span><span class="params">(<span class="keyword">const</span> VertexOut &amp;in)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setModelMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;world)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setViewMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;view)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setProjectMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;project)</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleShader</span> :</span> <span class="keyword">public</span> BaseShader</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    SimpleShader() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~SimpleShader() = <span class="keyword">default</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> VertexOut <span class="title">vertexShader</span><span class="params">(<span class="keyword">const</span> Vertex &amp;in)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Vector4D <span class="title">fragmentShader</span><span class="params">(<span class="keyword">const</span> VertexOut &amp;in)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setModelMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;world)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setViewMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;view)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setProjectMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;project)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">VertexOut SimpleShader::vertexShader(<span class="keyword">const</span> Vertex &amp;in)</span><br><span class="line">&#123;</span><br><span class="line">    VertexOut result;</span><br><span class="line">    result.posTrans = in.position;</span><br><span class="line">    result.posH = in.position;</span><br><span class="line">    result.color = in.color;</span><br><span class="line">    result.normal = in.normal;</span><br><span class="line">    result.oneDivZ = <span class="number">1.0</span>;</span><br><span class="line">    result.texcoord = in.texcoord;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Vector4D SimpleShader::fragmentShader(<span class="keyword">const</span> VertexOut &amp;in)</span><br><span class="line">&#123;</span><br><span class="line">    Vector4D litColor;</span><br><span class="line">    litColor = in.color;</span><br><span class="line">    <span class="keyword">return</span> litColor;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> SimpleShader::setModelMatrix(<span class="keyword">const</span> Matrix4x4 &amp;world)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> SimpleShader::setViewMatrix(<span class="keyword">const</span> Matrix4x4 &amp;view)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> SimpleShader::setProjectMatrix(<span class="keyword">const</span> Matrix4x4 &amp;project)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;可以看到$SimpleShader$仅仅是将顶点数据直接输出，不进行任何处理。</p>
+<h2 id="搭建基本的渲染管线"><a href="#搭建基本的渲染管线" class="headerlink" title="搭建基本的渲染管线"></a>搭建基本的渲染管线</h2><p>&emsp;&emsp;目前我们已经有了一些渲染管线的基本组件，现在就需要把这些组件串起来。首先是渲染循环的问题，$Qt$有它自己的事件循环，而且主线程的事件循环要尽量避免大量的运算（否则UI控件会陷入未响应），因此将渲染循环放到子线程里是一个不错的渲染，这样也可以避免我们的软渲染逻辑与$Qt$的接口耦合得太高。</p>
+<h3 id="渲染线程"><a href="#渲染线程" class="headerlink" title="渲染线程"></a>渲染线程</h3><p>&emsp;&emsp;$Qt$提供了$QThread$类构建线程，我采用的方式为：渲染循环类继承$QObject$，然后调用$moveToThread$番方法挂到子线程上运行，最后将线程的启动信号与$loop$渲染循环关联即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RenderLoop</span> :</span> <span class="keyword">public</span> QObject</span><br><span class="line">&#123;</span><br><span class="line">    Q_OBJECT</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">explicit</span> <span class="title">RenderLoop</span><span class="params">(<span class="keyword">int</span> w, <span class="keyword">int</span> h, QObject *parent = <span class="literal">nullptr</span>)</span></span>;</span><br><span class="line">    ~RenderLoop();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">stopIt</span><span class="params">()</span> </span>&#123;stoped = <span class="literal">true</span>;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setFpsZero</span><span class="params">()</span></span>&#123;fps = <span class="number">0</span>;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getFps</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> fps;&#125;</span><br><span class="line"></span><br><span class="line">signals:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">frameOut</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">char</span> *image)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> slots:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">bool</span> stoped;</span><br><span class="line">    <span class="keyword">int</span> fps;</span><br><span class="line">    <span class="keyword">int</span> width, height, channel;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">RenderLoop::RenderLoop(<span class="keyword">int</span> w, <span class="keyword">int</span> h, QObject *parent)</span><br><span class="line">    : QObject(parent), width(w), height(h), channel(<span class="number">4</span>)</span><br><span class="line">&#123;</span><br><span class="line">    fps = <span class="number">0</span>;</span><br><span class="line">    stoped = <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">RenderLoop::~RenderLoop()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> RenderLoop::loop()</span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// pipeline initialization</span></span><br><span class="line">	......</span><br><span class="line">    <span class="comment">// fps counting.</span></span><br><span class="line">    fps = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(!stoped)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// render logic</span></span><br><span class="line">        ......</span><br><span class="line">        ++ fps;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后在主窗口中创建$RenderLoop$对象，挂到$QThread$上启动。此外还有一点要注意的是在子线程中最好不用使用$QTimer$类，因此我在主窗口中创建$QTimer$类，设定为每秒触发，触发时主线程读取子线程的$fps$，这样就达到了显示帧率的目的了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">在Window类声明处：</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    QTimer *timer;</span><br><span class="line">    QThread *loopThread;</span><br><span class="line">    RenderLoop *loop;</span><br><span class="line"></span><br><span class="line">在Window类构造函数处：</span><br><span class="line">    loop = <span class="keyword">new</span> RenderLoop(width(), height(), <span class="literal">nullptr</span>);</span><br><span class="line">    loopThread = <span class="keyword">new</span> QThread(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// fps counting.</span></span><br><span class="line">    timer = <span class="keyword">new</span> QTimer();</span><br><span class="line">    connect(timer,&amp;QTimer::timeout,<span class="keyword">this</span>,&amp;Window::fpsTimeOut);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// render thread.</span></span><br><span class="line">    loop-&gt;moveToThread(loopThread);</span><br><span class="line">    connect(loopThread,&amp;QThread::finished,loop, &amp;RenderLoop::deleteLater);</span><br><span class="line">    connect(loopThread,&amp;QThread::started,loop,&amp;RenderLoop::loop);</span><br><span class="line">    connect(loop,&amp;RenderLoop::frameOut,<span class="keyword">this</span>,&amp;Window::receiveFrame);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// begin the thread.</span></span><br><span class="line">    loopThread-&gt;start();</span><br><span class="line">    timer-&gt;start(<span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line">Window的其他函数：</span><br><span class="line"><span class="keyword">void</span> Window::fpsTimeOut()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> fps = loop-&gt;getFps();</span><br><span class="line">    loop-&gt;setFpsZero();</span><br><span class="line">    <span class="keyword">this</span>-&gt;setWindowTitle(QString(<span class="string">" fps: %1"</span>).arg(fps));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="渲染流程"><a href="#渲染流程" class="headerlink" title="渲染流程"></a>渲染流程</h3><p>&emsp;&emsp;回顾一下$OpenGL$的渲染流程（这里只考虑一般的情况，即不包含几何着色器、细分着色器等），首先外部处理网格，将网格顶点数据和网格顶点索引送入渲染管线，设置基本图元（如三角形）、渲染方式（如线框模式）。渲染管线的第一阶段为顶点着色器阶段（在这之前还有个缓冲清理阶段），顶点着色器对网格数据逐顶点处理（包含坐标空间变换、投影变换等等），随之输出。然后渲染管线对输出的顶点数据进行裁剪，送入光栅化部件，计算几何图元覆盖的像素点，其中进行了大量的线性插值操作。接着片元着色器获取光栅化后的像素，对每个像素做颜色计算等，然后输出颜色数据、深度数据，最后根据这些缓冲数据做深度测试。</p>
+<p>&emsp;&emsp;所以一个最基本的渲染管线应该有如下几个步骤：</p>
+<p>&emsp;&emsp;初始化（如缓冲区创建）$\to$输入顶点缓冲、索引缓冲$\to$清除缓冲区$\to$设置着色器、渲染方式$\to$绘制$\to$交换双缓冲$\to$输出。根据这些步骤，创建$Pipeline$类如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Pipeline</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> m_width, m_height;              <span class="comment">// width and height of viewport.</span></span><br><span class="line">    BaseShader *m_shader;               <span class="comment">// shaders including vertex shader and fragment shader.</span></span><br><span class="line">    FrameBuffer *m_frontBuffer;			</span><br><span class="line">    FrameBuffer *m_backBuffer;</span><br><span class="line">    Matrix4x4 viewPortMatrix;           <span class="comment">// viewport transformation matrix.</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Vertex&gt; m_vertices;     <span class="comment">// vertex buffer.</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt; m_indices;<span class="comment">// index buffer.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Pipeline(<span class="keyword">int</span> width, <span class="keyword">int</span> height);</span><br><span class="line">    ~Pipeline();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">initialize</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearBuffer</span><span class="params">(<span class="keyword">const</span> Vector4D &amp;color, <span class="keyword">bool</span> depth = <span class="literal">false</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setVertexBuffer</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Vertex&gt; &amp;vertices)</span></span>&#123;m_vertices = vertices;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setIndexBuffer</span><span class="params">(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">int</span>&gt; &amp;indices)</span></span>&#123;m_indices = indices;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setShaderMode</span><span class="params">(ShadingMode mode)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">drawIndex</span><span class="params">(RenderMode mode)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">swapBuffer</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">unsigned</span> <span class="keyword">char</span> *<span class="title">output</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> m_frontBuffer-&gt;getColorBuffer();&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Pipeline::Pipeline(<span class="keyword">int</span> width, <span class="keyword">int</span> height)</span><br><span class="line">    :m_width(width),m_height(height)</span><br><span class="line">    ,m_shader(<span class="literal">nullptr</span>),m_frontBuffer(<span class="literal">nullptr</span>)</span><br><span class="line">    ,m_backBuffer(<span class="literal">nullptr</span>)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Pipeline::~Pipeline()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(m_shader)<span class="keyword">delete</span> m_shader;</span><br><span class="line">    <span class="keyword">if</span>(m_frontBuffer)<span class="keyword">delete</span> m_frontBuffer;</span><br><span class="line">    <span class="keyword">if</span>(m_backBuffer)<span class="keyword">delete</span> m_backBuffer;</span><br><span class="line">    m_shader = <span class="literal">nullptr</span>;</span><br><span class="line">    m_frontBuffer = <span class="literal">nullptr</span>;</span><br><span class="line">    m_backBuffer = <span class="literal">nullptr</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::initialize()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(m_frontBuffer)</span><br><span class="line">        <span class="keyword">delete</span> m_frontBuffer;</span><br><span class="line">    <span class="keyword">if</span>(m_backBuffer)</span><br><span class="line">        <span class="keyword">delete</span> m_backBuffer;</span><br><span class="line">    <span class="keyword">if</span>(m_shader)</span><br><span class="line">        <span class="keyword">delete</span> m_shader;</span><br><span class="line">    viewPortMatrix.setViewPort(<span class="number">0</span>,<span class="number">0</span>,m_width,m_height);</span><br><span class="line">    m_frontBuffer = <span class="keyword">new</span> FrameBuffer(m_width, m_height);</span><br><span class="line">    m_backBuffer = <span class="keyword">new</span> FrameBuffer(m_width, m_height);</span><br><span class="line">    m_shader = <span class="keyword">new</span> SimpleShader();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::drawIndex(RenderMode mode)</span><br><span class="line">&#123;</span><br><span class="line"> 	输入顶点着色器;</span><br><span class="line">    光栅化;</span><br><span class="line">    输入片元着色器;</span><br><span class="line">    写入缓冲区;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::clearBuffer(<span class="keyword">const</span> Vector4D &amp;color, <span class="keyword">bool</span> depth)</span><br><span class="line">&#123;</span><br><span class="line">    (<span class="keyword">void</span>)depth;</span><br><span class="line">    m_backBuffer-&gt;clearColorBuffer(color);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::setShaderMode(ShadingMode mode)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(m_shader)<span class="keyword">delete</span> m_shader;</span><br><span class="line">    <span class="keyword">if</span>(mode == ShadingMode::simple)</span><br><span class="line">        m_shader = <span class="keyword">new</span> SimpleShader();</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(mode == ShadingMode::phong)</span><br><span class="line">        ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::swapBuffer()</span><br><span class="line">&#123;</span><br><span class="line">    FrameBuffer *tmp = m_frontBuffer;</span><br><span class="line">    m_frontBuffer = m_backBuffer;</span><br><span class="line">    m_backBuffer = tmp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;注意到我创建了帧缓冲，分别是$m_frontBuffer$和$m_backBuffer$，前者存储着当前显示的像素，后者缓冲区用于写入像素。这就是著名的双缓冲原理，可以避免画面的闪烁、撕裂等现象。除此之外，还有一个值得特别说明的就是视口变换矩阵$viewPortMatrix$，这个一般很少见到，因为被内嵌在了渲染管线里面了。经过投影变换、透视除法操作之后，顶点数据都在标准化设备空间中，即$x$轴、$y$轴、$z$轴取值范围为$[-1,1]$。但是屏幕的像素坐标范围并非如此，通常屏幕的$x$轴坐标范围为$[0,width]$，$y$轴坐标范围为$[0,height]$，屏幕像素坐标原点在左上角，$x$轴正向朝右，$y$轴正向朝下，所以我们还要把标准化设备坐标顶点数据变换到屏幕的坐标范围中，这就是<strong>视口变换</strong>（$z$轴一般保持不变）。视口变换矩阵的构造并没有难度，因为这仅仅是简单的线性映射，因此不再赘述。视口变换矩阵如下所示：</p>
+<script type="math/tex; mode=display">
+viewPortMatrix=
+\left[
+\begin{matrix}
+\frac{w}{2}&0&0&s_x+\frac{w}{2}\\
+0&-\frac{h}{2}&0&s_y+\frac{h}{2}\\
+0&0&1&0\\
+0&0&0&1
+\end{matrix}
+\right] \tag {1}</script><p>&emsp;&emsp;其中$(s_x,s_y)$是视口左上角的坐标，$(w,h)$为屏幕的宽度和高度。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Matrix4x4::setViewPort(<span class="keyword">int</span> left, <span class="keyword">int</span> top, <span class="keyword">int</span> width, <span class="keyword">int</span> height)</span><br><span class="line">&#123;</span><br><span class="line">    loadIdentity();</span><br><span class="line">    entries[<span class="number">0</span>]  =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(width)/<span class="number">2.0f</span>;</span><br><span class="line">    entries[<span class="number">5</span>]  = -<span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(height)/<span class="number">2.0f</span>;</span><br><span class="line">    entries[<span class="number">12</span>] =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(left)+<span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(width)/<span class="number">2.0f</span>;</span><br><span class="line">    entries[<span class="number">13</span>] =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(top)+<span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(height)/<span class="number">2.0f</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;$Pipeline$还有个非常重要的函数$drawIndex$，它是渲染管线的核心部分，涉及到了图元装配、顶点着色器调度、光栅化、片元着色器调度、写入帧缓冲这几个重要的步骤。我们实现的软渲染器几何图元默认为三角形，所以图元装配就是每三个顶点装成一个图元。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Pipeline::drawIndex(RenderMode mode)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(m_indices.empty())<span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">unsigned</span> <span class="keyword">int</span> i = <span class="number">0</span>;i &lt; m_indices.size()/<span class="number">3</span>;++ i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//! vertices assembly to triangle primitive</span></span><br><span class="line">        Vertex p1,p2,p3;</span><br><span class="line">        &#123;</span><br><span class="line">            p1 = m_vertices[<span class="number">3</span>*i+<span class="number">0</span>];</span><br><span class="line">            p2 = m_vertices[<span class="number">3</span>*i+<span class="number">1</span>];</span><br><span class="line">            p3 = m_vertices[<span class="number">3</span>*i+<span class="number">2</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//! vertex shader stage.</span></span><br><span class="line">        VertexOut v1,v2,v3;</span><br><span class="line">        &#123;</span><br><span class="line">            v1 = m_shader-&gt;vertexShader(p1);</span><br><span class="line">            v2 = m_shader-&gt;vertexShader(p2);</span><br><span class="line">            v3 = m_shader-&gt;vertexShader(p3);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//! rasterization and fragment shader stage.</span></span><br><span class="line">        &#123;</span><br><span class="line">            v1.posH = viewPortMatrix * v1.posH;</span><br><span class="line">            v2.posH = viewPortMatrix * v2.posH;</span><br><span class="line">            v3.posH = viewPortMatrix * v3.posH;</span><br><span class="line">            <span class="keyword">if</span>(mode == RenderMode::wire)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// bresenham rasterization</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(mode == RenderMode::fill)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="comment">// edge walking rasterization</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;有了以上的$Pipeline$函数，我们的渲染循环逻辑的一般形式如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(!stoped)</span><br><span class="line">&#123;</span><br><span class="line">    pipeline-&gt;clearBuffer(Vector4D(<span class="number">0.502f</span>,<span class="number">0.698f</span>,<span class="number">0.800f</span>,<span class="number">1.0f</span>));</span><br><span class="line"></span><br><span class="line">    pipeline-&gt;drawIndex(RenderMode::fill);</span><br><span class="line"></span><br><span class="line">    pipeline-&gt;swapBuffer();</span><br><span class="line"></span><br><span class="line">    <span class="function">emit <span class="title">frameOut</span><span class="params">(pipeline-&gt;output())</span></span>;</span><br><span class="line">    ++ fps;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="光栅化算法"><a href="#光栅化算法" class="headerlink" title="光栅化算法"></a>光栅化算法</h1><p>&emsp;&emsp;顶点着色器处理的还是一个个离散的几何顶点，在顶点着色器之后我们还需要进行光栅化操作，将几何覆盖的屏幕像素计算出来，送入片元着色器计算每个点的像素数据。光栅化一般有两种模式：一种是线框模式，即只描绘几何的边；二是填充模式，即将几何的面片全部填充完。Bresenham算法是经典的描线算法，它采用迭代的形式将所需的算术操作降低到最少。除此之外还有DDA描线算法，效率上不如Bresenham算法，所以我没有实现。</p>
+<h2 id="Bresenham描线算法"><a href="#Bresenham描线算法" class="headerlink" title="Bresenham描线算法"></a>Bresenham描线算法</h2><p>&emsp;&emsp;我们要描绘的是从$(x_0,y_0)$到$(x_1,y_1)$的一条直线线段。一些数学符号标记如下：</p>
+<script type="math/tex; mode=display">
+\Delta x= x_1-x_0>0,\ \Delta y=y_1-y_0>0,\ m=\frac{\Delta y}{\Delta x}</script><p>&emsp;&emsp;其中$m$即直线线段的斜率，为了便于讨论，我们假设$|m|\leq 1$，其他情况很容易推广。</p>
+<p>&emsp;&emsp;在如上的情况下，Bresenham算法从$x=x_0$开始，每次将$x$坐标值加一，然后推算相应的$y$坐标值。记第$i$次迭代获得的点为$(x_i,y_i)$。那么第$i+1$次迭代时获取的点就在$(\overline x_i+1,\overline y_i)$和$(\overline x_i+1,\overline y_i+1)$这两个中选取。那如何判断应该选哪个呢？即选择这两个点之一的判断标准是什么？<strong>直观上，我们应该选取距离的直线线段在该$y$轴上的交点最近的点</strong>，如下图1所示。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/4.png" alt="1556629627471"></p>
+<center>图1 判别标准</center>
+
+<p>&emsp;&emsp;直线的一般表达式为$y=mx+B$，$m$为直线的斜率，那么$(x_{i+1},y_{i+1})$表示为如下（注意$y_{i+1}$表示的是直线在$x_{i+1}$上真正的$y$值）：</p>
+<script type="math/tex; mode=display">
+x_{i+1}=x_i+1\\
+y_{i+1}=mx_{i+1}+B=m(x_i+1)+B \tag {2}</script><p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/5.png" alt="1556630006821"></p>
+<center>图2 交点到右边的点、右上的点的距离 </center>
+
+<p>&emsp;&emsp;故$d_{upper}$和$d_{lower}$的取值如下：</p>
+<script type="math/tex; mode=display">
+d_{upper}=\overline y_i+1-\overline y_{i+1}=\overline y_i+1-m\overline x_{i+1}-B\\
+d_{lower}=y_{i+1}-\overline y_i=mx_{i+1}+B-\overline y_i \tag {3}</script><p>&emsp;&emsp;显然，如果$d_{lower}-d_{upper}&gt;0$，则应该取右上方的点；如果$d_{lower}-d_{upper}<0$，则应该取右边的点。而$d_{lower}-d_{upper}=0$可任取这两个点。因此，我们的判断标准就是$d_{lower}-d_{upper}>0$的符号。</0$，则应该取右边的点。而$d_{lower}-d_{upper}=0$可任取这两个点。因此，我们的判断标准就是$d_{lower}-d_{upper}></p>
+<script type="math/tex; mode=display">
+d_{lower}-d_{upper}=m(x_i+1)+B-\overline y_i-(\overline y_i+1-m(x_i+1)-B)\\
+=2m(x_i+1)-2\overline y_i+2B-1 \tag {4}</script><p>&emsp;&emsp;式$(4)$中的$m$是直线的斜率，因此将式$(4)$作为判断标准需要做非常昂贵的浮点数除法运算。为了消去除法，注意到$m=\frac{\Delta y}{\Delta x}$，两边同时乘上$\Delta x&gt;0$，正负符号不变。</p>
+<script type="math/tex; mode=display">
+p_i=\Delta x\cdot (d_{lower}-d_{upper})
+=2\Delta y\cdot(x_i+1)-2\Delta x\cdot \overline y_i+(2B-1)\Delta x\\
+=2\Delta y\cdot x_i-2\Delta x\cdot\overline y_i+c\\
+where \ \ c=(2B-1)\Delta x+2\Delta y \tag {5}</script><p>&emsp;&emsp;所以可以用$p_i$的符号作为选取的标准。但是，式$(5)$的计算能够进一步简化，考虑$p_i$和$p_{i+1}$（注意我们根据$p_i$的符号来选取$\overline y_{i+1}$）：</p>
+<script type="math/tex; mode=display">
+p_{i+1}-p_{i}
+=
+(2\Delta y\cdot x_{i+1}-2\Delta x\cdot\overline y_{i+1}+c)
+-
+(2\Delta y\cdot x_i-2\Delta x\cdot\overline y_i+c)
+\\=
+2\Delta y-2\Delta x(\overline y_{i+1}-\overline y_i) \tag {6}</script><p>&emsp;&emsp;若$p_i\leq 0$，那么选择右边的点，此时$\overline y_{i+1}=\overline y_i$，那么有：</p>
+<script type="math/tex; mode=display">
+p_{i+1}=p_i+2\Delta y \tag {7}</script><p>&emsp;&emsp;若$p_i&gt;0$，那么选择右上角的点，此时$\overline y_{i+1}=\overline y_i+1$，那么有：</p>
+<script type="math/tex; mode=display">
+p_{i+1}=p_i+2\Delta y-2\Delta x \tag {8}</script><p>&emsp;&emsp;所以我们可以根据$p_i$的符号快速计算出$p_{i+1}$的符号，如此迭代下去：</p>
+<hr>
+<p><strong>Bresenham Algorithm:</strong></p>
+<hr>
+<p>$draw (x_0, y_0);$</p>
+<p>Calculate $\Delta x$,$\Delta y$,$2\Delta y$,$2\Delta y-2\Delta x$,$p_0=2\Delta y-\Delta x$;</p>
+<p>for $x$ from $x_0$ to $x_1$:</p>
+<p>&emsp;&emsp;if $p_i\leq 0$ </p>
+<p>&emsp;&emsp;&emsp;&emsp;draw $(x_{i+1},\overline y_{i+1})=(x_i+1,\overline y_i)$ ;</p>
+<p>&emsp;&emsp;&emsp;&emsp;compute $p_{i+1}=p_i+2\Delta y$;</p>
+<p>&emsp;&emsp;if $p_i &gt; 0$ </p>
+<p>&emsp;&emsp;&emsp;&emsp;draw $(x_{i+1},\overline y_{i+1})=(x_i+1,\overline y_i+1)$ ;</p>
+<p>&emsp;&emsp;&emsp;&emsp;compute $p_{i+1}=p_i+2\Delta y-2\Delta x$;</p>
+<p>&emsp;&emsp;$x += 1;$</p>
+<hr>
+<p>&emsp;&emsp;上面我们讨论的都是$|m|<1$的情况，那$|m|>1$的情况呢？其实这是对称的，这时把$x$看成$y$，把$y$看成$x$即可。另外，当$\Delta x &lt;0$时，我们的$x$不是递增$1$，而是递减$1$，具体实现如下：</1$的情况，那$|m|></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Pipeline::bresenhamLineRasterization(<span class="keyword">const</span> VertexOut &amp;from, <span class="keyword">const</span> VertexOut &amp;to)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> dx = to.posH.x - from.posH.x;</span><br><span class="line">    <span class="keyword">int</span> dy = to.posH.y - from.posH.y;</span><br><span class="line">    <span class="keyword">int</span> stepX = <span class="number">1</span>, stepY = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// judge the sign</span></span><br><span class="line">    <span class="keyword">if</span>(dx &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        stepX = <span class="number">-1</span>;</span><br><span class="line">        dx = -dx;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(dy &lt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        stepY = <span class="number">-1</span>;</span><br><span class="line">        dy = -dy;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> d2x = <span class="number">2</span>*dx, d2y = <span class="number">2</span>*dy;</span><br><span class="line">    <span class="keyword">int</span> d2y_minus_d2x = d2y - d2x;</span><br><span class="line">    <span class="keyword">int</span> sx = from.posH.x;</span><br><span class="line">    <span class="keyword">int</span> sy = from.posH.y;</span><br><span class="line"></span><br><span class="line">    VertexOut tmp;</span><br><span class="line">    <span class="comment">// slope &lt; 1.</span></span><br><span class="line">    <span class="keyword">if</span>(dy &lt;= dx)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> flag = d2y - dx;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt;= dx;++ i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// linear interpolation</span></span><br><span class="line">            tmp = lerp(from, to, <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(i)/dx);</span><br><span class="line">            <span class="comment">// fragment shader</span></span><br><span class="line">            m_backBuffer-&gt;drawPixel(sx,sy,m_shader-&gt;fragmentShader(tmp));</span><br><span class="line">            sx += stepX;</span><br><span class="line">            <span class="keyword">if</span>(flag &lt;= <span class="number">0</span>)</span><br><span class="line">                flag += d2y;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                sy += stepY;</span><br><span class="line">                flag += d2y_minus_d2x;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// slope &gt; 1.</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> flag = d2x - dy;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt;= dy;++ i)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="comment">// linear interpolation</span></span><br><span class="line">            tmp = lerp(from, to, <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(i)/dy);</span><br><span class="line">            <span class="comment">// fragment shader</span></span><br><span class="line">            m_backBuffer-&gt;drawPixel(sx,sy,m_shader-&gt;fragmentShader(tmp));</span><br><span class="line">            sy += stepY;</span><br><span class="line">            <span class="keyword">if</span>(flag &lt;= <span class="number">0</span>)</span><br><span class="line">                flag += d2x;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                sx += stepX;</span><br><span class="line">                flag -= d2y_minus_d2x;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Edge-Walking三角形填充算法"><a href="#Edge-Walking三角形填充算法" class="headerlink" title="Edge-Walking三角形填充算法"></a>Edge-Walking三角形填充算法</h2><p>&emsp;&emsp;三角形光栅化填充对输入给定的三个三角形顶点，计算这个三角区域覆盖的所有像素。三角形填充的光栅化算法有很多种，这里仅实现了Edge-Walking算法，此外还有Edge-Equation算法。关于Edge-Walking算法的前世今生我不再赘述了，这个算法的思路比较简单，但是实现起来比较麻烦一点。</p>
+<p>&emsp;&emsp;话不多少，直接上伪代码（懒得自己写了伪代码了）：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/6.png" alt="1556632613625"></p>
+<p>&emsp;&emsp;大致的思想就是从上往下（或从下往上）扫描，获取每对$X_L$、$X_R$，然后在$[X_L,X_R]$范围内从左到右扫描。显然就是双重循环。一般，我们的三角形光栅化对象有如下四种情况：</p>
+<p><img src="http://hi.csdn.net/attachment/201103/8/8458191_1299584107w6lP.png" alt="4ç§ä¸è§å½¢"></p>
+<center>图3 四类三角形 </center>
+
+<p>&emsp;&emsp;先来看平底三角形的情况，如下图4所示。显然，平底三角形很容易地实现从下往上扫面，竖直方向上仅需考虑左右两条边。<strong>当然这里有个问题，就是如何确定$X_L$和$X_R$？如果直接采用算法伪代码中的利用$dx/dy$迭代获取$X$值，因为$X$值是整数，而$dx/dy$是浮点数，当$dx/dy&lt;1$时，把$dx/dy$加到$X$上面计算机对整数类型坐标自动向下取整，结果相当于没加。（即便是浮点数类型，最终也要取整，因为屏幕空间的像素坐标必须是整数）</strong></p>
+<p><img src="http://hi.csdn.net/attachment/201103/8/8458191_12995845892C4L.png" alt="åæ åå¹³åºä¸è§å½¢"></p>
+<center>图4 平底三角形</center>
+
+<p>&emsp;&emsp;一种解决方案就是线性插值，算法从下往上扫描时，$y-=1$，我们根据当前的$y$值来获取$x$值：</p>
+<script type="math/tex; mode=display">
+X_L = (1.0f-\frac{y1-y}{y1-y0})*x1+\frac{y1-y}{y1-y0}*x0 \\
+X_y = (1.0f-\frac{y2-y}{y2-y0})*x2+\frac{y2-y}{y2-y0}*x0</script><p>&emsp;&emsp;平顶的三角形光栅化亦类似，不再赘述。那么除了平底和平顶的情况之外，我们该如何处理其余的情况？一个技巧就是将其他情况的三角形分割乘一个平底三角形、一个平顶三角形，如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/7.png" alt="1556634037498"></p>
+<center>图5 三角形分割</center>
+
+<p>&emsp;&emsp;这样我们通过调用平底三角形光栅化方法、平顶三角形光栅化方法即可实现一般情况的三角形光栅化：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Pipeline::scanLinePerRow(<span class="keyword">const</span> VertexOut &amp;left, <span class="keyword">const</span> VertexOut &amp;right)</span><br><span class="line">&#123;</span><br><span class="line">    VertexOut current;</span><br><span class="line">    <span class="keyword">int</span> length = right.posH.x - left.posH.x + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt;= length;++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">// linear interpolation</span></span><br><span class="line">        <span class="keyword">double</span> weight = <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(i)/length;</span><br><span class="line">        current = lerp(left, right, weight);</span><br><span class="line">        current.posH.x = left.posH.x + i;</span><br><span class="line">        current.posH.y = left.posH.y;</span><br><span class="line">        <span class="comment">// fragment shader</span></span><br><span class="line">        m_backBuffer-&gt;drawPixel(current.posH.x, current.posH.y,</span><br><span class="line">                                m_shader-&gt;fragmentShader(current));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::rasterTopTriangle(VertexOut &amp;v1, VertexOut &amp;v2, VertexOut &amp;v3)</span><br><span class="line">&#123;</span><br><span class="line">    VertexOut left = v2;</span><br><span class="line">    VertexOut right = v3;</span><br><span class="line">    VertexOut dest = v1;</span><br><span class="line">    VertexOut tmp, newleft, newright;</span><br><span class="line">    <span class="keyword">if</span>(left.posH.x &gt; right.posH.x)</span><br><span class="line">    &#123;</span><br><span class="line">        tmp = left;</span><br><span class="line">        left = right;</span><br><span class="line">        right = tmp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> dy = left.posH.y - dest.posH.y + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; dy;++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">double</span> weight = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span>(dy != <span class="number">0</span>)</span><br><span class="line">            weight = <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(i)/dy;</span><br><span class="line">        newleft = lerp(left, dest, weight);</span><br><span class="line">        newright = lerp(right, dest, weight);</span><br><span class="line">        newleft.posH.y = newright.posH.y = left.posH.y - i;</span><br><span class="line">        scanLinePerRow(newleft, newright);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::rasterBottomTriangle(VertexOut &amp;v1, VertexOut &amp;v2, VertexOut &amp;v3)</span><br><span class="line">&#123;</span><br><span class="line">    VertexOut left = v1;</span><br><span class="line">    VertexOut right = v2;</span><br><span class="line">    VertexOut dest = v3;</span><br><span class="line">    VertexOut tmp, newleft, newright;</span><br><span class="line">    <span class="keyword">if</span>(left.posH.x &gt; right.posH.x)</span><br><span class="line">    &#123;</span><br><span class="line">        tmp = left;</span><br><span class="line">        left = right;</span><br><span class="line">        right = tmp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> dy = dest.posH.y - left.posH.y + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; dy;++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">double</span> weight = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span>(dy != <span class="number">0</span>)</span><br><span class="line">            weight = <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(i)/dy;</span><br><span class="line">        newleft = lerp(left, dest, weight);</span><br><span class="line">        newright = lerp(right, dest, weight);</span><br><span class="line">        newleft.posH.y = newright.posH.y = left.posH.y + i;</span><br><span class="line">        scanLinePerRow(newleft, newright);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Pipeline::edgeWalkingFillRasterization(<span class="keyword">const</span> VertexOut &amp;v1, <span class="keyword">const</span> VertexOut &amp;v2, <span class="keyword">const</span> VertexOut &amp;v3)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// split the triangle into two part</span></span><br><span class="line">    VertexOut tmp;</span><br><span class="line">    VertexOut target[<span class="number">3</span>] = &#123;v1, v2,v3&#125;;</span><br><span class="line">    <span class="keyword">if</span>(target[<span class="number">0</span>].posH.y &gt; target[<span class="number">1</span>].posH.y)</span><br><span class="line">    &#123;</span><br><span class="line">        tmp = target[<span class="number">0</span>];</span><br><span class="line">        target[<span class="number">0</span>] = target[<span class="number">1</span>];</span><br><span class="line">        target[<span class="number">1</span>] = tmp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(target[<span class="number">0</span>].posH.y &gt; target[<span class="number">2</span>].posH.y)</span><br><span class="line">    &#123;</span><br><span class="line">        tmp = target[<span class="number">0</span>];</span><br><span class="line">        target[<span class="number">0</span>] = target[<span class="number">2</span>];</span><br><span class="line">        target[<span class="number">2</span>] = tmp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(target[<span class="number">1</span>].posH.y &gt; target[<span class="number">2</span>].posH.y)</span><br><span class="line">    &#123;</span><br><span class="line">        tmp = target[<span class="number">1</span>];</span><br><span class="line">        target[<span class="number">1</span>] = target[<span class="number">2</span>];</span><br><span class="line">        target[<span class="number">2</span>] = tmp;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// bottom triangle</span></span><br><span class="line">    <span class="keyword">if</span>(equal(target[<span class="number">0</span>].posH.y,target[<span class="number">1</span>].posH.y))</span><br><span class="line">    &#123;</span><br><span class="line">        rasterBottomTriangle(target[<span class="number">0</span>],target[<span class="number">1</span>],target[<span class="number">2</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// top triangle</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span>(equal(target[<span class="number">1</span>].posH.y,target[<span class="number">2</span>].posH.y))</span><br><span class="line">    &#123;</span><br><span class="line">        rasterTopTriangle(target[<span class="number">0</span>], target[<span class="number">1</span>], target[<span class="number">2</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// split it.</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">double</span> weight = <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(target[<span class="number">1</span>].posH.y-target[<span class="number">0</span>].posH.y)/(target[<span class="number">2</span>].posH.y-target[<span class="number">0</span>].posH.y);</span><br><span class="line">        VertexOut newPoint = lerp(target[<span class="number">0</span>],target[<span class="number">2</span>],weight);</span><br><span class="line">        newPoint.posH.y = target[<span class="number">1</span>].posH.y;</span><br><span class="line">        rasterTopTriangle(target[<span class="number">0</span>], newPoint, target[<span class="number">1</span>]);</span><br><span class="line">        rasterBottomTriangle(newPoint,target[<span class="number">1</span>],target[<span class="number">2</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="程序结果"><a href="#程序结果" class="headerlink" title="程序结果"></a>程序结果</h1><p>&emsp;&emsp;最终，不借用任何图形接口通过自己实现的光栅化算法画出了三角形：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/0.png" alt="0"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/1.png" alt="1"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/2.png" alt="2"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.6/blog/SoftRenderer-Rasterization/3.png" alt="3"></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>$[1]$ <a href="https://blog.csdn.net/cppyin/article/details/6232453" target="_blank" rel="noopener">https://blog.csdn.net/cppyin/article/details/6232453</a></p>
+<p>$[2]$ <a href="https://blog.csdn.net/y1196645376/article/details/78937614" target="_blank" rel="noopener">https://blog.csdn.net/y1196645376/article/details/78937614</a></p>
+<p>$[3]$ <a href="https://blog.csdn.net/y1196645376/article/details/78907914" target="_blank" rel="noopener">https://blog.csdn.net/y1196645376/article/details/78907914</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-01T09:56:05+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2019年5月1日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Soft-Renderer/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Soft Renderer</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Rasterization/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Rasterization</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/05/01/SoftRenderer-Rasterization/&title=软渲染器Soft Renderer：光栅化篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本章开始构建基于Qt平台软渲染器的初步框架，当然Qt相关的内容并不是软渲染器的重点，我只是借助Qt平台将渲染出来的像素矩阵用Qt的控件显示出来。光栅化是当今图形学渲染的一种方式，与之对应的是光线追踪渲染方式，本章我根据自己的理解着重讲述线框光栅化的Bresenham画线算法以及三角形填充光栅化的Edge-Walking算法。注意：初学者慎入。本篇相关的完整代码请看这里。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/05/01/SoftRenderer-Rasterization/&title=软渲染器Soft Renderer：光栅化篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本章开始构建基于Qt平台软渲染器的初步框架，当然Qt相关的内容并不是软渲染器的重点，我只是借助Qt平台将渲染出来的像素矩阵用Qt的控件显示出来。光栅化是当今图形学渲染的一种方式，与之对应的是光线追踪渲染方式，本章我根据自己的理解着重讲述线框光栅化的Bresenham画线算法以及三角形填充光栅化的Edge-Walking算法。注意：初学者慎入。本篇相关的完整代码请看这里。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/05/01/SoftRenderer-Rasterization/&title=软渲染器Soft Renderer：光栅化篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本章开始构建基于Qt平台软渲染器的初步框架，当然Qt相关的内容并不是软渲染器的重点，我只是借助Qt平台将渲染出来的像素矩阵用Qt的控件显示出来。光栅化是当今图形学渲染的一种方式，与之对应的是光线追踪渲染方式，本章我根据自己的理解着重讲述线框光栅化的Bresenham画线算法以及三角形填充光栅化的Edge-Walking算法。注意：初学者慎入。本篇相关的完整代码请看这里。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2019/05/01/SoftRenderer-Math/" rel="prev" title="软渲染器Soft Renderer：3D数学篇">
+                                    
+                                        软渲染器Soft Renderer：3D数学篇
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Soft-Renderer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Soft Renderer</a> <a class="tag" href="/tags/3D-Math/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>3D Math</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: '软渲染器Soft Renderer：光栅化篇',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.jpg"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#渲染管线框架"><span class="toc-text">渲染管线框架</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#像素显示的画布"><span class="toc-text">像素显示的画布</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#帧缓冲类"><span class="toc-text">帧缓冲类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#网格顶点数据"><span class="toc-text">网格顶点数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#简单的着色器"><span class="toc-text">简单的着色器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建基本的渲染管线"><span class="toc-text">搭建基本的渲染管线</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染线程"><span class="toc-text">渲染线程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#渲染流程"><span class="toc-text">渲染流程</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#光栅化算法"><span class="toc-text">光栅化算法</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Bresenham描线算法"><span class="toc-text">Bresenham描线算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Edge-Walking三角形填充算法"><span class="toc-text">Edge-Walking三角形填充算法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#程序结果"><span class="toc-text">程序结果</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(2)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Soft-Renderer/" style="font-size: 19px; color: #ddd">Soft Renderer</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
