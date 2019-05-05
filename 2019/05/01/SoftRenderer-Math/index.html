@@ -306,7 +306,8 @@
 <h1 id="矩阵"><a href="#矩阵" class="headerlink" title="矩阵"></a>矩阵</h1><p>&emsp;&emsp;矩阵本质就是向量的进一步扩展的，一个$n\times m$的矩阵可看成$n$个$m$维行向量组成或者$m$个$n$维列向量组成，关于矩阵的基本概念、操作请看<a href="https://blog.csdn.net/AutisticPatient/article/details/62892100" target="_blank" rel="noopener">这里</a>。通常我们采用方阵来描述线性变换。所谓线性变换，即变换之后保留了直线而不被弯曲，平行线依然平行，原点没有变化，但其他的几何性质如长度、角度、面积和体积可能被变换改变了。直观来说，线性变换可能“拉伸”坐标系，但不会“弯曲”或“卷折”坐标系。</p>
 <p>&emsp;&emsp;矩阵在计算机中有行主序存储、列主序存储两种方式，行主序存储即按照顺序逐行存储，列主序存储则按照顺序逐列存储。图形学渲染中我们通常采用的是列主序的方式，<strong>以下的讨论都是列主序的矩阵存储方式。</strong>那么矩阵是如何变换向量的？</p>
 <p>&emsp;&emsp;<strong>向量在几何上能被解释成一系列与轴平行的位移</strong>，一般来说，任意向量$\vec v$都能写成如下的形式：</p>
-<script type="math/tex; mode=display">\vec v=\left[\begin{matrix}x\\y\\z\end{matrix}\right]=\left[\begin{matrix}x\\0\\0\end{matrix}\right]+\left[\begin{matrix}0\\y\\0\end{matrix}\right]+\left[\begin{matrix}0\\0\\z\end{matrix}\right]=x\left[\begin{matrix}1\\0\\0\end{matrix}\right]+y\left[\begin{matrix}0\\1\\0\end{matrix}\right]+z\left[\begin{matrix}0\\0\\1\end{matrix}\right] \tag {1}</script><p>&emsp;&emsp;公式$(1)$右边的单位向量就是$x$、$y$、$z$轴方向的向量，<strong>向量的每个坐标都表明了平行于相应坐标轴的有向位移</strong>。我们记$\vec p$、$\vec q$、$\vec r$分别为公式$(1)$中右边的$x$、$y$、$z$轴的单位列向量，则有：</p>
+<script type="math/tex; mode=display">
+\vec v=\left[\begin{matrix}x\\y\\z\end{matrix}\right]=\left[\begin{matrix}x\\0\\0\end{matrix}\right]+\left[\begin{matrix}0\\y\\0\end{matrix}\right]+\left[\begin{matrix}0\\0\\z\end{matrix}\right]=x\left[\begin{matrix}1\\0\\0\end{matrix}\right]+y\left[\begin{matrix}0\\1\\0\end{matrix}\right]+z\left[\begin{matrix}0\\0\\1\end{matrix}\right] \tag {1}</script><p>&emsp;&emsp;公式$(1)$右边的单位向量就是$x$、$y$、$z$轴方向的向量，<strong>向量的每个坐标都表明了平行于相应坐标轴的有向位移</strong>。我们记$\vec p$、$\vec q$、$\vec r$分别为公式$(1)$中右边的$x$、$y$、$z$轴的单位列向量，则有：</p>
 <script type="math/tex; mode=display">
 \vec v=x\vec p+y\vec q+z\vec r=\left[\begin{matrix}\vec p &\vec q&\vec r\end{matrix}\right]\left[\begin{matrix}x \\y\\z\end{matrix}\right] \tag {2}</script><p>&emsp;&emsp;向量$\vec v$就变成了向量$\vec p$、$\vec q$、$\vec r$的线性表示，向量$\vec p$、$\vec q$、$\vec r$称作基向量。以上仅仅讨论的是笛卡尔坐标系，但更通用的情况是，一个$3$维坐标系能用任意$3$个线性无关的基向量表示，以列向量$\vec p$、$\vec q$、$\vec r$构建$3\times 3$的矩阵$M$：</p>
 <script type="math/tex; mode=display">
@@ -336,18 +337,18 @@ sin\theta&cos\theta&0\\0&0&1\end{matrix}\right] \tag {5}</script><figure class="
 <p><img src="https://img-my.csdn.net/uploads/201304/08/1365419995_7039.png" alt="img"></p>
 <center>图1 绕任意轴旋转</center>
 
-<p>&emsp;&emsp;<strong>我们的目标就是用$\vec v$、$\vec n$和$\theta$来表示$\vec v’$，从而构造出$R(\vec n, \theta)$。</strong>首先将$\vec v$分解成平行于$\vec n$的向量$\vec v_{||}$和垂直于$\vec n$的分量$\vec v_{h}$，而$\vec v’_{h}$是垂直于$\vec n$的分向量。注意，$\vec n$是单位向量，但$\vec v$不是单位向量，可得$\vec v$在$\vec n$方向的投影向量$\vec v_{||}$为：</p>
+<p>&emsp;&emsp;<strong>我们的目标就是用$\vec v$、$\vec n$和$\theta$来表示$\vec v’$，从而构造出$R(\vec n, \theta)$。</strong>首先将$\vec v$分解成平行于$\vec n$的向量$\vec v_{||}$和垂直于$\vec n$的分量$\vec v_{⊥}$，而$\vec v’_{⊥}$是垂直于$\vec n$的分向量。注意，$\vec n$是单位向量，但$\vec v$不是单位向量，可得$\vec v$在$\vec n$方向的投影向量$\vec v_{||}$为：</p>
 <script type="math/tex; mode=display">
-\vec v_{||}=(\vec v\cdot\vec n)\vec n \tag {6}</script><p>&emsp;&emsp;从而根据$\vec v_{||}$和$\vec v$可知$\vec v_{h}$和$w$，$w$是垂直于$\vec n$和$\vec v_{h}$的向量：</p>
+\vec v_{||}=(\vec v\cdot\vec n)\vec n \tag {6}</script><p>&emsp;&emsp;从而根据$\vec v_{||}$和$\vec v$可知$\vec v_{⊥}$和$w$，$w$是垂直于$\vec n$和$\vec v_{⊥}$的向量：</p>
 <script type="math/tex; mode=display">
-\vec v_{h}=\vec v-\vec v_{||} \tag {7}</script><script type="math/tex; mode=display">
-w=\vec n \times \vec v_{h} = \vec n\times (\vec v-\vec v_{||})\\
-=\vec n\times\vec v-\vec n\times\vec v_{||}=\vec n\times\vec v-0=\vec n\times \vec v \tag{8}</script><p>&emsp;&emsp;$\vec w$和$\vec v_{h}$相互垂直，$\vec w$、$\vec v_{h}$和$\vec v’_{h}$在同一个平面上，$\vec v’_{h}$和$\vec v_{h}$的夹角为$\theta$，从而$\vec v’_{h}$可由$\vec w$和$\vec v_{h}$线性表示为：</p>
+\vec v_{⊥}=\vec v-\vec v_{||} \tag {7}</script><script type="math/tex; mode=display">
+w=\vec n \times \vec v_{⊥} = \vec n\times (\vec v-\vec v_{||})\\
+=\vec n\times\vec v-\vec n\times\vec v_{||}=\vec n\times\vec v-0=\vec n\times \vec v \tag{8}</script><p>&emsp;&emsp;$\vec w$和$\vec v_{⊥}$相互垂直，$\vec w$、$\vec v_{⊥}$和$\vec v’_{⊥}$在同一个平面上，$\vec v’_{⊥}$和$\vec v_{⊥}$的夹角为$\theta$，从而$\vec v’_{⊥}$可由$\vec w$和$\vec v_{⊥}$线性表示为：</p>
 <script type="math/tex; mode=display">
-\vec v'_{h}=cos\theta\vec v_{h}+sin\theta\vec w\\
-=cos\theta(\vec v-(\vec v\cdot\vec n)\vec n)+sin\theta(\vec n\times\vec v)\tag {9}</script><p>&emsp;&emsp;最后，根据公式$(6)$和公式$(9)$我们已知$\vec v_{||}$和$\vec v’_{h}$，从而可以得出$\vec v’$：</p>
+\vec v'_{⊥}=cos\theta\vec v_{⊥}+sin\theta\vec w\\
+=cos\theta(\vec v-(\vec v\cdot\vec n)\vec n)+sin\theta(\vec n\times\vec v)\tag {9}</script><p>&emsp;&emsp;最后，根据公式$(6)$和公式$(9)$我们已知$\vec v_{||}$和$\vec v’_{⊥}$，从而可以得出$\vec v’$：</p>
 <script type="math/tex; mode=display">
-\vec v'=\vec v_{||}+\vec v'_{h}\\
+\vec v'=\vec v_{||}+\vec v'_{⊥}\\
 =cos\theta(\vec v-(\vec v\cdot\vec n)\vec n)+sin\theta(\vec n\times\vec v)+(\vec v\cdot\vec n)\vec n \tag {10}</script><p>&emsp;&emsp;由公式$(10)$可知，我们已经用$\vec v$、$\vec n$和$\theta$表示$\vec v’$，那如何根据上述的公式$(10)$构建旋转矩阵$R(\vec n, \theta)$？还是那个思路：<strong>列主序变换矩阵的列向量就是变换后的坐标系的基向量</strong>。我们只需求出笛卡尔坐标系的$\vec x$、$\vec y$、$\vec z$三个轴方向上的基向量按照公式$(10)$旋转之后的基向量$\vec x’$、$\vec y’$、$\vec z’$，然后填入矩阵$R(\vec n, \theta)$即可，以$\vec x=[1\ \ 0 \ \ 0]^T$为例：</p>
 <script type="math/tex; mode=display">
 \vec x'=cos\theta(\vec x-(\vec x\cdot\vec n)\vec n)+sin\theta(\vec n\times\vec x)+(\vec x\cdot\vec n)\vec n
@@ -695,10 +696,10 @@ Z_x&Z_y&Z_z&-(\vec Z\cdot \vec {eye})\\
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-01T10:45:14+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-05T20:43:06+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年5月1日</p>
+    <p>最后更新于 2019年5月5日</p>
   </a>
 </div>
 
@@ -1029,11 +1030,11 @@ Z_x&Z_y&Z_z&-(\vec Z\cdot \vec {eye})\\
     <div class="content material">
       <ul class="entry">
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(4)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(5)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(3)</div></a></li>
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
         
       </ul>
     </div>
@@ -1058,7 +1059,7 @@ Z_x&Z_y&Z_z&-(\vec Z\cdot \vec {eye})\\
 </header>
 
     <div class="content material">
-      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 14px; color: #bbb">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Soft-Renderer/" style="font-size: 19px; color: #ddd">Soft Renderer</a>
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 17.33px; color: #d2d2d2">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Soft-Renderer/" style="font-size: 20.67px; color: #e8e8e8">Soft Renderer</a>
     </div>
   </section>
 
