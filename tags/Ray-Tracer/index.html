@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <title>Tag: 3D pipeline | YangWC&#39;s Blog</title>
+  <title>Tag: Ray Tracer | YangWC&#39;s Blog</title>
   
   
   <meta name="description" content="Personal blog website.">
@@ -205,8 +205,6 @@
         
           
         
-          
-        
       
     
     
@@ -224,8 +222,8 @@
       
         
   <h2 class="title">
-    <a href="/2019/05/05/SoftRenderer-Shading/">
-      软渲染器Soft Renderer：光照着色篇（完结）
+    <a href="/2019/05/08/RayTracer-Basis/">
+      ����׷����Ray Tracer������ƪ
     </a>
   </h2>
 
@@ -253,7 +251,7 @@
             <div class="new-meta-item date">
   <a class="notlink">
     <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2019-05-05</p>
+    <p>2019-05-08</p>
   </a>
 </div>
 
@@ -263,9 +261,9 @@
             
   
   <div class="new-meta-item category">
-    <a href="/categories/Soft-Renderer/" rel="nofollow">
+    <a href="/categories/Ray-Tracer/" rel="nofollow">
       <i class="fas fa-folder-open" aria-hidden="true"></i>
-      <p>Computer Graphics&nbsp;/&nbsp;Soft Renderer</p>
+      <p>Computer Graphics&nbsp;/&nbsp;Ray Tracer</p>
     </a>
   </div>
 
@@ -292,11 +290,11 @@
 
   <section class="article typo">
     <div class="article-entry" itemprop="articleBody">
-      <p>在前面的博客我们已经实现了基本的三维渲染管线流程，这一章主要是在此基础上进行润色，不借助任何库实现obj模型导入、Bulin-Phong光照模型、摄像机漫游（第一人称摄像机、第三人称摄像机）。<strong>注意：初学者慎入</strong></p>
-<p><div align="left"> <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.8/blog/SoftRenderer-Shading/header.gif" height="400"></div></p>
+      <p>����׷�ټ����Ǽ����ͼ��ѧ��һ��ȫ�ֹ����㷨��Ŀǰ��Ӱ����ҵ��඼���ù���׷����������Ⱦ�����¿�ʼ����һ������׷��������Ⱦ����·��׷�٣��������������׷�ٵļ���ԭ������Ҫ�ο�����ΪPeter Shirley�ġ�Ray Tracing in One Weekend������ѧ������֮ǰ�Լ�д��3D��ѧ�⣬�ⷽ��Ķ�������׸������ص���ȫ������<a href="https://github.com/ZeusYang/Ray-Tracer" target="_blank" rel="noopener">����</a>��</p>
+<p><div align="left"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.9/blog/RayTracer-Basis/header2.png" height="400"></div></p>
       
         <div class="readmore">
-          <a href="/2019/05/05/SoftRenderer-Shading/" class="flat-box">
+          <a href="/2019/05/08/RayTracer-Basis/" class="flat-box">
             <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
             阅读全文
           </a>
@@ -308,118 +306,7 @@
         
           <a href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Computer Graphics</a>
         
-          <a href="/tags/Soft-Renderer/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Soft Renderer</a>
-        
-          <a href="/tags/3D-pipeline/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>3D pipeline</a>
-        
-      </div>
-    
-  </section>
-</article>
-
-          </div>
-        
-      
-        
-          <div class="post-wrapper">
-            <article class="post reveal ">
-  
-
-
-  <section class="meta">
-    
-    
-    <div class="meta" id="header-meta">
-      
-        
-  <h2 class="title">
-    <a href="/2019/05/02/SoftRenderer-3DPipeline/">
-      软渲染器Soft Renderer：进击三维篇
-    </a>
-  </h2>
-
-
-      
-      <div class="new-meta-box">
-        
-          
-        
-          
-            
-  <div class="new-meta-item author">
-    <a href="http://yoursite.com" rel="nofollow">
-      
-        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
-      
-      <p>WC Yang</p>
-    </a>
-  </div>
-
-
-          
-        
-          
-            <div class="new-meta-item date">
-  <a class="notlink">
-    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2019-05-02</p>
-  </a>
-</div>
-
-          
-        
-          
-            
-  
-  <div class="new-meta-item category">
-    <a href="/categories/Soft-Renderer/" rel="nofollow">
-      <i class="fas fa-folder-open" aria-hidden="true"></i>
-      <p>Computer Graphics&nbsp;/&nbsp;Soft Renderer</p>
-    </a>
-  </div>
-
-
-          
-        
-          
-            
-
-          
-        
-          
-            
-
-          
-        
-      </div>
-      
-        <hr>
-      
-    </div>
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      <p>有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。<strong>注意：初学者慎入</strong></p>
-<p><div align="left"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.7/blog/SoftRenderer-3DPipeline/header.gif" height="400"></div></p>
-      
-        <div class="readmore">
-          <a href="/2019/05/02/SoftRenderer-3DPipeline/" class="flat-box">
-            <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-    
-      <div class="full-width auto-padding tags">
-        
-          <a href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Computer Graphics</a>
-        
-          <a href="/tags/Soft-Renderer/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Soft Renderer</a>
-        
-          <a href="/tags/3D-pipeline/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>3D pipeline</a>
+          <a href="/tags/Ray-Tracer/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Ray Tracer</a>
         
       </div>
     
