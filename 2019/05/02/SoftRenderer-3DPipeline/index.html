@@ -292,7 +292,7 @@
 
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
-          <p>有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。<strong>注意：初学者慎入</strong></p>
+          <p>有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。<strong>注意：初学者慎入</strong><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.7/blog/SoftRenderer-3DPipeline/header.gif" alt="header"></p>
 <a id="more"></a>
 <ul>
 <li>进入三维世界</li>
@@ -300,7 +300,6 @@
 <li>透视纹理映射、采样</li>
 <li>程序结果</li>
 </ul>
-<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.7/blog/SoftRenderer-3DPipeline/header.gif" alt="header"></p>
 <h1 id="一、进入三维世界"><a href="#一、进入三维世界" class="headerlink" title="一、进入三维世界"></a>一、进入三维世界</h1><p>&emsp;&emsp;尽管二维的屏幕只能显示二维的像素，但是我们可以通过将三维的物体变换到二维的屏幕上，从而渲染出三维空间的一个投影面。这与我们人类的视觉系统类似，视网膜上最终获取的也只是三维空间某个角度下的投影。为了让三维物体正确地显示到屏幕上，我们需要借助一系列的坐标空间变换。</p>
 <h2 id="1、坐标系统"><a href="#1、坐标系统" class="headerlink" title="1、坐标系统"></a>1、坐标系统</h2><p>&emsp;&emsp;在渲染管线中，三维物体的顶点在最终转换为屏幕坐标之前会被变换到多个坐标系统，这其中有几个过渡性的坐标系，使得整个变换流程逻辑清晰、便于理解。此外在某些特定情况下在这些特定的坐标系中，一些操作更加容易、方便和<strong>灵活</strong>。通常，渲染管线有$5$个不同的坐标系统，分别是局部空间、世界空间、视觉空间、裁剪空间和屏幕空间，以下是<a href="[https://learnopengl-cn.github.io/01%20Getting%20started/08%20Coordinate%20Systems/#_1](https://learnopengl-cn.github.io/01 Getting started/08 Coordinate Systems/#_1">LearnOpenGL CN</a>)的原话：</p>
 <p><img src="https://learnopengl-cn.github.io/img/01/08/coordinate_systems.png" alt="coordinate_systems"></p>
@@ -446,10 +445,10 @@ As+B=-\frac{x'z_e}{N}\ \to\ A\frac{s}{z_e}+B\frac{1}{z_e}=-\frac{x'}{N} \tag {6}
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-05T11:22:38+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-08T14:46:55+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年5月5日</p>
+    <p>最后更新于 2019年5月8日</p>
   </a>
 </div>
 
