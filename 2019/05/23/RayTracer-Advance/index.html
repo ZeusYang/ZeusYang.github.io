@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>光线追踪器Ray Tracer：进阶篇 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+									<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2019/05/23/RayTracer-Advance/">
+        光线追踪器Ray Tracer：进阶篇
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-05-23</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Ray-Tracer/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Ray Tracer</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>光线追踪技术是计算机图形学的一类全局光照算法，目前的影视行业大多都采用光线追踪做离线渲染。本章开始构建一个光线追踪离线渲染器（路径追踪），深入理解光线追踪的技术原理。主要参考资料为Peter Shirley的《Ray Tracing in One Weekend》。数学库沿用之前自己写的3D数学库，这方面的东西不再赘述。相关的完全代码在<a href="https://github.com/ZeusYang/Ray-Tracer" target="_blank" rel="noopener">这里</a>。</p>
+<p>在前面的基础上，丰富光线追踪器的各种特性。本篇内容主要包含添加纹理映射、平面光源和球形光源、三角网格模型渲染、增加天空盒背景、构建BVH树、tbb多线程渲染加速、蒙特卡罗积分方法、重要性采样，后面部分涉及的高等数学和概率论内容较多。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/header.png" alt="header"></p>
+<a id="more"></a>
+<ul>
+<li>纹理映射</li>
+<li>三角网格模型</li>
+<li>添加光源</li>
+<li>天空盒背景</li>
+<li>构建BVH树</li>
+<li>tbb多线程渲染</li>
+<li>蒙特卡罗积分</li>
+<li>重要性采样</li>
+<li>程序效果</li>
+</ul>
+<h1 id="一、纹理映射"><a href="#一、纹理映射" class="headerlink" title="一、纹理映射"></a>一、纹理映射</h1><p>&emsp;&emsp;纹理映射对渲染的重要性不言而喻，为了丰富物体表面的细节，我们在这里创建一个纹理加载和采样的类。实际上，除了图片纹理，还有一些过程式产生的纹理。我们创建一个虚类$Texture$，并将$sample$类作为虚接口。然后创建子类$ImageTexture$，图片的加载我采用了stb_image库。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Texture</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Texture&gt; ptr;</span><br><span class="line">    </span><br><span class="line">    Texture() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~Texture() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Vector3D <span class="title">sample</span><span class="params">(<span class="keyword">const</span> <span class="keyword">float</span> &amp;u, <span class="keyword">const</span> <span class="keyword">float</span> &amp;v, <span class="keyword">const</span> Vector3D &amp;p)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ImageTexture</span> :</span> <span class="keyword">public</span> Texture</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> *m_data;</span><br><span class="line">    <span class="keyword">int</span> m_width, m_height, m_channel;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;ImageTexture&gt; ptr;</span><br><span class="line">    </span><br><span class="line">    ImageTexture() = <span class="keyword">default</span>;</span><br><span class="line">    ImageTexture(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;path);</span><br><span class="line">    <span class="keyword">virtual</span> ~ImageTexture();</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Vector3D <span class="title">sample</span><span class="params">(<span class="keyword">const</span> <span class="keyword">float</span> &amp;u, <span class="keyword">const</span> <span class="keyword">float</span> &amp;v, <span class="keyword">const</span> Vector3D &amp;p)</span> <span class="keyword">const</span></span>;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ImageTexture::ImageTexture(<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;path)</span><br><span class="line">&#123;</span><br><span class="line">    m_data = stbi_load(path.c_str(), &amp;m_width, &amp;m_height, &amp;m_channel, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (m_data == <span class="literal">nullptr</span>)</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"Failed to load the image-&gt;"</span> &lt;&lt; path.c_str() &lt;&lt; <span class="built_in">std</span>::<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Vector3D ImageTexture::sample(<span class="keyword">const</span> <span class="keyword">float</span> &amp;u, <span class="keyword">const</span> <span class="keyword">float</span> &amp;v, <span class="keyword">const</span> Vector3D &amp;p) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(u * m_width);</span><br><span class="line">    <span class="keyword">int</span> j = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;((<span class="number">1.0f</span> - v)*m_height) - <span class="number">0.001</span>;</span><br><span class="line">    <span class="keyword">if</span> (i &lt; <span class="number">0</span>) i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (j &lt; <span class="number">0</span>) j = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (i &gt; m_width - <span class="number">1</span>) i = m_width - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (j &gt; m_height - <span class="number">1</span>) j = m_height - <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> index = (j * m_width + i) * m_channel;</span><br><span class="line">    <span class="keyword">float</span> r = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(m_data[index + <span class="number">0</span>]) / <span class="number">255.0f</span>;</span><br><span class="line">    <span class="keyword">float</span> g = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(m_data[index + <span class="number">1</span>]) / <span class="number">255.0f</span>;</span><br><span class="line">    <span class="keyword">float</span> b = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(m_data[index + <span class="number">2</span>]) / <span class="number">255.0f</span>;</span><br><span class="line">    <span class="keyword">return</span> Vector3D(r, g, b);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;纹理坐标转换为像素数组下标要注意是否越界了，这里实现的纹理环绕方式是clamp。然后对于球体，我们要计算球体上每个点的纹理坐标，这里采用球面坐标的一个技巧。球体的上每一个点，都对应着一组唯一的方向角和天顶角$(\theta,\phi)$，我们把$(\theta,\phi)$映射到二维纹理坐标即可。映射方法如下：</p>
+<script type="math/tex; mode=display">
+u = \phi/(2\pi) \\
+v = \theta/\pi \tag {1}</script><p>&emsp;&emsp;那么如何根据一个球面的点计算它的方向角和天顶角呢？从球面坐标$(\theta, \phi)$转到笛卡尔坐标$(x,y,z)$，不难理解，有如下关系：</p>
+<script type="math/tex; mode=display">
+x = cos(\phi)cos(\theta) \\
+y = sin(\phi)cos(\theta) \\
+z = sin(\theta) \tag {2}</script><p>&emsp;&emsp;注意到$y/x=tan(\phi)$，所以我们可以采用下面的方式得到球面上点的天顶角和方位角：</p>
+<script type="math/tex; mode=display">
+\phi=atan2(y,x)\\
+\theta=asin(2) \tag {3}</script><p>&emsp;&emsp;需要注意的是，$atan2$函数返回的角度范围是$[-\pi,+\pi]$，$asin$返回的角度范围是$[-\pi/2,\pi/2]$。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">getSphereUV</span><span class="params">(<span class="keyword">const</span> Vector3D &amp;p, Vector2D &amp;tex)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">float</span> phi = <span class="built_in">atan2</span>(p.z, p.x);</span><br><span class="line">    <span class="keyword">float</span> theta = <span class="built_in">asin</span>(p.y);</span><br><span class="line">    tex.x = <span class="number">1</span> - (phi + M_PI) / (<span class="number">2</span>*M_PI);</span><br><span class="line">    tex.y = (theta + M_PI/<span class="number">2</span>) / M_PI;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="二、三角网格模型"><a href="#二、三角网格模型" class="headerlink" title="二、三角网格模型"></a>二、三角网格模型</h1><p>&emsp;&emsp;除了像球体、圆柱、圆锥等等这类有显示数学表达式的几何体，我们接触到更多的是没有表达式的网格模型。有显示的数学表达式当然好，因为我们直接直接求交点的解析解，非常准确。这里我们构建一个通用的网格模型类，它由一个个三角形构成。obj模型的导入我不再赘述，这里重点讲述了射线与三角形求交的推导过程。</p>
+<p>&emsp;&emsp;一个三角形由空间中的三个顶点$P_0$、$P_1$、$P_2$的位置表示，三角形所在平面的法向量$N$可由下式计算而得：</p>
+<script type="math/tex; mode=display">
+N=(P_1-P_0)\times(P_2-P_0) \tag {4}</script><p>&emsp;&emsp;平面与原点的距离$d$等于平面法向量$N$与平面中任意一点的内积的负数，这里选$P_0$，则$d$为：</p>
+<script type="math/tex; mode=display">
+d = -N\cdot P_0 \tag {5}</script><p>&emsp;&emsp;则三角形所在的平面可以用四维向量$L=<n, -n\cdot p_0>$表示，实际上三角形所在平面的表达式为$N\cdot(x,y,z)+d=0$，首先我们求射线与该平面的交点，然后再判断交点是否在三角形内部。将射线方程$P(t) = S+tV$带入平面的方程，则有：</n,></p>
+<script type="math/tex; mode=display">
+N\cdot P(t)+d=0\\
+\to N\cdot S +(N\cdot V)t +d=0\\
+\to t=-\frac{(N\cdot S+d)}{N\cdot V}</script><p>&emsp;&emsp;通过以上的方程我们就可以得到射线在平面$L$上的交点处的$t$值。<strong>需要注意的是，当$N\cdot V=0$时，射线与平面平行，不存在交点。</strong>然后我们把$t$值带入射线方程即可求出射线与平面的交点$P$。接下来的问题是判断点$P$是否位于三角形内部，通过计算点$P$对于三角形的三个顶点$P_0$、$P_1$、$P_2$的重心坐标可以完成该判断。重心坐标是三角形顶点加权平均值，由三个标量$\omega_0$、$\omega_1$和$\omega_2$组成，有：</p>
+<script type="math/tex; mode=display">
+P=\omega_0 P_0+\omega_1 P_1 + \omega_2 P_2 \tag {6}</script><p>&emsp;&emsp;其中，$\omega_0+\omega_1+\omega_2 =1$，用$1-\omega_1-\omega_2$代替$\omega_0$，可得：</p>
+<script type="math/tex; mode=display">
+P=(1-\omega_1-\omega_2)P_0+\omega_1P_1+\omega_2P_2 \\
+=P_0+\omega_1(P_1-P_0)+\omega_2(P_2-P_0) \tag {7}</script><p>&emsp;&emsp;定义以下的等式：</p>
+<script type="math/tex; mode=display">
+R=P-P_0\\
+Q_1=P_1-P_0\\
+Q_2=P_2-P_0 \tag {8}</script><p>&emsp;&emsp;将公式$(9)$带入公式$(8)$，可得：</p>
+<script type="math/tex; mode=display">
+R=\omega_1Q_1+\omega_2Q_2 \tag {9}</script><p>&emsp;&emsp;分别给式$(10)$两边乘$Q_1$和$Q_2$可得以下两个方程：</p>
+<script type="math/tex; mode=display">
+R\cdot Q_1=\omega_1Q_1^2+\omega_2(Q_1\cdot Q_2)\\
+R\cdot Q_2=\omega_1(Q_1\cdot Q_2)+\omega_2Q_2^2 \tag {10}</script><p>&emsp;&emsp;写成矩阵形式如下：</p>
+<script type="math/tex; mode=display">
+\left[
+\begin{matrix}
+Q_1^2 & Q_1\cdot Q_2\\
+Q_1\cdot Q_2 & Q^2_2
+\end{matrix}
+\right]
+\left[
+\begin{matrix}
+\omega_1\\
+\omega_2
+\end{matrix}
+\right]
+=
+\left[
+\begin{matrix}
+R\cdot Q_1\\
+R\cdot Q_2
+\end{matrix}
+\right] \tag {11}</script><p>&emsp;&emsp;解以上关于$\omega_1$和$\omega_2$的方程，可得：</p>
+<script type="math/tex; mode=display">
+\left[
+\begin{matrix}
+\omega_1\\
+\omega_2
+\end{matrix}
+\right]
+=
+\left[
+\begin{matrix}
+Q_1^2 & Q_1\cdot Q_2\\
+Q_1\cdot Q_2 & Q^2_2
+\end{matrix}
+\right]^{-1}
+\left[
+\begin{matrix}
+R\cdot Q_1\\
+R\cdot Q_2
+\end{matrix}
+\right] \\
+=\frac1{Q^2_1Q^2_2-(Q_1\cdot Q_2)^2}
+\left[
+\begin{matrix}
+Q_2^2 & -Q_1\cdot Q_2 \\
+-Q_1\cdot Q_2 & Q_1^2
+\end{matrix}
+\right]
+\left[
+\begin{matrix}
+R\cdot Q_1\\
+R\cdot Q_2
+\end{matrix}
+\right] \tag {12}</script><p>&emsp;&emsp;<strong>当且仅当$\omega_0$、$\omega_1$和$\omega_2$三个权值均为非负值时，点$R$位于三角形内部，由于$\omega_0=1-\omega_1-\omega_2$，则此时应有$\omega_1+\omega_2\leq 1$且$\omega1 \geq 0\  and\ \omega_2\geq0$。</strong>若顶点$P_0$、$P_1$和$P_2$上关联有一些属性信息，如颜色、法向量或者纹理坐标，则可以利用权值$\omega_0$、$\omega_1$和$\omega_2$对这些属性信息进行插值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> MeshHitable::triangleHit(<span class="keyword">const</span> Ray &amp;ray, <span class="keyword">const</span> <span class="keyword">float</span> &amp;t_min, <span class="keyword">const</span> <span class="keyword">float</span> &amp;t_max,</span><br><span class="line">    HitRecord &amp;ret, <span class="keyword">const</span> Vertex &amp;p0, <span class="keyword">const</span> Vertex &amp;p1,</span><br><span class="line">    <span class="keyword">const</span> Vertex &amp;p2, <span class="keyword">const</span> Vector3D &amp;normal) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">float</span> n_dot_dir = normal.dotProduct(ray.getDirection());</span><br><span class="line">    <span class="comment">// no intersection.</span></span><br><span class="line">    <span class="keyword">if</span> (equal(n_dot_dir, <span class="number">0.0</span>))</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">float</span> d = -normal.dotProduct(p0.m_position);</span><br><span class="line">    <span class="keyword">float</span> t = -(normal.dotProduct(ray.getOrigin()) + d) / n_dot_dir;</span><br><span class="line">    <span class="keyword">if</span> (t &lt; t_min || t &gt; t_max)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    ret.<span class="keyword">m_t</span> = t;</span><br><span class="line">    ret.m_position = ray.pointAt(t);</span><br><span class="line">    ret.m_material = m_material;</span><br><span class="line">    <span class="comment">// judge inside or not.</span></span><br><span class="line">    Vector3D r = ret.m_position - p0.m_position;</span><br><span class="line">    Vector3D q1 = p1.m_position - p0.m_position;</span><br><span class="line">    Vector3D q2 = p2.m_position - p0.m_position;</span><br><span class="line">    <span class="keyword">float</span> q1_squaredLen = q1.getSquaredLength();</span><br><span class="line">    <span class="keyword">float</span> q2_squaredLen = q2.getSquaredLength();</span><br><span class="line">    <span class="keyword">float</span> q1_dot_q2 = q1.dotProduct(q2);</span><br><span class="line">    <span class="keyword">float</span> r_dot_q1 = r.dotProduct(q1);</span><br><span class="line">    <span class="keyword">float</span> r_dot_q2 = r.dotProduct(q2);</span><br><span class="line">    <span class="keyword">float</span> determinant = <span class="number">1.0f</span> / (q1_squaredLen * q2_squaredLen - q1_dot_q2 * q1_dot_q2);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">float</span> omega1 = determinant * (q2_squaredLen * r_dot_q1 - q1_dot_q2 * r_dot_q2);</span><br><span class="line">    <span class="keyword">float</span> omega2 = determinant * (-q1_dot_q2 * r_dot_q1 + q1_squaredLen * r_dot_q2);</span><br><span class="line">    <span class="keyword">if</span> (omega1 + omega2 &gt; <span class="number">1.0f</span> || omega1 &lt; <span class="number">0.0f</span> || omega2 &lt; <span class="number">0.0f</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    ret.m_normal = p0.m_normal * (<span class="number">1.0f</span> - omega1 - omega2) + p1.m_normal * omega1 + p2.m_normal * omega2;</span><br><span class="line">    ret.m_texcoord = p0.m_texcoord * (<span class="number">1.0f</span> - omega1 - omega2) + p1.m_texcoord * omega1 + p2.m_texcoord * omega2;</span><br><span class="line">    <span class="keyword">if</span> (ret.m_normal.dotProduct(ray.getDirection()) &gt; <span class="number">0.0f</span>)</span><br><span class="line">        ret.m_normal = -ret.m_normal;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;既然模型是由一个个三角形组成，那么在判断射线与当前的模型是否存在交点时，我们就遍历所有的三角形，一个一个三角形与射线做相交判断：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> MeshHitable::hit(<span class="keyword">const</span> Ray &amp;ray, <span class="keyword">const</span> <span class="keyword">float</span> &amp;t_min, <span class="keyword">const</span> <span class="keyword">float</span> &amp;t_max, HitRecord &amp;ret) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    HitRecord tmpRec;</span><br><span class="line">    <span class="keyword">bool</span> hitAny = <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">float</span> closestSoFar = t_max;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> x = <span class="number">0</span>; x &lt; m_indices.size(); x += <span class="number">3</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> index1 = m_indices[x + <span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> index2 = m_indices[x + <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> index3 = m_indices[x + <span class="number">2</span>];</span><br><span class="line">        <span class="keyword">if</span> (triangleHit(ray, t_min, closestSoFar, tmpRec,</span><br><span class="line">            m_vertices[index1],</span><br><span class="line">            m_vertices[index2],</span><br><span class="line">            m_vertices[index3],</span><br><span class="line">            m_faceNormal[x / <span class="number">3</span>]))</span><br><span class="line">        &#123;</span><br><span class="line">            hitAny = <span class="literal">true</span>;</span><br><span class="line">            closestSoFar = tmpRec.<span class="keyword">m_t</span>;</span><br><span class="line">            ret = tmpRec;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> hitAny;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="三、添加光源"><a href="#三、添加光源" class="headerlink" title="三、添加光源"></a>三、添加光源</h1><p>&emsp;&emsp;光源是一种特殊的物体，一般情况下它不反射、折射光线，而是自身发射光线。因此，为了实现一个光源，当我们的射线碰撞到光源表面时，我们直接返回光源的碰撞点的颜色，不再做折射和反射。我们将发光的逻辑放到材质中，并将发光这一行为抽象为$emitted$函数。对于非光源物体，我们可以看成发出的光rgb均为0。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Material</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Material&gt; ptr;</span><br><span class="line">    </span><br><span class="line">    Material() = <span class="keyword">default</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~Material() = <span class="keyword">default</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">scatter</span><span class="params">(<span class="keyword">const</span> Ray &amp;in, <span class="keyword">const</span> HitRecord &amp;rec, ScatterRecord &amp;srec)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> <span class="literal">false</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">float</span> <span class="title">scattering_pdf</span><span class="params">(<span class="keyword">const</span> Ray &amp;in, <span class="keyword">const</span> HitRecord &amp;rec,</span></span></span><br><span class="line"><span class="function"><span class="params">                                 <span class="keyword">const</span> Ray &amp;scattered)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> <span class="number">1.0f</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Vector3D <span class="title">emitted</span><span class="params">(<span class="keyword">const</span> Ray &amp;in, <span class="keyword">const</span> HitRecord &amp;rec, <span class="keyword">const</span> <span class="keyword">float</span> &amp;u,</span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">const</span> <span class="keyword">float</span> &amp;v, <span class="keyword">const</span> Vector3D &amp;p)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> Vector3D(<span class="number">0.0f</span>, <span class="number">0.0f</span>, <span class="number">0.0f</span>); &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiffuseLight</span> :</span> <span class="keyword">public</span> Material</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> m_emitTex;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">typedef</span> <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;DiffuseLight&gt; ptr;</span><br><span class="line">    </span><br><span class="line">    DiffuseLight(<span class="keyword">unsigned</span> <span class="keyword">int</span> a) : m_emitTex(a) &#123; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">scatter</span><span class="params">(<span class="keyword">const</span> Ray &amp;in, <span class="keyword">const</span> HitRecord &amp;rec, ScatterRecord &amp;srec)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function">    </span>&#123; <span class="keyword">return</span> <span class="literal">false</span>; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Vector3D <span class="title">emitted</span><span class="params">(<span class="keyword">const</span> Ray &amp;in, <span class="keyword">const</span> HitRecord &amp;rec, <span class="keyword">const</span> <span class="keyword">float</span> &amp;u,</span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">const</span> <span class="keyword">float</span> &amp;v, <span class="keyword">const</span> Vector3D &amp;p)</span> <span class="keyword">const</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Vector3D DiffuseLight::emitted(<span class="keyword">const</span> Ray &amp;in, <span class="keyword">const</span> HitRecord &amp;rec, <span class="keyword">const</span> <span class="keyword">float</span> &amp; u,</span><br><span class="line">                               <span class="keyword">const</span> <span class="keyword">float</span> &amp; v, <span class="keyword">const</span> Vector3D &amp; p) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> TextureMgr::getSingleton()-&gt;getTexture(m_emitTex)-&gt;sample(u, v, p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这样，对于任意的物体，我们都可以把它当作一个光源，只要给这个物体赋予的材质为$DiffuseLight$即可，同时要注意给发光材质设置一个纹理。</p>
+<h1 id="四、天空盒背景"><a href="#四、天空盒背景" class="headerlink" title="四、天空盒背景"></a>四、天空盒背景</h1><p>&emsp;&emsp;之前在光线投射到背景中时，我们是直接返回设定的背景颜色（或通过插值、或直接指定背景）。同样，我们可以通过天空盒来丰富我们的场景细节。天空盒的相关原理比较简单，不再赘述。一个天空盒用边长为1的立方体表示，一个立方体我采用多个三角形构成立方体网格。这里有个问题，就是如何实现天空盒永远无法靠近的效果。在实时渲染时我们直接移除视图矩阵的位移，在光追这里我们直接将光源的出发点设为原点，方向保持不变，这样的一条射线再与天空盒立方体做求交并采样纹理即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">Vector3D Skybox::sampleBackground(<span class="keyword">const</span> Ray &amp;ray)</span><br><span class="line">&#123;</span><br><span class="line">    HitRecord rec;</span><br><span class="line">    <span class="function">Ray <span class="title">r</span><span class="params">(Vector3D(<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>), ray.getDirection())</span></span>;</span><br><span class="line">    TextureMgr::ptr texMgr = TextureMgr::getSingleton();</span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">-1</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> x = <span class="number">0</span>; x &lt; m_indices.size(); x += <span class="number">3</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> index1 = m_indices[x + <span class="number">0</span>];</span><br><span class="line">        <span class="keyword">int</span> index2 = m_indices[x + <span class="number">1</span>];</span><br><span class="line">        <span class="keyword">int</span> index3 = m_indices[x + <span class="number">2</span>];</span><br><span class="line">        <span class="keyword">if</span> (triangleHit(r, <span class="number">0.001f</span>, FLT_MAX, rec,</span><br><span class="line">            m_vertices[index1], m_vertices[index2], m_vertices[index3],</span><br><span class="line">            m_vertices[index1].m_normal))</span><br><span class="line">        &#123;</span><br><span class="line">            index = x;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(index != <span class="number">-1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> <span class="built_in">map</span> = index / <span class="number">6</span>;</span><br><span class="line">        <span class="keyword">return</span> texMgr-&gt;getTexture(m_cubemap[<span class="built_in">map</span>])</span><br><span class="line">                -&gt;sample(rec.m_texcoord.x, rec.m_texcoord.y, rec.m_position);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> Vector3D(<span class="number">0.0</span>,<span class="number">0.0</span>,<span class="number">0.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="五、构建BVH树"><a href="#五、构建BVH树" class="headerlink" title="五、构建BVH树"></a>五、构建BVH树</h1><p>&emsp;&emsp;在整个光线追踪算法的渲染过程中，计算量最大的就是光线与场景图元的求交过程。如果不采用一些特殊的数据结构而只是用线性表存储场景物体的话，那么每一条射线都需要对这个存储场景物体的线性表遍历一次，这个射线碰撞检测的算法时间复杂度是$O(n)$的，当$n$比较大时，那么射线碰撞检测需要耗费绝大部分的光线追踪算法时间。射线相交检测的时间是目前光线追踪算法从理论到大规模实际应用过渡的主要瓶颈。为此，我们需要一些特殊的场景管理数据结构来加速这个过程，BVH树（全称为bounding volume hierachy，即层次包围体）是光线追踪领域常用的一种3D场景管理数据结构。它的启发思路就是通过一个简单的包围盒把物体包围起来，射线和场景中的物体求交之前，会先和这个包围盒进行求交，如果该射线没有碰到该包围盒，表明该直线一定不会和包围盒里的物体相交；如果该射线碰到该包围盒，那么再来计算射线是否和包围盒中的物体相交。我们采用包围体是AABB包围盒（即axis-aligned minimum bounding box，轴对齐的最小包围盒，简称轴向包围盒）。</p>
+<p>&emsp;&emsp;BVH树本质上是对空间做分割，然后采用二分搜索快速判断射线会与哪些包围盒发生碰撞，从而使得算法的时间复杂度从$O(n)$降到了$O(log(n))$，这是一个非常明显的算法效率的提升，特别是当$n$数量逐渐增大的时候。每一次的判断过程如下列伪代码所示。如果射线与父节点的包围盒有交点，则进一步判断子节点与射线的相交情况，否则直接退出。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (ray hits bounding object)</span><br><span class="line">    <span class="keyword">return</span> whether ray hits bounded objects</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;BVH树全称是层次包围盒，故名思意，它是一个树形的层次结构，父节点的包围盒包围全部子节点所在的空间，正如下图11所示。蓝色和红色的包围盒被包含在紫色的大包围盒中，它们可能重叠，并且它们不是有序的，它们只是单纯地被包含在内部。</p>
+<p><div align="center"><img src="https://img2018.cnblogs.com/blog/1316111/201901/1316111-20190117135059435-937869509.png" width="50%"></div></p>
+<center> 图11 层次包围盒 </center>
+
+<p>&emsp;&emsp;对于图11，检测的伪代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (hits purple)</span><br><span class="line">    hit0 = hits blue enclosed objects</span><br><span class="line">    hit1 = hits red enclosed objects</span><br><span class="line"><span class="keyword">if</span> (hit0 <span class="keyword">or</span> hit1)</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span> <span class="keyword">and</span> info of closer hit</span><br><span class="line"><span class="keyword">return</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<h4 id="射线与包围盒相交判断"><a href="#射线与包围盒相交判断" class="headerlink" title="射线与包围盒相交判断"></a>射线与包围盒相交判断</h4><p>&emsp;&emsp;我们采用的紧凑的包围盒是AABB包围盒，计算出了包围盒之后，我们还需要一个判断射线是否与包围盒相交的办法，不需要求出射线与包围盒的交点，只需判断是否存在交点即可！我们采用一种常见的”slab“方法，它是基于AABB包围盒的。三维的AABB包围盒由三个轴的区间表示，假设分别为$[x_0,x_1]$、$[y_0,y_1]$、$[z_0,z_1]$。</p>
+<p>&emsp;&emsp;对于每一个区间，我们首先判断射线在边界的投影交点情况。三维空间中，$x=x_0$和$x=x_1$是一个平面，射线在这两个平面上的交点的$x$值可以通过将$x=x_0$和$x=x_1$带入射线的方程$P(t)=S+tV$的$x$分量得到：</p>
+<script type="math/tex; mode=display">
+x_0=S_x+t_0*V_x \\
+x_1=S_x+t_1*V_x \tag {23}</script><p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/hit.png" alt="1558612929075"></p>
+<center> 图12 射线与边界的交点 </center>
+
+<p>&emsp;&emsp;从而可以求出$t_0$和$t_1$如下所示：</p>
+<script type="math/tex; mode=display">
+t_0=\frac{x_0-S_x}{V_x} \\
+t_1=\frac{x_1-S_x}{V_x} \tag {24}</script><p>&emsp;&emsp;关于$y$轴和$z$轴同理，我们求出了每条轴的交点分量，那么如何快速判断射线与包围盒区域是否存在相交的情况呢？为了便于理解，我们以二维的情况为例，则射线与二维的包围区域相交由如下三种情况：</p>
+<p><div align="center"><img src="https://img2018.cnblogs.com/blog/1316111/201901/1316111-20190117071558040-1330714029.png" width="50%"></div></p>
+<p><div align="center"><img src="https://img2018.cnblogs.com/blog/1316111/201901/1316111-20190117071645284-802007402.png" width="50%"></div></p>
+<p><div align="center"><img src="https://img2018.cnblogs.com/blog/1316111/201901/1316111-20190117071706719-2144093299.png" width="50%"></div></p>
+<center> 图13 射线与边界相交的三种情况 </center>
+
+<p>&emsp;&emsp;我们求得$t$值是关于射线上的电到射线原点的距离，通过仔细观察上面的三张图片，我们可以发现在二维的情况下，当$max(t_0,t_2)&gt;min(t_1,t_3)$时，射线一定和区域存在交点，即射线与每个轴区间的左端点中的最大$t$值大于射线与每个轴区域间的右端点中的最小$t$值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">hit</span><span class="params">(<span class="keyword">const</span> Ray &amp;ray, <span class="keyword">float</span> tmin, <span class="keyword">float</span> tmax)</span> <span class="keyword">const</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">float</span> t0, t1, invD;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// x</span></span><br><span class="line">    invD = <span class="number">1.0f</span> / ray.getDirection().x;</span><br><span class="line">    t0 = (m_min.x - ray.getOrigin().x) * invD;</span><br><span class="line">    t1 = (m_max.x - ray.getOrigin().x) * invD;</span><br><span class="line">    <span class="keyword">if</span> (invD &lt; <span class="number">0.0f</span>)</span><br><span class="line">        <span class="built_in">std</span>::swap(t0, t1);</span><br><span class="line">    tmin = t0 &gt; tmin ? t0 : tmin;</span><br><span class="line">    tmax = t1 &lt; tmax ? t1 : tmax;</span><br><span class="line">    <span class="keyword">if</span> (tmax &lt;= tmin) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// y</span></span><br><span class="line">    invD = <span class="number">1.0f</span> / ray.getDirection().y;</span><br><span class="line">    t0 = (m_min.y - ray.getOrigin().y) * invD;</span><br><span class="line">    t1 = (m_max.y - ray.getOrigin().y) * invD;</span><br><span class="line">    <span class="keyword">if</span> (invD &lt; <span class="number">0.0f</span>)</span><br><span class="line">        <span class="built_in">std</span>::swap(t0, t1);</span><br><span class="line">    tmin = t0 &gt; tmin ? t0 : tmin;</span><br><span class="line">    tmax = t1 &lt; tmax ? t1 : tmax;</span><br><span class="line">    <span class="keyword">if</span> (tmax &lt;= tmin) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// z</span></span><br><span class="line">    invD = <span class="number">1.0f</span> / ray.getDirection().z;</span><br><span class="line">    t0 = (m_min.z - ray.getOrigin().z) * invD;</span><br><span class="line">    t1 = (m_max.z - ray.getOrigin().z) * invD;</span><br><span class="line">    <span class="keyword">if</span> (invD &lt; <span class="number">0.0f</span>)</span><br><span class="line">        <span class="built_in">std</span>::swap(t0, t1);</span><br><span class="line">    tmin = t0 &gt; tmin ? t0 : tmin;</span><br><span class="line">    tmax = t1 &lt; tmax ? t1 : tmax;</span><br><span class="line">    <span class="keyword">if</span> (tmax &lt;= tmin) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="BVH树的构建"><a href="#BVH树的构建" class="headerlink" title="BVH树的构建"></a>BVH树的构建</h4><p>&emsp;&emsp;首先我们要考虑如何构建一颗BVH树，BVH数据结构本质就是一颗二叉树。每个树节点右两个子节点，当然子节点之间不存在空间上的顺序关系。树的内部节点都不存储实际的场景物体，仅存储一个包围盒，叶子节点才存储真正的场景物体。构建BVH树的工作考虑的是如何构造一棵可以有效描述当前场景信息的二叉树。这当中的关键是如何对毫无规律地散落在场景中的众物体进行划分，即决定哪些物体该划分到左子树上，哪些物体该划分到右子树上。我们可以把这个问题抽象成一个”划分策略“——我们总会按照某种”策略“划分场景的，待会再考虑具体有哪些策略。另外，由于我们是在3D空间中工作，为了将问题简化，用分而治之的角度看，我们可以首先建立一个”原则“：即决定在哪根轴（x,y,z）上进行划分。”原则“与”策略“的不同之处在于，不管用何种”策略“，总是遵守同一种”原则“。</p>
+<p>&emsp;&emsp;决定在哪根轴（x,y,z）上进行划分，取决于场景中的物体在各个轴上分布的“散度”。如果这些物体沿着某根轴分布得最为“松散”（即落在该轴上靠一侧最近的物体与另一侧最近的物体，二者距离为最大），那么就沿该轴进行划分。还有一种方式，即采用随机的方式选取划分的轴，这样当场景物体分散的很随机时，实现的效果还不错。这里我采用随机选取一个轴的方法进行划分。</p>
+<p>&emsp;&emsp;确定了以哪根轴进行划分，接下来就要考虑“怎么划分”。我们目前暂时实现按终点划分的策略，顾名思义，取中点划分的意思就是在先前选取的轴上取其中点作为划分点，中点以左划分到左子树，中点以右划分到右子树。这种划分的实现方式最为简单，但往往效果不是太好：因为物体的分布往往不是均匀的。其中一种糟糕的情况（a）是，某侧子树上可能会拥挤过多的物体，而另一侧子树上却太少，这对查找效率影响很大。另外还有一种糟糕的情况（b），就是包围盒之间互相“重叠”（overlapped）的情况。如果两棵子树对应的包围盒“重叠”的越多，那么一条射线穿过该区域时同时击中两子树的概率也就越大，这就意味着两棵子树都得进行相交测试。当然我们目前实现的BVH树没有考虑那么多。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">BVHNode::BVHNode(<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Hitable *&gt; &amp;<span class="built_in">list</span>, <span class="keyword">int</span> start, <span class="keyword">int</span> end)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// sort it randomly depend on</span></span><br><span class="line">    <span class="keyword">int</span> axis = <span class="keyword">static_cast</span>&lt;<span class="keyword">int</span>&gt;(<span class="number">3</span> * drand48());</span><br><span class="line">    <span class="keyword">if</span> (axis == <span class="number">0</span>)</span><br><span class="line">        sort(&amp;<span class="built_in">list</span>[start], &amp;<span class="built_in">list</span>[end], boxCompareX);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (axis == <span class="number">1</span>)</span><br><span class="line">        sort(&amp;<span class="built_in">list</span>[start], &amp;<span class="built_in">list</span>[end], boxCompareY);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (axis == <span class="number">2</span>)</span><br><span class="line">        sort(&amp;<span class="built_in">list</span>[start], &amp;<span class="built_in">list</span>[end], boxCompareZ);</span><br><span class="line">    <span class="keyword">int</span> length = end - start;</span><br><span class="line">    <span class="keyword">if</span> (length == <span class="number">1</span>)</span><br><span class="line">        m_left = m_right = <span class="built_in">list</span>[start];</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (length == <span class="number">2</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        m_left = <span class="built_in">list</span>[start];</span><br><span class="line">        m_right = <span class="built_in">list</span>[start + <span class="number">1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        m_left = <span class="keyword">new</span> BVHNode(<span class="built_in">list</span>, start, start + length / <span class="number">2</span>);</span><br><span class="line">        m_right = <span class="keyword">new</span> BVHNode(<span class="built_in">list</span>, start + length / <span class="number">2</span>, end);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// bounding box.</span></span><br><span class="line">    AABB boxLeft, boxRight;</span><br><span class="line">    <span class="keyword">if</span> (!m_left-&gt;boundingBox(<span class="number">0</span>, <span class="number">0</span>, boxLeft) || !m_right-&gt;boundingBox(<span class="number">0</span>, <span class="number">0</span>, boxRight))</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">cerr</span> &lt;&lt; <span class="string">"no bounding box in BVHNode constructor\n"</span>;</span><br><span class="line">    m_box = AABB::surroundingBox(boxLeft, boxRight);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="BVH树的遍历"><a href="#BVH树的遍历" class="headerlink" title="BVH树的遍历"></a>BVH树的遍历</h4><p>&emsp;&emsp;遍历BVH差不多是件直截了当的事情。在遍历的过程中，当发现射线与某个子节点相交的话，那么有无必要再检测下与另一子节点是否相交？答案是要的。因为两个节点无法保证完全“不重叠”，如下图所示，很有可能在检测另一子节点时发现了更近的交点。</p>
+<p><div align="center"><img src="https://images0.cnblogs.com/blog/36396/201402/122258141271210.gif" width="60%"></div></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> BVHNode::hit(<span class="keyword">const</span> Ray &amp;ray, <span class="keyword">const</span> <span class="keyword">float</span> &amp;t_min, <span class="keyword">const</span> <span class="keyword">float</span> &amp;t_max, HitRecord &amp;ret) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (m_box.hit(ray, t_min, t_max))</span><br><span class="line">    &#123;</span><br><span class="line">        HitRecord leftRec, rightRec;</span><br><span class="line">        <span class="keyword">bool</span> hitLeft = m_left-&gt;hit(ray, t_min, t_max, leftRec);</span><br><span class="line">        <span class="keyword">bool</span> hitRight = m_right-&gt;hit(ray, t_min, t_max, rightRec);</span><br><span class="line">        <span class="comment">// both hit.</span></span><br><span class="line">        <span class="keyword">if</span> (hitLeft &amp;&amp; hitRight)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (leftRec.<span class="keyword">m_t</span> &lt; rightRec.<span class="keyword">m_t</span>)</span><br><span class="line">                ret = leftRec;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                ret = rightRec;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// only left child.</span></span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (hitLeft)</span><br><span class="line">        &#123;</span><br><span class="line">            ret = leftRec;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (hitRight)</span><br><span class="line">        &#123;</span><br><span class="line">            ret = rightRec;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="tbb多线程渲染"><a href="#tbb多线程渲染" class="headerlink" title="tbb多线程渲染"></a>tbb多线程渲染</h1><p>&emsp;&emsp;到目前为止我们实现的光追渲染逻辑都是串行的，只能利用单核cpu运行我们的渲染程序。对于简单的场景来说，渲染的速度还是挺快的。但是当我们渲染复杂的模型时，单核光追的渲染速度慢到爆炸，渲染时间随着模型的面片数迅速增长，渲染时间动不动就数十小时！为此，我们迫切需要加速渲染程序。我们可以看到，每个像素着色之间是没有联系的，一个像素的着色值与其周围的像素计算无关，所以像素的着色计算是可以并行计算的。我们首先实现在cpu上利用多核加速我们的渲染程序。直接操纵原生的线程API不是非常好，因为这样的话我们必须知道当前电脑的核心数，并据此将循环做一个分割，以便充分利用每个cpu核心。Intel开发的TBB是非常有用的线程库，它屏蔽了底层的线程细节，自动根据我们给定的工作量做线程分割，充分利用电脑的全部cpu资源，而且使用起来也非常简单。这里利用多核线程的渲染速度加速比大致是当前电脑的核心数，也就是说，电脑的cpu核心越多，渲染速度越快。tbb的官方网站请看<a href="https://www.threadingbuildingblocks.org/" target="_blank" rel="noopener">这里</a>。</p>
+<p>&emsp;&emsp;tbb的全称是Thread Building Blocks，这里我们只用了tbb的parallel_for接口，它对一个给定的for循环做划分，然后每个划分并行计算。我采用的parallel_for接口函数如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> Range, <span class="keyword">typename</span> Body&gt;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">parallel_for</span><span class="params">( <span class="keyword">const</span> Range&amp; range, <span class="keyword">const</span> Body&amp; body, <span class="keyword">const</span> auto_partitioner&amp; partitioner )</span></span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;可以看到出现了三个参数：range、body和partitioner。range就是我们要做并行的for循环下标范围，通常采用一维的迭代器blocked_range指定。这里我把二重循环展开成一重循环。然后body就是函数执行体，这里我通过c++11的lambda表达式指定。最后的partitioner是线程的划分方法，通常直接采用auto_partitioner。并行版的光追渲染如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Tracer::parallelThreadRender(Hitable *scene)</span><br><span class="line">&#123;</span><br><span class="line">    parallel_for(blocked_range&lt;<span class="keyword">size_t</span>&gt;(<span class="number">0</span>, m_config.m_height * m_config.m_width, <span class="number">10000</span>),</span><br><span class="line">        [&amp;](blocked_range&lt;<span class="keyword">size_t</span>&gt;&amp; r)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">size_t</span> i = r.begin(); i != r.end(); ++i)</span><br><span class="line">        &#123;</span><br><span class="line">            Vector4D color;</span><br><span class="line">            <span class="keyword">size_t</span> col = i % m_config.m_width;</span><br><span class="line">            <span class="keyword">size_t</span> row = i / m_config.m_width;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> x = <span class="number">0</span>; x &lt; m_config.m_samplings; ++x)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">float</span> u = <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(col + drand48()) / <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(m_config.m_width);</span><br><span class="line">                <span class="keyword">float</span> v = <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(row + drand48()) / <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(m_config.m_height);</span><br><span class="line">                Ray ray = m_config.m_camera-&gt;getRay(u, v);</span><br><span class="line">                color += deNan(tracing(ray, scene, &amp;m_samplingList,<span class="number">0</span>));</span><br><span class="line">            &#125;</span><br><span class="line">            color /= <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(m_config.m_samplings);</span><br><span class="line">            color.w = <span class="number">1.0f</span>;</span><br><span class="line">            <span class="comment">// gamma correction.</span></span><br><span class="line">            color = Vector4D(<span class="built_in">sqrt</span>(color.x), <span class="built_in">sqrt</span>(color.y), <span class="built_in">sqrt</span>(color.z), color.w);</span><br><span class="line">            <span class="keyword">if</span>(color.x &gt; <span class="number">1.0f</span>) color.x = <span class="number">1.0f</span>;</span><br><span class="line">            <span class="keyword">if</span>(color.y &gt; <span class="number">1.0f</span>) color.y = <span class="number">1.0f</span>;</span><br><span class="line">            <span class="keyword">if</span>(color.z &gt; <span class="number">1.0f</span>) color.z = <span class="number">1.0f</span>;</span><br><span class="line">            drawPixel(col, row, color);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;, auto_partitioner());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="蒙特卡罗积分"><a href="#蒙特卡罗积分" class="headerlink" title="蒙特卡罗积分"></a>蒙特卡罗积分</h1><p>未完待续</p>
+<h1 id="重要性采样"><a href="#重要性采样" class="headerlink" title="重要性采样"></a>重要性采样</h1><p>未完待续</p>
+<h1 id="程序效果"><a href="#程序效果" class="headerlink" title="程序效果"></a>程序效果</h1><p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret1.png" alt="ret1"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret2.png" alt="ret2"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret3.png" alt="ret3"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret4.png" alt="ret4"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret5.png" alt="ret5"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret6.png" alt="ret6"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret7.png" alt="ret7"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret8.png" alt="ret8"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/ret9.png" alt="ret9"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.10/blog/RayTracer-Advance/header.png" alt="header"></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>$[1$ <a href="http://www.thegibook.com/" target="_blank" rel="noopener">http://www.thegibook.com/</a></p>
+<p>$[2]$ Peter Shirley. <a href="https://www.amazon.com/Ray-Tracing-Weekend-Minibooks-Book-ebook/dp/B01B5AODD8/ref=sr_1_1?ie=UTF8&amp;qid=1547695669&amp;sr=8-1&amp;keywords=Peter+Shirley" target="_blank" rel="noopener">Ray Tracing in One Weekend</a>. Amazon Digital Services LLC, January 26, 2016.</p>
+<p>$[3]$ <a href="https://software.intel.com/en-us/node/506045?_ga=2.114625223.1582767698.1558613799-2057498546.1558613799" target="_blank" rel="noopener">https://software.intel.com/en-us/node/506045?_ga=2.114625223.1582767698.1558613799-2057498546.1558613799</a></p>
+<p>$[4]$ <a href="https://blog.csdn.net/zoufeiyy/article/details/1887579" target="_blank" rel="noopener">https://blog.csdn.net/zoufeiyy/article/details/1887579</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-23T21:08:21+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2019年5月23日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Ray-Tracer/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Ray Tracer</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/05/23/RayTracer-Advance/&title=光线追踪器Ray Tracer：进阶篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=光线追踪技术是计算机图形学的一类全局光照算法，目前的影视行业大多都采用光线追踪做离线渲染。本章开始构建一个光线追踪离线渲染器（路径追踪），深入理解光线追踪的技术原理。主要参考资料为Peter Shirley的《Ray Tracing in One Weekend》。数学库沿用之前自己写的3D数学库，这方面的东西不再赘述。相关的完全代码在这里。
+在前面的基础上，丰富光线追踪器的各种特性。本篇内容主要包含添加纹理映射、平面光源和球形光源、三角网格模型渲染、增加天空盒背景、构建BVH树、tbb多线程渲染加速、蒙特卡罗积分方法、重要性采样，后面部分涉及的高等数学和概率论内容较多。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/05/23/RayTracer-Advance/&title=光线追踪器Ray Tracer：进阶篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=光线追踪技术是计算机图形学的一类全局光照算法，目前的影视行业大多都采用光线追踪做离线渲染。本章开始构建一个光线追踪离线渲染器（路径追踪），深入理解光线追踪的技术原理。主要参考资料为Peter Shirley的《Ray Tracing in One Weekend》。数学库沿用之前自己写的3D数学库，这方面的东西不再赘述。相关的完全代码在这里。
+在前面的基础上，丰富光线追踪器的各种特性。本篇内容主要包含添加纹理映射、平面光源和球形光源、三角网格模型渲染、增加天空盒背景、构建BVH树、tbb多线程渲染加速、蒙特卡罗积分方法、重要性采样，后面部分涉及的高等数学和概率论内容较多。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/05/23/RayTracer-Advance/&title=光线追踪器Ray Tracer：进阶篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=光线追踪技术是计算机图形学的一类全局光照算法，目前的影视行业大多都采用光线追踪做离线渲染。本章开始构建一个光线追踪离线渲染器（路径追踪），深入理解光线追踪的技术原理。主要参考资料为Peter Shirley的《Ray Tracing in One Weekend》。数学库沿用之前自己写的3D数学库，这方面的东西不再赘述。相关的完全代码在这里。
+在前面的基础上，丰富光线追踪器的各种特性。本篇内容主要包含添加纹理映射、平面光源和球形光源、三角网格模型渲染、增加天空盒背景、构建BVH树、tbb多线程渲染加速、蒙特卡罗积分方法、重要性采样，后面部分涉及的高等数学和概率论内容较多。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2019/05/08/RayTracer-Basis/" rel="prev" title="光线追踪器Ray Tracer：入门篇">
+                                    
+                                        光线追踪器Ray Tracer：入门篇
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: '光线追踪器Ray Tracer：进阶篇',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.jpg"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一、纹理映射"><span class="toc-text">一、纹理映射</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二、三角网格模型"><span class="toc-text">二、三角网格模型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三、添加光源"><span class="toc-text">三、添加光源</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四、天空盒背景"><span class="toc-text">四、天空盒背景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#五、构建BVH树"><span class="toc-text">五、构建BVH树</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#射线与包围盒相交判断"><span class="toc-text">射线与包围盒相交判断</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BVH树的构建"><span class="toc-text">BVH树的构建</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#BVH树的遍历"><span class="toc-text">BVH树的遍历</span></a></li></ol></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#tbb多线程渲染"><span class="toc-text">tbb多线程渲染</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#蒙特卡罗积分"><span class="toc-text">蒙特卡罗积分</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#重要性采样"><span class="toc-text">重要性采样</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#程序效果"><span class="toc-text">程序效果</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-text">参考资料</span></a></li>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(7)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 17.33px; color: #d2d2d2">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 14px; color: #bbb">Fluid Simulation</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 17.33px; color: #d2d2d2">Ray Tracer</a> <a href="/tags/Soft-Renderer/" style="font-size: 20.67px; color: #e8e8e8">Soft Renderer</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
