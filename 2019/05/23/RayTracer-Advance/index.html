@@ -304,6 +304,7 @@
 <li>tbb多线程渲染</li>
 <li>蒙特卡罗积分</li>
 <li>重要性采样</li>
+<li>MC光线追踪</li>
 <li>程序效果</li>
 <li>参考资料</li>
 </ul>
@@ -326,7 +327,7 @@ z = sin(\theta) \tag {2}</script><p>&emsp;&emsp;注意到$y/x=tan(\phi)$，所�
 <script type="math/tex; mode=display">
 N=(P_1-P_0)\times(P_2-P_0) \tag {4}</script><p>&emsp;&emsp;平面与原点的距离$d$等于平面法向量$N$与平面中任意一点的内积的负数，这里选$P_0$，则$d$为：</p>
 <script type="math/tex; mode=display">
-d = -N\cdot P_0 \tag {5}</script><p>&emsp;&emsp;则三角形所在的平面可以用四维向量$<n, -n\cdot p_0>$表示，实际上三角形所在平面的表达式为$N\cdot(x,y,z)+d=0$，首先我们求射线与该平面的交点，然后再判断交点是否在三角形内部。将射线方程$P(t) = S+tV$带入平面的方程，则有：</n,></p>
+d = -N\cdot P_0 \tag {5}</script><p>&emsp;&emsp;则三角形所在的平面可以用四维向量$(N, -N\cdot P_0)$表示，实际上三角形所在平面的表达式为$N\cdot(x,y,z)+d=0$，首先我们求射线与该平面的交点，然后再判断交点是否在三角形内部。将射线方程$P(t) = S+tV$带入平面的方程，则有：</p>
 <script type="math/tex; mode=display">
 N\cdot P(t)+d=0\\
 \to N\cdot S +(N\cdot V)t +d=0\\
@@ -452,7 +453,7 @@ P(y)=Pr\{x\leq y\}=\int_{-\infty}^yp(x)dx \tag {15}</script><p>&emsp;&emsp;可�
 <script type="math/tex; mode=display">
 \forall x:p(x) \geq 0 \tag {16}</script><script type="math/tex; mode=display">
 \int _{-\infty}^{+\infty}p(x)dx = 1 \tag {17}</script><script type="math/tex; mode=display">
-p(x)=\frac{dP(x)}{dx} \tag {18}</script><p>&emsp;&emsp;其中，式$(8)$说明了$p(x)$和$P(x)$的概率，前者是后者的导数。那么给定一个随机变量的区间范围$[a,b]$，随机变量的值$x$落在这个区间的概率计算如下：</p>
+p(x)=\frac{dP(x)}{dx} \tag {18}</script><p>&emsp;&emsp;其中，式$(8)$说明了$p(x)$和$P(x)$的关系，前者是后者的导数。那么给定一个随机变量的区间范围$[a,b]$，随机变量的值$x$落在这个区间的概率计算如下：</p>
 <script type="math/tex; mode=display">
 Pr\{a\leq x\leq b\}=Pr(x\leq b)-Pr(x\leq a)\\
 =P(b)-P(a)=\int_a^b p(z)dz \tag {19}</script><p>&emsp;&emsp;注意，这里的$Pr$函数是概率函数，而不是概率分布函数。直观来讲，概率密度函数$p(x)$给定的并不是随机变量取值$x$的概率，概率密度函数与轴围成的面积才是给定的概率。如下所示，图(a)是概率分布函数，而图$(b)$则是概率密度函数，给定区间的$[a,b]$的概率就是下图(b)中的面积，这也对应了公式$(19)$中的积分形式（积分的几何意义就是面积）。</p>
@@ -500,7 +501,7 @@ E[\frac1N\Sigma_{i=1}^N\frac{g(x_i)}{p(x_i)}]=\frac1N\Sigma_{i=1}^NE[\frac{g(x_i
 <script type="math/tex; mode=display">
 \int_{\Omega_0}p(x)dx=1 \tag {32}</script><p>&emsp;&emsp;抽样是这样的一个算法，它能够从$p(x)$对应的随机变量$X$中产生一系列随机数$X1,X2,…$，使得对任意的$\Omega \in \Omega_0$满足如下：</p>
 <script type="math/tex; mode=display">
-P\{X_k\in\Omega\}=\int_{\Omega}p(x)dx\leq 1 \tag {33}</script><p>&emsp;&emsp;在实现中我们并不能直接从$p(x)$产生随机数，在计算机程序中这个过程必须要求首先具有某些基础随机数的一个序列。我们通常采用均匀随机数random来产生一个均匀分布的随机数，然后用来作为抽象所需的基础随机数。目前抽象方法根据不同情况有不同的方法，这里目前只介绍<strong>逆变换算法。</strong></p>
+P\{X_k\in\Omega\}=\int_{\Omega}p(x)dx\leq 1 \tag {33}</script><p>&emsp;&emsp;在实现中我们并不能直接从$p(x)$产生随机数，在计算机程序中这个过程必须要求首先具有某些基础随机数的一个序列。我们通常采用均匀随机数random来产生一个均匀分布的随机数，然后用来作为抽象所需的基础随机数。目前抽象方法根据不同情况有不同的方法，这里目前只介绍逆变换算法。</p>
 <p>&emsp;&emsp;逆变换算法的定义为：设$X$是连续随机变量，其概率分布函数为$P_X$，若随机变量$Y$是一个$[0,1]$上的均匀分布，则随机变量$P_X^{-1}(Y)$具有和$X$一样的概率分布。即我们通过概率分布函数的反函数来获取服从$p(x)$概率密度函数的随机变量，注意是概率分布函数$P(x)$的反函数，而不是概率密度函数$p(x)$的反函数。有时我们不知道概率分布函数，这时我们可以通过概率密度函数来求它的概率分布函数。</p>
 <p>&emsp;&emsp;逆变换算法从一个概率密度函数$p(x)$产生随机数$X_i$的步骤如下：</p>
 <ul>
@@ -581,9 +582,9 @@ cos\theta =\sqrt{1-r_2} \tag {49}</script><p>&emsp;&emsp;公式$(49)$只得到�
 <p><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.11/blog/RayTracer-Advance/9.png" alt="9"></p>
 <center> 图5 直接光源采样 </center>
 
-<p>&emsp;&emsp;$d\omega$与$dA$存在着一个对应关系，实际上我们可以通过前面提到的立体角定义（即公式$(42)$）得到$d\omega$与$dA$的关系如下所示，这个公式不难理解。其中$\alpha$夹角是采样方向向量与矩形表面的法线向量的夹角，$dA<em>cos\alpha$实际上是将矩形的微分面积$dA$投影到采样方向$pq$上，这是因为从$pq$方向看去只能看到$dA</em>cos\alpha$这个大小的面积，然后再比上半径长度的平方$||pq||^2$，这是立体角的定义。</p>
+<p>&emsp;&emsp;$d\omega$与$dA$存在着一个对应关系，实际上我们可以通过前面提到的立体角定义（即公式$(42)$）得到$d\omega$与$dA$的关系如下所示，这个公式不难理解。其中$\alpha$夹角是采样方向向量与矩形表面的法线向量的夹角，$dAcos\alpha$实际上是将矩形的微分面积$dA$投影到采样方向$pq$上，这是因为从$pq$方向看去只能看到$dAcos\alpha$这个大小的面积，然后再比上半径长度的平方$||pq||^2$，这是立体角的定义。</p>
 <script type="math/tex; mode=display">
-d\omega=\frac{dA*cos\alpha}{||pq||^2} \tag {51}</script><p>&emsp;&emsp;现在对$dA$的采样概率为$\frac{dA}{A}$，在球体方向上对立体角$d\omega$采样的概率为$p(direction)<em>d\omega$，其中$p(direction)$是我们假定的对光源直接采样的概率密度函数。理论上来说，$\frac{dA}{A}$应该等于$p(direction)</em>d\omega$，即有：</p>
+d\omega=\frac{dA*cos\alpha}{||pq||^2} \tag {51}</script><p>&emsp;&emsp;现在对$dA$的采样概率为$\frac{dA}{A}$，在球体方向上对立体角$d\omega$采样的概率为$p(direction)d\omega$，其中$p(direction)$是我们假定的对光源直接采样的概率密度函数。理论上来说，$\frac{dA}{A}$应该等于$p(direction)d\omega$，即有：</p>
 <script type="math/tex; mode=display">
 p(direction)*\frac{dA*cos\alpha}{||pq||^2}=\frac{dA}{A}\\
 \to p(direction)=\frac{||pq||^2}{Acos\alpha} \tag {52}</script><p>&emsp;&emsp;公式$(52)$推导出了我们要找的直接光源采样的概率密度函数。根据逆变换算法，我们还要求它的概率分布函数从而生成服从公式$(52)$概率密度函数的随机采样方向，但是这里其实没有必要。我们直接在矩形光源上随机采样一个点，然后将这个采样点与物体表面上的点连接起来就是我们的直接光源采样方向，通过这个方法省去了比较复杂的高数推导过程。</p>
@@ -647,7 +648,7 @@ SolidAngle =\int_0^{2\pi}d\phi\int_0^{\theta_{max}}sin\theta d\theta=2\pi(1-cos(
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-25T15:17:04+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-25T15:29:26+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
     <p>最后更新于 2019年5月25日</p>
