@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>多体问题N-body：基于CUDA的快速N-body模拟 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+									<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2019/06/20/NbodySimulation/">
+        多体问题N-body：基于CUDA的快速N-body模拟
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-06-20</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/N-body/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;N-body</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>本篇文章主要是关于用cuda实现天体的N-body系统，以及粒子渲染的辉光效果。相关的完整代码请看<a href="https://github.com/ZeusYang/NBodySimulation" target="_blank" rel="noopener">这个链接</a>。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/header.gif" width="99%"></div></p>
+<a id="more"></a>
+<ul>
+<li>天体的N-body系统</li>
+<li>基于CUDA的N-body实现</li>
+<li>粒子渲染-辉光特效</li>
+<li>参考资料</li>
+</ul>
+<center><font size="6">基于CUDA的快速N-body模拟</font></center>
+
+<p>&emsp;&emsp;N-body问题（或者说N体问题），是一个常见的物理模拟问题。在N-body系统中，每个粒子体都会与剩下的其他粒子产生交互作用（交互作用因具体问题而异），从而产生相应的物理现象。天体模拟就是一个非常经典的N-body系统，根据牛顿的万有引力定律，宇宙中的不同天体之间会产生相互作用的吸引力，吸引力根据两个天体之间的质量和距离的不同而各不相同，一个天体的运动轨迹最终取决于剩下的所有的天体对该天体的引力的合力。除了天体系统之外，N-body模拟在其他计算学科中也是常客。例如模拟蛋白质折叠现象就是通过计算N-body之间的静电和范德华力，<strong>计算机图形学中的湍流流体的流动模拟和全局光照明计算都涉及到N-body问题的求解</strong>。</p>
+<p>&emsp;&emsp;这周主要学习CUDA（全称为Computer Unified Device Architecture），它是一个NVIDIA的GPU编程模型，搞图形学不免常要与GPU打交道，所以非常有必要学习这个统一的GPU编程框架。N-body问题是计算机图形学中物理模拟的常见问题，在此我采用CUDA实现了一个天体星系的N-body模拟系统，充分利用GPU的并行能力去加速N-body的巨额计算过程。下面这张图就是我实现的天体星系模拟效果。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/header.png" width="99%"></div></p>
+<center> 图1 天体星系的N-body模拟 </center>
+
+
+<h2 id="1、天体的N-body系统"><a href="#1、天体的N-body系统" class="headerlink" title="1、天体的N-body系统"></a>1、天体的N-body系统</h2><p>&emsp;&emsp;一种最简单的求解N-body的方法就是暴力法，被称为all-pairs法，它直接计算一个粒子体与剩下的所有粒子体的相互作用，对每一个粒子都做类似的处理，这样可以确保每个粒子体都与剩下的所有粒子体都产生交互作用，这种方法简单、暴力，但是算法的复杂度非常高，达到了$O(N^2)$量级，当模拟的N-body系统有$N=10000$个粒子时，算法就需要处理1亿次的相互作用计算。显然对于非常庞大的N-body系统，直接使用暴力法将非常耗时，因而通常不是简单地采用该算法。all-pairs法通常与一种基于长距离力的远场近似法结合，目前此类形式的算法包括Barnes-Hut法$^{[1]}$、快速多极法$^{[2]}$和粒子网格法$^{[3]}$等等。</p>
+<p>&emsp;&emsp;上面提到的几种加速方法最耗时的部分依旧是all-pairs部分，因此这是一个非常关键的部分，如果能够加速这一部分，那么模拟的速度将大大提升。因此，目前我们只关注all-pairs算法部分，而且不是在CPU上实现该算法的串行，而是接用CUDA编程模型实行一个GPU并行的快速版本。接下来先介绍一下天体星系的N-body系统。</p>
+<p>&emsp;&emsp;天体星系模拟主要考虑的是万有引力。给定$N$个天体，我们记每个天体$0\leq i&lt;N$的位置向量为$x_i$、速度向量为$v_i$、质量为$m_i$，根据牛顿的万有引力定律，任意两个不同天体$i$和$j$之间的万有引力计算公式如下所示：</p>
+<script type="math/tex; mode=display">
+f_{ij}=G\frac{m_im_j}{||r_{ij}||^2}\cdot \frac{r_{ij}}{||r_{ij}||} \tag {1}</script><p>&emsp;&emsp;公式$(1)$中的$r_{ij}=x_j-x_i$为从天体$i$到$j$的一个方向向量，故其模长为两者之间的距离。$G$是万有引力常数。上面这个公式可能看起来跟我们高中时学的万有引力公式略有不同，这是因为高中时还没有将力是一个矢量这个概念显示地表达出来，公式$(1)$中的$\frac{r_{ij}}{||r_{ij}||}$是一个从$i$到$j$的单位方向向量。上述公式描述的是天体$j$对天体$i$的引力，那么除$i$之外的所有天体对天体$i$的引力合力的计算公式为：</p>
+<script type="math/tex; mode=display">
+F_i=\Sigma_{0\leq j<N,j\neq i}f_{ij}=Gm_i\cdot\Sigma_{0\leq j<N,j\neq i}\frac{m_jr_{ij}}{||r_{ij}||^3} \tag {2}</script><p>&emsp;&emsp;公式$(2)$有个潜在的不稳定问题，当两个粒子之间的距离向量$r_{ij}\to0$时，$||r_{ij}||$取值为$0$，从而导致除零错误，在计算机系统中这将导致程序崩溃。因此，为了避免这种情况，我们在公式$(2)$的基础上给它的分母再加上一个软化因子（softening factor）$ε^2&gt;0$，从而万有引力近似计算公式为：</p>
+<script type="math/tex; mode=display">
+F_i\approx Gm_i\cdot\Sigma_{0\leq j<N}\frac{m_jr_{ij}}{(||r_{ij}||^2+ε^2)^{3/2}} \tag {3}</script><p>&emsp;&emsp;公式$(3)$中，当$ε$取0时，就是原来的公式$(2)$。除此之外，注意公式$(3)$中还去掉了公式$(2)$中的条件判断$i\neq j$，这样带来的另外一个好处就是免去了条件判断语句，这对GPU非常友好，因为GPU擅长的是算术运算，逻辑运算会或多或少地拖慢GPU的并行速度。根据公式$(3)$我们现在得到了某一个天体的引力合力，我们还要根据这个合力计算天体的加速度，接着根据加速度计算天体的速度，最后得到天体的位置向量。由牛顿定律可知，天体加速度$a_i=F_i/m_i$，结合公式$(3)$消去$m_i$，我们可得下面的加速度计算公式$(4)$：</p>
+<script type="math/tex; mode=display">
+a_i\approx G\cdot \Sigma_{0\leq j<N}\frac{m_jr_{ij}}{(||r_{ij}||^2+ε^2)^{3/2}} \tag {4}</script><p>&emsp;&emsp;对于天体的N-body模拟，我们实际上要计算的就是公式$(4)$。</p>
+<h2 id="2、基于CUDA的N-body实现"><a href="#2、基于CUDA的N-body实现" class="headerlink" title="2、基于CUDA的N-body实现"></a>2、基于CUDA的N-body实现</h2><p>&emsp;&emsp;N-body模拟的all-pairs算法复杂度为$O(N^2)$，这是相对于串行来说的，但是在GPU上我们可以通过并行来消减算法所需的时间，即通过空间上的并行来降低时间上的复杂度。我们要在CUDA上解决一个问题，首先要分析问题，发现该问题潜在的并行性。对于一个天体系统，我们通过分析发现任两个天体$i$和$j$之间的万有引力$f_{ij}$计算不涉及到其他天体的计算结果，即计算是独立的。$N$个天体的星系需要计算的就是$N\times N$大小的矩阵，第$i$行、$j$列的矩阵项为$f_{ij}$。所以一个非常自然的想法就是，通过并行计算每个矩阵项$f_{ij}$，这样看起来理论上花费的时间就是计算一个矩阵项$f_{ij}$的时间，算法的复杂度降为$O(1)$。但是在GPU上实现并行算法时，我们还要考虑内存访问的时间。上面我们提到的想法需要耗费$O(N^2)$量级的内存空间，这是一个非常大的空间复杂度，很可能我们的显卡上并没有这么大的显存，除此之外显存的访问也将明显拖慢我们的并行速度。</p>
+<p>&emsp;&emsp;因此，为了同时考虑时间和空间的开销，我们需要在两者之间做一个平衡。一个非常不错的做法就是给时间和空间各自分配一个$O(N)$的复杂度，相对于$O(N^2)$，$O(N)$是一个极大的算法复杂度提升。我们知道，对于每一个天体，都要遍历$N$个天体计算加速度。因此，我们采用这样的一个策略：对于每个天体，我们串行地计算它的加速度，不同天体之间的加速度并行计算。这个策略不难理解，如下图2所示，横向是时间轴、纵向是空间轴，在时间轴方向上，每个天体的加速度串行计算；在空间轴方向上，不同天体之间独立地并行。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/1.png" width="80%"></div></p>
+<center> 图2 GPU上纵向并行、横向加速 </center>
+
+
+<p>&emsp;&emsp;接下来就考虑如何在CUDA上实现该策略。首先是每一对天体之间引力的加速度计算，我们直接套用前面提到的公式即可，这里需要注意距离向量的计算。因为万有引力是吸引力，因此天体$j$对天体$i$的引力方向是从$i$到$j$的。CUDA的kernel代码如下所示，<strong>可以看到一对天体之间的引力计算需要耗费20次的浮点数运算。</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">__device__</span><br><span class="line"><span class="function">float3 <span class="title">bodyPairInteraction</span><span class="params">(float4 pi, float4 pj, float3 ai)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	float3 distVector = &#123; <span class="number">0.0f</span>, <span class="number">0.0f</span>, <span class="number">0.0f</span> &#125;;</span><br><span class="line">	distVector.x = pj.x - pi.x;</span><br><span class="line">	distVector.y = pj.y - pi.y;</span><br><span class="line">	distVector.z = pj.z - pi.z;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">float</span> distSquared = distVector.x * distVector.x + distVector.y * distVector.y</span><br><span class="line">		+ distVector.z * distVector.z;</span><br><span class="line">	distSquared += getSofteningSquared();</span><br><span class="line">	<span class="keyword">float</span> invDist = rsqrtf(distSquared);</span><br><span class="line">	<span class="keyword">float</span> invDistCubic = invDist * invDist * invDist;</span><br><span class="line">	<span class="keyword">float</span> coff = pj.w * invDistCubic;</span><br><span class="line"></span><br><span class="line">	ai.x += distVector.x * coff;</span><br><span class="line">	ai.y += distVector.y * coff;</span><br><span class="line">	ai.z += distVector.z * coff;</span><br><span class="line">	<span class="keyword">return</span> ai;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;一个天体占据一个GPU线程，串行地调用上面的bodyPairInteraction函数。这里我们需要考虑内存的访问。CUDA的内存分为三大类：全局内存、共享内存、寄存器内存，访问速度从左到右越来快。寄存器内存就是单个线程占据的局部内存，这里我们仅仅考虑全局内存和共享内存。全局内存的访问速度非常慢，为了性能我们必须考虑这一点。共享内存仅限于同一个线程块内，不同线程块之间的线程没有共享内存这一概念。既然共享内存仅限于同一个线程块，我们就采用一个分块的策略，不同天体计算各自的加速度之间是有数据重用的，先将天体数据预先加载到共享内存，同一个线程块的线程访问这个共享内存做相应的数值计算。但是又引入一个问题，共享内存是有限的，所以对于一个线程块的共享内存，我们不是一次性地将所有天体数据从全局内存加载到共享内存，而是分批次地加载、计算。如下图3所示，设一个线程块有$p$个线程，那么$N$个天体的引力计算被分到$N/p$个线程块，每个线程块分配p个天体数据大小的共享内存，分$N/P$批次串行计算。每次计算前，在同一个线程块内，各个线程相应地从全局内存加载各自对应的天体数据（通过线程id和线程块id、size计算索引）到共享内存，加载完毕之后各自迭代$p$次计算当前批次的天体引力，如下进行下去。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/2.png" width="80%"></div></p>
+<center> 图3 同一个线程块分批次加载、计算 </center>
+
+
+<p>&emsp;&emsp;注意需要在内存加载和引力计算之后插入同步原语，保证需要计算的数据全部已经加载完毕。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">__device__</span><br><span class="line"><span class="function">float3 <span class="title">calcGravitationForce</span><span class="params">(float4 bodyPos, float4 *positions, <span class="keyword">int</span> numTiles, thread_block cta)</span></span></span><br><span class="line"><span class="function"></span>&#123;	</span><br><span class="line">	<span class="keyword">extern</span> __shared__ float4 sharedPos[];</span><br><span class="line"></span><br><span class="line">	float3 acc = &#123; <span class="number">0.0f</span>, <span class="number">0.0f</span>, <span class="number">0.0f</span> &#125;;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> tile = <span class="number">0</span>; tile &lt; numTiles; ++tile)</span><br><span class="line">	&#123;</span><br><span class="line">		sharedPos[threadIdx.x] = positions[tile * blockDim.x + threadIdx.x];</span><br><span class="line">		sync(cta);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// tile calculation.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> unroll 128</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> index = <span class="number">0</span>; index &lt; blockDim.x; ++index)</span><br><span class="line">		&#123;</span><br><span class="line">			acc = bodyPairInteraction(bodyPos, sharedPos[index], acc);</span><br><span class="line">		&#125;</span><br><span class="line">		sync(cta);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> acc;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;通过上面的计算我们最终得到了引力的加速度数据，然后我们需要根据这个加速度更新天体的速度、位置，最后写入保存相关的数据的内存当中，比较简单，见如下CUDA的kernel代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">__global__</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">integrateBodies</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	float4 * newPos,</span></span></span><br><span class="line"><span class="function"><span class="params">	float4 * oldPos,</span></span></span><br><span class="line"><span class="function"><span class="params">	float4 *velocity,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">float</span> deltaTime,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">float</span> damping,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">unsigned</span> <span class="keyword">int</span> numTiles,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">unsigned</span> <span class="keyword">int</span> numBodies)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// get thread block.</span></span><br><span class="line">	thread_block cta = this_thread_block();</span><br><span class="line">	<span class="keyword">int</span> index = blockIdx.x * blockDim.x + threadIdx.x;</span><br><span class="line">	</span><br><span class="line">	float4 pos = oldPos[index];</span><br><span class="line"></span><br><span class="line">	<span class="comment">// compute acceleration.</span></span><br><span class="line">	float3 accel = calcGravitationForce(pos, oldPos, numTiles, cta);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// update velocity.</span></span><br><span class="line">	float4 vel = velocity[index];</span><br><span class="line">	vel.x += accel.x * deltaTime;</span><br><span class="line">	vel.y += accel.y * deltaTime;</span><br><span class="line">	vel.z += accel.z * deltaTime;</span><br><span class="line">	vel.x *= damping;</span><br><span class="line">	vel.y *= damping;</span><br><span class="line">	vel.z *= damping;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// update position.</span></span><br><span class="line">	pos.x += vel.x * deltaTime;</span><br><span class="line">	pos.y += vel.y * deltaTime;</span><br><span class="line">	pos.z += vel.z * deltaTime;</span><br><span class="line"></span><br><span class="line">	newPos[index] = pos;</span><br><span class="line">	velocity[index] = vel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后我们需要在CPU端做一些内存映射，完成CPU与GPU的交互。这里我才用了双缓冲，即一个缓冲用于写、一个缓冲用于读，因为设置显存缓冲为只读、只写会稍微带来一些性能的提升。此外由于在CUDA模拟之后需要调用OpenGL进行渲染，我这里就采用了OpenGL与CUDA的混合编程，OpenGL和CUDA共享天体数据，这样中间不再需要经过CPU完成数据的传送，而是直接在GPU上模拟、在GPU上读取进行渲染，剩下了不少的内存传输时间。最后千万不要忘了加上cudaDeviceSynchronize语句，确保在CUDA上模拟完，否则因为一般GPU与CPU是不同步，CPU上调用完CUDA的kernel程序之后，会继续执行自己的语句序列，可能导致后面的OpenGL渲染与CUDA的访存冲突，产生一些意外的结果。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">integrateNBodySystem</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">	real **devicePosition,</span></span></span><br><span class="line"><span class="function"><span class="params">	real *deviceVelocity,</span></span></span><br><span class="line"><span class="function"><span class="params">	cudaGraphicsResource **pGRes,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">volatile</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> currentRead,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">float</span> deltaTime,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">float</span> damping,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">unsigned</span> <span class="keyword">int</span> numBodies,</span></span></span><br><span class="line"><span class="function"><span class="params">	<span class="keyword">int</span> blockSize)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// map buffers.</span></span><br><span class="line">	cudaGraphicsResourceSetMapFlags(pGRes[currentRead],</span><br><span class="line">		cudaGraphicsMapFlagsReadOnly);</span><br><span class="line">	cudaGraphicsResourceSetMapFlags(pGRes[<span class="number">1</span> - currentRead],</span><br><span class="line">		cudaGraphicsMapFlagsWriteDiscard);</span><br><span class="line">	cudaGraphicsMapResources(<span class="number">2</span>, &amp;pGRes[<span class="number">0</span>], <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">size_t</span> bytes;</span><br><span class="line">	cudaError_t err = cudaGetLastError();</span><br><span class="line">	err = cudaGraphicsResourceGetMappedPointer((<span class="keyword">void</span>**)&amp;devicePosition[currentRead],</span><br><span class="line">		&amp;bytes, pGRes[currentRead]);</span><br><span class="line">	err = cudaGraphicsResourceGetMappedPointer((<span class="keyword">void</span>**)&amp;devicePosition[<span class="number">1</span> - currentRead],</span><br><span class="line">		&amp;bytes, pGRes[<span class="number">1</span> - currentRead]);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// launch kernel.</span></span><br><span class="line">	<span class="keyword">int</span> numBlocks = (numBodies + blockSize - <span class="number">1</span>) / blockSize;</span><br><span class="line">	<span class="keyword">int</span> sharedMemSize = blockSize * <span class="number">4</span> * <span class="keyword">sizeof</span>(real);</span><br><span class="line">	integrateBodies &lt;&lt; &lt;numBlocks, blockSize, sharedMemSize &gt;&gt; &gt; (</span><br><span class="line">		(float4*)devicePosition[<span class="number">1</span> - currentRead],</span><br><span class="line">		(float4*)devicePosition[currentRead],</span><br><span class="line">		(float4*)deviceVelocity,</span><br><span class="line">		deltaTime, damping,</span><br><span class="line">		numBlocks, numBodies);</span><br><span class="line">	cudaGraphicsUnmapResources(<span class="number">2</span>, &amp;pGRes[<span class="number">0</span>], <span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> NBodySystem::simulate(real deltaTime)</span><br><span class="line">&#123;</span><br><span class="line">	integrateNBodySystem(</span><br><span class="line">		m_devicePosition,</span><br><span class="line">		m_deviceVelocity,</span><br><span class="line">		m_pGRes,</span><br><span class="line">		m_currentRead,</span><br><span class="line">		deltaTime,</span><br><span class="line">		m_damping,</span><br><span class="line">		m_numBodies,</span><br><span class="line">		m_blockSize);</span><br><span class="line">	cudaDeviceSynchronize();</span><br><span class="line">	getLastCudaError(<span class="string">"Kernel execution failed"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// swap buffer.</span></span><br><span class="line">	<span class="built_in">std</span>::swap(m_currentRead, m_currentWrite);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="3、粒子渲染-辉光特效"><a href="#3、粒子渲染-辉光特效" class="headerlink" title="3、粒子渲染-辉光特效"></a>3、粒子渲染-辉光特效</h2><p>&emsp;&emsp;在天体模拟之后，我们需要把这些数据都渲染出来。对于每一个天体，我们都把它当成一个粒子，因而采用OpenGL的点精灵绘制，相关的内容比较简单，不再赘述。这里我要讲的是计算机图形学和图形处理结合实现的一种辉光特效技术，这种技术能够带来非常炫酷的渲染效果。这里说的辉光就是明亮区域产生的光晕效果，实际上是因为光线与空气中的介质相互作用，发生了散射。辉光最直接的例子就是太阳周围的光晕效果，这里我们将通过采用图像处理来实现辉光特效。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/3.png" width="80%"></div></p>
+<center> 图4 无辉光、有辉光的对比 </center>
+
+
+<p>&emsp;&emsp;我们将在OpenGL的着色器做相关的后处理，首先需要将场景的全部渲染到两张纹理中，一张是存储正常场景渲染结果，另外一张纹理存储场面渲染结果中的亮色，可以看成是<strong>亮度图</strong>。这里采用OpenGL的multi render target，将场景渲染到多张纹理当中。我们通过像素的rgb与权重向量$(0.2126, 0.7152, 0.0722)$做点乘得到像素的亮度值，以此来衡量一个像素点的亮度，若亮度超过给定的阈值，我们就把该像素存储到亮度图中，供后面的图像处理用。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 430 core</span></span><br><span class="line"></span><br><span class="line">uniform sampler2D image;</span><br><span class="line">uniform vec3 baseColor;</span><br><span class="line"></span><br><span class="line">layout(location = <span class="number">0</span>) out vec4 fragColor;</span><br><span class="line">layout(location = <span class="number">1</span>) out vec4 brightColor;</span><br><span class="line"></span><br><span class="line">in vec3 test;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	fragColor = vec4(baseColor, <span class="number">1.0f</span>);</span><br><span class="line">	fragColor = texture(image, gl_PointCoord) * fragColor;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// glow map.</span></span><br><span class="line">	<span class="keyword">float</span> brightness = dot(fragColor.rgb, vec3(<span class="number">0.2126</span>, <span class="number">0.7152</span>, <span class="number">0.0722</span>));</span><br><span class="line">	<span class="keyword">if</span>(brightness &gt; <span class="number">0.3f</span>)</span><br><span class="line">		brightColor = vec4(fragColor.rgb, <span class="number">1.0f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;接下来我们就对亮度图做一个高斯模糊处理，这属于图形处理的范畴。对于纹理的每一个像素，我们采样周围的像素，采样的范围取决于我们给定的模糊kernel半径，然后将所有采样得到的像素值根据高斯函数的做一个加权和，这样就完成了整个高斯模糊的过程。高斯函数其实就是我们熟悉的正太分布函数，它的特点就是中间的函数值大，然后向两端减少，两端是对称的。对于一个二维的图像，我们需要采用二维的高斯函数来做一个卷积处理。二维的高斯函数如下所示：</p>
+<script type="math/tex; mode=display">
+G(x,y)=\frac1{2\pi \sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \tag {5}</script><p>&emsp;&emsp;<a href="http://dev.theomader.com/gaussian-kernel-calculator/" target="_blank" rel="noopener">这个</a>网站提供了一个简单易用的高斯核函数计算工具。直接做二维的卷积非常简单，然而这里又需要考虑一个性能的问题，对于离线的图形处理来说，可能直接采样二维的邻域像素然后做加权和没什么太大的关系。但是对于实时渲染来说，这点很关键。因为$O(N^2)$和$O(N)$的差别是很大的，例如高斯模糊的kernel大小为$32\times 32$，那么对于每个像素，我们必须从周围区域采样$1024$个像素值，这仅仅针对于一个像素而言。</p>
+<p>&emsp;&emsp;高斯方程有个非常巧妙的特性，它允许我们把二维方程分解为两个更小的方程：一个描述水平权重，另一个描述垂直权重。我们首先用水平权重在整个纹理上进行水平模糊，然后在经改变的纹理上进行垂直模糊，最后得到结果与原来是一样的，但是可以大大提升算法的性能，因为我们现在只需做32+32次采样了。这种方法叫做两步高斯模糊，整个算法的过程如下图5所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/4.png" width="80%"></div></p>
+<center> 图5 两步高斯模糊 </center>
+
+
+<p>&emsp;&emsp;这里我实现的高斯模糊卷积核大小为$15\times 15$，采用两步模糊，只需采样30次。同时为了避免在GPU上做for循环，这里我直接将循环做一个展开。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line"></span><br><span class="line">in vec2 Texcoord;</span><br><span class="line"></span><br><span class="line">layout(location = <span class="number">0</span>) out vec4 fragColor;</span><br><span class="line">layout(location = <span class="number">1</span>) out vec4 brightColor;</span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">int</span> horizontal;</span><br><span class="line">uniform sampler2D Color;</span><br><span class="line">uniform sampler2D Bright;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">float</span> weight[<span class="number">8</span>] = <span class="keyword">float</span>[] (<span class="number">0.197448</span>, <span class="number">0.174697</span>, <span class="number">0.120999</span>, <span class="number">0.065602</span>, <span class="number">0.02784</span>, <span class="number">0.009246</span>, <span class="number">0.002403</span>, <span class="number">0.000489</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    vec2 tex_offset = <span class="number">1.0</span> / textureSize(Bright, <span class="number">0</span>); <span class="comment">// gets size of single texel</span></span><br><span class="line">    vec3 result = texture(Bright, Texcoord).rgb * weight[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(Bright, Texcoord + vec2(tex_offset.x * <span class="number">1</span> * horizontal, tex_offset.y * <span class="number">1</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">1</span>];</span><br><span class="line">    result += texture(Bright, Texcoord - vec2(tex_offset.x * <span class="number">1</span> * horizontal, tex_offset.y * <span class="number">1</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(Bright, Texcoord + vec2(tex_offset.x * <span class="number">2</span> * horizontal, tex_offset.y * <span class="number">2</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">2</span>];</span><br><span class="line">    result += texture(Bright, Texcoord - vec2(tex_offset.x * <span class="number">2</span> * horizontal, tex_offset.y * <span class="number">2</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(Bright, Texcoord + vec2(tex_offset.x * <span class="number">3</span> * horizontal, tex_offset.y * <span class="number">3</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">3</span>];</span><br><span class="line">    result += texture(Bright, Texcoord - vec2(tex_offset.x * <span class="number">3</span> * horizontal, tex_offset.y * <span class="number">3</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(Bright, Texcoord + vec2(tex_offset.x * <span class="number">4</span> * horizontal, tex_offset.y * <span class="number">4</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">4</span>];</span><br><span class="line">    result += texture(Bright, Texcoord - vec2(tex_offset.x * <span class="number">4</span> * horizontal, tex_offset.y * <span class="number">4</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(Bright, Texcoord + vec2(tex_offset.x * <span class="number">5</span> * horizontal, tex_offset.y * <span class="number">5</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">5</span>];</span><br><span class="line">    result += texture(Bright, Texcoord - vec2(tex_offset.x * <span class="number">5</span> * horizontal, tex_offset.y * <span class="number">5</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">5</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(Bright, Texcoord + vec2(tex_offset.x * <span class="number">6</span> * horizontal, tex_offset.y * <span class="number">6</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">6</span>];</span><br><span class="line">    result += texture(Bright, Texcoord - vec2(tex_offset.x * <span class="number">6</span> * horizontal, tex_offset.y * <span class="number">6</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">6</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(Bright, Texcoord + vec2(tex_offset.x * <span class="number">7</span> * horizontal, tex_offset.y * <span class="number">7</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">7</span>];</span><br><span class="line">    result += texture(Bright, Texcoord - vec2(tex_offset.x * <span class="number">7</span> * horizontal, tex_offset.y * <span class="number">7</span> * (<span class="number">1</span>-horizontal))).rgb * weight[<span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">    brightColor = vec4(result, <span class="number">1.0</span>);</span><br><span class="line">	fragColor = texture(Color, Texcoord);	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;采用了两步高斯模糊之后，我们需要模糊多次，一个比较好得模糊次数是10，水平方向和垂直方向各模糊5次。为了实现两步高斯交替模糊，这里又再一次地采用了双缓冲机制，这是因为OpenGL只支持对uniform纹理的读取。具体代码见下面所示。通过以上步骤我们就得到了一张模拟的亮度图。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> horizontal = <span class="literal">true</span>;</span><br><span class="line">Shader::ptr blurShader = ShaderMgr::getSingleton()-&gt;getShader(m_gaussianShaderIndex);</span><br><span class="line">blurShader-&gt;bind();</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">string</span> texStr;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m_blurTimes; ++i)</span><br><span class="line">&#123;</span><br><span class="line">	m_framebuffer[m_writeIndex]-&gt;bind();</span><br><span class="line">	glDisable(GL_CULL_FACE);</span><br><span class="line">	glDisable(GL_DEPTH_TEST);</span><br><span class="line">	glDisable(GL_BLEND);</span><br><span class="line">	glClearColor(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>);</span><br><span class="line">	glClear(GL_COLOR_BUFFER_BIT);</span><br><span class="line">	blurShader-&gt;setInt(<span class="string">"Color"</span>, <span class="number">0</span>);</span><br><span class="line">	blurShader-&gt;setInt(<span class="string">"Bright"</span>, <span class="number">1</span>);</span><br><span class="line">	blurShader-&gt;setInt(<span class="string">"horizontal"</span>, horizontal);</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">stringstream</span> iss;</span><br><span class="line">	iss &lt;&lt; m_readIndex;</span><br><span class="line">	TextureMgr::getSingleton()-&gt;bindTexture(<span class="string">"Color"</span> + iss.str(), <span class="number">0</span>);</span><br><span class="line">	TextureMgr::getSingleton()-&gt;bindTexture(<span class="string">"BrightColor"</span> + iss.str(), <span class="number">1</span>);</span><br><span class="line">	MeshMgr::getSingleton()-&gt;drawMesh(m_screenQuadIndex, <span class="literal">false</span>, <span class="number">0</span>);</span><br><span class="line">	<span class="built_in">std</span>::swap(m_readIndex, m_writeIndex);</span><br><span class="line">	horizontal = !horizontal;</span><br><span class="line">&#125;</span><br><span class="line">blurShader-&gt;unBind();</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后为了实现辉光效果，我们需要将模糊的亮度图叠加到场景渲染结果上，这样辉光特效就制作好了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line"></span><br><span class="line">in vec2 Texcoord;</span><br><span class="line"></span><br><span class="line">out vec4 fragColor;</span><br><span class="line"></span><br><span class="line">uniform sampler2D Color;</span><br><span class="line">uniform sampler2D BrightColor;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	vec3 hdrColor = (texture(Color, Texcoord).rgb + texture(BrightColor, Texcoord).rgb);</span><br><span class="line">    fragColor = vec4(hdrColor, <span class="number">1.0f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;下面是无辉光特效、有辉光特效的一个对比图，可以看到差别非常明显，辉光效果可以极大地提升场景中的效果。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/5.jpg" width="99%"></div></p>
+<center> 图6 无辉光（上）、有辉光（下）对比 </center>
+
+
+
+<h2 id="4、模拟效果"><a href="#4、模拟效果" class="headerlink" title="4、模拟效果"></a>4、模拟效果</h2><p>&emsp;&emsp;文章开头模拟的是银河星系。下面这个是银河星系与仙女座星系碰撞。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/ret1.gif" width="99%"></div></p>
+<p>&emsp;&emsp;星系膨胀。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/ret2.gif" width="99%"></div></p>
+<h1 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h1><p>$[1]$ Aarseth, S. 2003. Gravitational N-Body Simulations. Cambridge University Press. Barnes, J., and P. Hut. 1986. “A Hierarchical O(n log n) Force Calculation Algorithm.” Nature 324.</p>
+<p>$[2]$ Greengard, Leslie F., and Jingfang Huang. 2002. “A New Version of the Fast Multipole Method for Screened Coulomb Interactions in Three Dimensions.” Journal of Computational Physics 180(2), pp. 642–658.</p>
+<p>$[3]$ Darden, T., D. York, and L. Pederson. 1993. “Particle Mesh Ewald: An N log(N) Method for Ewald Sums in Large Systems.” Journal of Chemical Physics 98(12), p. 10089.</p>
+<p>$[4]$ <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#abstract" target="_blank" rel="noopener">CUDA C Programming Guide</a></p>
+<p>$[5]$ <a href="http://bima.astro.umd.edu/nemo/archive/#dubinski" target="_blank" rel="noopener">N-Body Data Archive</a></p>
+<p>$[6]$ Lars Nyland, Mark Harris, Jan Prins.《GPU Germ3》 Chapter 31: Fast N-Body Simulation with CUDA.</p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-06-20T13:24:49+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2019年6月20日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/N-body/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>N-body</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Glow-effect/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Glow effect</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/06/20/NbodySimulation/&title=多体问题N-body：基于CUDA的快速N-body模拟 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本篇文章主要是关于用cuda实现天体的N-body系统，以及粒子渲染的辉光效果。相关的完整代码请看这个链接。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/06/20/NbodySimulation/&title=多体问题N-body：基于CUDA的快速N-body模拟 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本篇文章主要是关于用cuda实现天体的N-body系统，以及粒子渲染的辉光效果。相关的完整代码请看这个链接。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/06/20/NbodySimulation/&title=多体问题N-body：基于CUDA的快速N-body模拟 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本篇文章主要是关于用cuda实现天体的N-body系统，以及粒子渲染的辉光效果。相关的完整代码请看这个链接。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2019/06/11/Voxelization/" rel="prev" title="体素化Voxelization：基于GPU的三维体素化">
+                                    
+                                        体素化Voxelization：基于GPU的三维体素化
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Voxelization/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Voxelization</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: '多体问题N-body：基于CUDA的快速N-body模拟',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.jpg"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1、天体的N-body系统"><span class="toc-text">1、天体的N-body系统</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2、基于CUDA的N-body实现"><span class="toc-text">2、基于CUDA的N-body实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3、粒子渲染-辉光特效"><span class="toc-text">3、粒子渲染-辉光特效</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4、模拟效果"><span class="toc-text">4、模拟效果</span></a></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a>
+    </li></div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 17.33px; color: #d2d2d2">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 17.33px; color: #d2d2d2">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 14px; color: #bbb">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 17.33px; color: #d2d2d2">Ray Tracer</a> <a href="/tags/Soft-Renderer/" style="font-size: 20.67px; color: #e8e8e8">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
