@@ -302,10 +302,11 @@
 <li>参考资料</li>
 </ul>
 <center><font size="6">基于CUDA的快速N-body模拟</font></center>
+&emsp;&emsp;N-body问题（或者说N体问题），是一个常见的物理模拟问题。在N-body系统中，每个粒子体都会与剩下的其他粒子产生交互作用（交互作用因具体问题而异），从而产生相应的物理现象。天体模拟就是一个非常经典的N-body系统，根据牛顿的万有引力定律，宇宙中的不同天体之间会产生相互作用的吸引力，吸引力根据两个天体之间的质量和距离的不同而各不相同，一个天体的运动轨迹最终取决于剩下的所有的天体对该天体的引力的合力。除了天体系统之外，N-body模拟在其他计算学科中也是常客。例如模拟蛋白质折叠现象就是通过计算N-body之间的静电和范德华力，**计算机图形学中的湍流流体的流动模拟和全局光照明计算都涉及到N-body问题的求解**。
 
-<p>&emsp;&emsp;N-body问题（或者说N体问题），是一个常见的物理模拟问题。在N-body系统中，每个粒子体都会与剩下的其他粒子产生交互作用（交互作用因具体问题而异），从而产生相应的物理现象。天体模拟就是一个非常经典的N-body系统，根据牛顿的万有引力定律，宇宙中的不同天体之间会产生相互作用的吸引力，吸引力根据两个天体之间的质量和距离的不同而各不相同，一个天体的运动轨迹最终取决于剩下的所有的天体对该天体的引力的合力。除了天体系统之外，N-body模拟在其他计算学科中也是常客。例如模拟蛋白质折叠现象就是通过计算N-body之间的静电和范德华力，<strong>计算机图形学中的湍流流体的流动模拟和全局光照明计算都涉及到N-body问题的求解</strong>。</p>
-<p>&emsp;&emsp;这周主要学习CUDA（全称为Computer Unified Device Architecture），它是一个NVIDIA的GPU编程模型，搞图形学不免常要与GPU打交道，所以非常有必要学习这个统一的GPU编程框架。N-body问题是计算机图形学中物理模拟的常见问题，在此我采用CUDA实现了一个天体星系的N-body模拟系统，充分利用GPU的并行能力去加速N-body的巨额计算过程。下面这张图就是我实现的天体星系模拟效果。</p>
-<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/header.png" width="99%"></div></p>
+&emsp;&emsp;这周主要学习CUDA（全称为Computer Unified Device Architecture），它是一个NVIDIA的GPU编程模型，搞图形学不免常要与GPU打交道，所以非常有必要学习这个统一的GPU编程框架。N-body问题是计算机图形学中物理模拟的常见问题，在此我采用CUDA实现了一个天体星系的N-body模拟系统，充分利用GPU的并行能力去加速N-body的巨额计算过程。下面这张图就是我实现的天体星系模拟效果。
+
+<div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.15/blog/Nbody/header.png" width="99%">
 <center> 图1 天体星系的N-body模拟 </center>
 
 
@@ -376,7 +377,7 @@ G(x,y)=\frac1{2\pi \sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \tag {5}</script><p>&
 <p>$[4]$ <a href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#abstract" target="_blank" rel="noopener">CUDA C Programming Guide</a></p>
 <p>$[5]$ <a href="http://bima.astro.umd.edu/nemo/archive/#dubinski" target="_blank" rel="noopener">N-Body Data Archive</a></p>
 <p>$[6]$ Lars Nyland, Mark Harris, Jan Prins.《GPU Germ3》 Chapter 31: Fast N-Body Simulation with CUDA.</p>
-
+</div>
         </div>
         
           
@@ -387,10 +388,10 @@ G(x,y)=\frac1{2\pi \sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \tag {5}</script><p>&
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-06-20T13:24:49+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-06-26T10:51:59+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年6月20日</p>
+    <p>最后更新于 2019年6月26日</p>
   </a>
 </div>
 
@@ -450,6 +451,25 @@ G(x,y)=\frac1{2\pi \sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \tag {5}</script><p>&
         
         
             <div class="prev-next">
+                
+                    <section class="prev">
+                        <span class="art-item-left">
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h4>
+                                <a href="/2019/06/26/PBF_CUDA/" rel="prev" title="流体模拟Fluid Simulation：基于CUDA的PBF实现">
+                                  
+                                      流体模拟Fluid Simulation：基于CUDA的PBF实现
+                                  
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Fluid-Simulation/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Fluid Simulation</a> <a class="tag" href="/tags/Position-Based-Dynamics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Position Based Dynamics</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
                 
                 
                     <section class="next">
@@ -705,13 +725,13 @@ G(x,y)=\frac1{2\pi \sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \tag {5}</script><p>&
     <div class="content material">
       <ul class="entry">
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(10)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(11)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(2)</div></a></li>
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(3)</div></a></li>
         
           <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(1)</div></a></li>
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(2)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
         
@@ -742,7 +762,7 @@ G(x,y)=\frac1{2\pi \sigma^2}e^{-\frac{x^2+y^2}{2\sigma^2}} \tag {5}</script><p>&
 </header>
 
     <div class="content material">
-      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 17.33px; color: #d2d2d2">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 17.33px; color: #d2d2d2">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 14px; color: #bbb">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 17.33px; color: #d2d2d2">Ray Tracer</a> <a href="/tags/Soft-Renderer/" style="font-size: 20.67px; color: #e8e8e8">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16.5px; color: #ccc">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 19px; color: #ddd">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 16.5px; color: #ccc">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 16.5px; color: #ccc">Ray Tracer</a> <a href="/tags/Soft-Renderer/" style="font-size: 21.5px; color: #eee">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
     </div>
   </section>
 
