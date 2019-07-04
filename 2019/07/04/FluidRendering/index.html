@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>流体渲染Fluid Rendering：基于屏幕空间的液体渲染 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+									<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2019/07/04/FluidRendering/">
+        流体渲染Fluid Rendering：基于屏幕空间的液体渲染
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-07-04</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Position-Based-Dynamics/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Fluid Simulation&nbsp;/&nbsp;Position Based Dynamics</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>本文主要是关于屏幕空间的液体渲染算法，分别介绍了高斯滤波、双边滤波和曲率流方法平滑流体深度的方法。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/header.gif" width="99%"></div></p>
+<a id="more"></a>
+<ul>
+<li>基于屏幕空间的流体渲染</li>
+<li>水体的光照计算</li>
+<li>流体深度贴图的平滑处理</li>
+<li>实现效果</li>
+<li>参考资料</li>
+</ul>
+<center><font size="6">基于屏幕空间的流体渲染</font></center>
+
+
+<p>&emsp;&emsp;在计算机图形学中，我们最后都要把模拟的物体渲染出来，这是图形学的最终目的。而目前对于流体渲染，无论是基于拉格朗日视角的还是基于欧拉视角的流体模拟都要经过流体表面重建这一步，然后再做进一步的光照着色计算。流体表面重建有个非常经典的算法——Marching Cubes$^{[2]}$，该方法采用水平集（Level Set），首先将空间划分称均匀的立方体网格，然后计算每个网格上8个顶点的密度。对于每一个立方体，如果立方体上的一条边两个端点的密度值大于给定的一个阈值$\rho_{boundary}$，则这条边上存在着一个流体表面上的顶点。最后将每个立方体构造的多边形拼接，即可得到流体的表面网格。该方法基于这样的一个事实：流体表面处的密度应该等于某个固定的值，流体表面是一个三维的密度等高面，密度值为$\rho_{boundary}$，这就是水平集的思想。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/1.png" width="80%"></div></p>
+<center> 图1 Marching Cube的15种模式 </center>
+
+
+<p>&emsp;&emsp;Marching Cube是流体表面重建的传统做法，实现效果非常不错，但是算法的时间复杂度大，重建一次需要花费不少的时间。对于流动的流体来说，需要每帧构建流体表面，因而很难保证实时性。除了Marching Cube这类传统的流体表面重建方法，还有一些技巧性比较强的方法适合实时性应用，基于屏幕空间的流体渲染方法就是这一类。基于屏幕空间的流体渲染以一种新的思路角度展开流体的渲染，这种方法对并行友好，不涉及到直接对液体表面网格的重建，实现也相对简单。</p>
+<h2 id="一、基于屏幕空间的流体渲染"><a href="#一、基于屏幕空间的流体渲染" class="headerlink" title="一、基于屏幕空间的流体渲染"></a>一、基于屏幕空间的流体渲染</h2><p>&emsp;&emsp;首先介绍一些基于屏幕空间的流体渲染算法纵览。与在世界空间构建流体表面网格的思路不同，基于屏幕空间的流体渲染算法直接在屏幕空间做流体表面的复原工作，操作维度从三维降到了二维。这是一种与图形处理紧密结合的渲染算法。算法分为两个步骤，重点在于第一个步骤。第一个步骤是屏幕空间流体处理步骤，首先将流体粒子按照当前的投影矩阵和视图矩阵渲染到屏幕空间，获取流体粒子的深度轮廓信息、流体厚度信息，这些信息存储到纹理中，紧接着我们对存储深度信息的纹理做一些后处理操作，模糊掉球形粒子的坑坑洼洼，使得深度信息更为平滑，最后我们根据深度纹理和厚度纹理做流体的光照计算。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/2.png" width="80%"></div></p>
+<center> 图2 Screen Space Fluid Rendering算法总览 </center>
+
+
+<p>&emsp;&emsp;算法的总流程如图2所示，其中的噪声图像生成不是必须的，实际上我觉得加上这个噪声处理反而是个败笔。对于水体来说，它的表面通常是比较光滑的而不是坑坑洼洼。背景图用于处理流体的折射计算，因此流体通常应该放到最后渲染。<strong>该算法可以看成是针对流体的延迟渲染，流体的表面法线信息并不能直接获得，需要从深度贴图中重建法线，而在这之前深度贴图也要经过一些特殊的处理。</strong>基于屏幕空间的流体渲染步骤中，如何对深度贴图做处理使之能真实反映流体的特性是算法的核心，剩下的光照部分直接采用Blin-Phong光照模型，并综合考虑水体的折射和反射，上面提到的厚度贴图用于水体的折射计算，因为越厚的流体其透光率越低。</p>
+<h2 id="二、水体的光照计算"><a href="#二、水体的光照计算" class="headerlink" title="二、水体的光照计算"></a>二、水体的光照计算</h2><p>&emsp;&emsp;<strong>首先我们先实现一个不对深度贴图和厚度贴图做处理的Naive版的流体渲染算法，这有利于我们弄清整个算法的思路，而且使得实现的过程更加清晰、有条理、便于调试。</strong>去掉对深度贴图和厚度贴图的处理部分（噪声部分我们不考虑），剩下的算法流程就分为：渲染不包含流体的场景纹理、渲染粒子深度信息、渲染粒子厚度信息、光照着色计算。这里我们采用OpenGL的render to target，将场景、深度贴图、厚度贴图都渲染到纹理当中，供最后的光照着色计算使用。</p>
+<p>&emsp;&emsp;一开始我们为了获取流体的深度信息和厚度信息，需要流体以球形粒子的形态进行绘制，这里我们采用OpenGL的点精灵Point Sprite做粒子绘制。在OpenGL中，点精灵Point Sprite就是一个内建的始终朝向摄像机视角的正方形，我们可以指定它的大小，但是它的大小是定义在屏幕空间的。因此，在利用点精灵绘制流体粒子时，一方面我们要根据世界空间的流体粒子大小设置点精灵的大小，另一方面要以将四边形变成圆形。</p>
+<p>&emsp;&emsp;首先根据世界空间的流体粒子大小设置点精灵的大小，上面说了，点精灵的大小是定义在屏幕空间的，而通常我们设置的流体粒子大小是世界空间的。为了正确设置点精灵的大小，使之符合透视原理，需要计算世界空间的长度投影到屏幕空间的长度，这个比较基础，根据三角形相似的原理即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// calculate particle size scale factor.</span></span><br><span class="line"><span class="keyword">float</span> aspect = camera-&gt;getAspect();</span><br><span class="line"><span class="keyword">float</span> fovy = camera-&gt;getFovy();</span><br><span class="line"><span class="keyword">float</span> pointScale = <span class="number">1.0f</span> * m_screenWidth / aspect * (<span class="number">1.0f</span> / tanf(glm::radians(fovy) * <span class="number">0.5f</span>));</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">shader-&gt;setFloat(<span class="string">"pointScale"</span>, pointScale);</span><br><span class="line">shader-&gt;setFloat(<span class="string">"pointSize"</span>, m_particleRadius);</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line"><span class="meta">#version 430 core</span></span><br><span class="line">layout (location = <span class="number">0</span>) in vec4 position;</span><br><span class="line"></span><br><span class="line">uniform mat4 modelMatrix;</span><br><span class="line">uniform mat4 viewMatrix;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line">uniform <span class="keyword">float</span> pointScale;</span><br><span class="line">uniform <span class="keyword">float</span> pointSize;</span><br><span class="line"></span><br><span class="line">out vec3 eyeSpacePos;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	eyeSpacePos = (viewMatrix * modelMatrix * vec4(position.xyz, <span class="number">1.0f</span>)).xyz;</span><br><span class="line">	gl_PointSize = -pointScale * pointSize / eyeSpacePos.z;</span><br><span class="line">	gl_Position = projectMatrix * viewMatrix * modelMatrix * vec4(position.xyz, <span class="number">1.0f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后就是让正方形的点精灵变成一个圆形。在片元着色器中，点精灵提供了一个gl_PointCoord变量，这是一个内建的专用于点精灵的纹理坐标，已经经过光栅化插值之后的点精灵纹理坐标。我们根据这个坐标来获取每一个点精灵的像素所在的相对位置，gl_PointCoord纹理坐标以左上角为原点，我们需要将其变换到点精灵中心。接着获取每个像素的法线信息，并计算半径长度，半径超过1.0的像素我们给它discard掉。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 430 core</span></span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">float</span> pointSize;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line"></span><br><span class="line">in vec3 eyeSpacePos;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;	</span><br><span class="line">	vec3 normal;</span><br><span class="line">	normal.xy = gl_PointCoord.xy * vec2(<span class="number">2.0</span>, <span class="number">-2.0</span>) + vec2(<span class="number">-1.0</span>,<span class="number">1.0</span>);</span><br><span class="line">	<span class="keyword">float</span> mag = dot(normal.xy, normal.xy);</span><br><span class="line">	<span class="keyword">if</span>(mag &gt; <span class="number">1.0</span>) discard;</span><br><span class="line">	normal.z = <span class="built_in">sqrt</span>(<span class="number">1.0</span> - mag);</span><br><span class="line"></span><br><span class="line">	......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;点精灵给我们提供一个非常方便的球心粒子绘制方法，这种方法绘制的球体是基于解析解的，精度非常高，球体非常光滑，而如果采用球体网格则需要绘制很多个网格，球体精度受限于网格的精度，速度也慢。现在知道如何根据点精灵绘制，接下来我们需要从流体粒子中获取深度贴图和厚度贴图。</p>
+<h3 id="1、流体深度贴图"><a href="#1、流体深度贴图" class="headerlink" title="1、流体深度贴图"></a>1、流体深度贴图</h3><p>&emsp;&emsp;绘制流体深度贴图需要开启深度测试，并创建一个帧缓冲，深度的信息绘制到给定帧缓冲的深度缓冲当中。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> LiquidDrawable::drawLiquidDepth(Camera3D::ptr camera, Light::ptr sunLight,</span><br><span class="line">	Camera3D::ptr lightCamera, Shader::ptr shader)</span><br><span class="line">&#123;</span><br><span class="line">	m_framebuffer-&gt;bind();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// calculate particle size scale factor.</span></span><br><span class="line">	<span class="keyword">float</span> aspect = camera-&gt;getAspect();</span><br><span class="line">	<span class="keyword">float</span> fovy = camera-&gt;getFovy();</span><br><span class="line">	<span class="keyword">float</span> pointScale = <span class="number">1.0f</span> * m_screenWidth / aspect * (<span class="number">1.0f</span> / tanf(glm::radians(fovy) * <span class="number">0.5f</span>));</span><br><span class="line"></span><br><span class="line">	<span class="comment">// render state.</span></span><br><span class="line">	glEnable(GL_DEPTH_TEST);</span><br><span class="line">	glDisable(GL_BLEND);</span><br><span class="line">	glClear(GL_DEPTH_BUFFER_BIT);</span><br><span class="line">	glEnable(GL_PROGRAM_POINT_SIZE);</span><br><span class="line">	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// shader.</span></span><br><span class="line">	shader = m_shaderMgr-&gt;getShader(<span class="string">"liquidDepth"</span>);</span><br><span class="line">	shader-&gt;bind();</span><br><span class="line">	shader-&gt;setFloat(<span class="string">"farPlane"</span>, camera-&gt;getFar());</span><br><span class="line">	shader-&gt;setFloat(<span class="string">"nearPlane"</span>, camera-&gt;getNear());</span><br><span class="line">	shader-&gt;setFloat(<span class="string">"pointScale"</span>, pointScale);</span><br><span class="line">	shader-&gt;setFloat(<span class="string">"pointSize"</span>, m_particleRadius);</span><br><span class="line">	shader-&gt;setFloat(<span class="string">"densityLowerBound"</span>, m_densityLowerBound);</span><br><span class="line">	shader-&gt;setMat4(<span class="string">"modelMatrix"</span>, m_transformation.getWorldMatrix());</span><br><span class="line">	shader-&gt;setMat4(<span class="string">"viewMatrix"</span>, camera-&gt;getViewMatrix());</span><br><span class="line">	shader-&gt;setMat4(<span class="string">"projectMatrix"</span>, camera-&gt;getProjectMatrix());</span><br><span class="line"></span><br><span class="line">	<span class="comment">// draw</span></span><br><span class="line">	glBindVertexArray(m_particleVAO);</span><br><span class="line">	glDrawArrays(GL_POINTS, <span class="number">0</span>, m_numParticles);</span><br><span class="line">	glBindVertexArray(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// restore.</span></span><br><span class="line">	m_shaderMgr-&gt;unBindShader();</span><br><span class="line">	glDisable(GL_PROGRAM_POINT_SIZE);</span><br><span class="line">	m_framebuffer-&gt;unBind();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在片元着色器，我们需要计算像素的深度信息，为了还原出粒子的深度信息，我们首先将粒子在摄像机空间的位置传到片元着色器中，这个其实就是点精灵在摄像机空间的中心点。然后计算每个像素的法线，每个像素在摄像机空间的点就等于$eyeSpacePos + normal * pointSize$，其中$pointSize$就是流体粒子的半径大小。得到每个像素在摄像机空间的点，我们再将其乘上投影矩阵，并做透视除法，得到标准化设备空间$[-1,+1]$的深度值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">============vertex   shader================</span><br><span class="line">#version <span class="number">430</span> core</span><br><span class="line">layout (location = <span class="number">0</span>) in vec4 position;</span><br><span class="line"></span><br><span class="line">uniform mat4 modelMatrix;</span><br><span class="line">uniform mat4 viewMatrix;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line">uniform <span class="keyword">float</span> pointScale;</span><br><span class="line">uniform <span class="keyword">float</span> pointSize;</span><br><span class="line">uniform <span class="keyword">float</span> densityLowerBound;</span><br><span class="line"></span><br><span class="line">out vec3 eyeSpacePos;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	eyeSpacePos = (viewMatrix * modelMatrix * vec4(position.xyz, <span class="number">1.0f</span>)).xyz;</span><br><span class="line">	gl_PointSize = -pointScale * pointSize / eyeSpacePos.z;</span><br><span class="line">	<span class="comment">// to prevent single or a few particles.</span></span><br><span class="line">	<span class="keyword">if</span>(position.w &lt; densityLowerBound) </span><br><span class="line">		gl_PointSize = <span class="number">0.0f</span>;</span><br><span class="line">	gl_Position = projectMatrix * viewMatrix * modelMatrix * vec4(position.xyz, <span class="number">1.0f</span>);</span><br><span class="line">&#125;</span><br><span class="line">    </span><br><span class="line">============fragment shader================</span><br><span class="line">#version <span class="number">430</span> core</span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">float</span> pointSize;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line"></span><br><span class="line">in vec3 eyeSpacePos;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;	</span><br><span class="line">	vec3 normal;</span><br><span class="line">	normal.xy = gl_PointCoord.xy * vec2(<span class="number">2.0</span>, <span class="number">-2.0</span>) + vec2(<span class="number">-1.0</span>,<span class="number">1.0</span>);</span><br><span class="line">	<span class="keyword">float</span> mag = dot(normal.xy, normal.xy);</span><br><span class="line">	<span class="keyword">if</span>(mag &gt; <span class="number">1.0</span>) discard;</span><br><span class="line">	normal.z = <span class="built_in">sqrt</span>(<span class="number">1.0</span> - mag);</span><br><span class="line"></span><br><span class="line">	vec4 pixelEyePos = vec4(eyeSpacePos + normal * pointSize, <span class="number">1.0f</span>);</span><br><span class="line">	vec4 pixelClipPos = projectMatrix * pixelEyePos;</span><br><span class="line">	<span class="keyword">float</span> ndcZ = pixelClipPos.z / pixelClipPos.w;</span><br><span class="line">	gl_FragDepth = ndcZ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;经过上面的一个pass，我们得到了流体的深度信息。下面是一张近看的流体粒子深度贴图，为什么要近看？因为投影矩阵对深度信息做了一个非线性变换，这个非线性变换使得深度值密度在靠近1.0这一端，稍微远一点，就全白看不见了。（<strong>所以如果渲染出来一张全白的深度贴图，不要着急，拉近看看</strong>）</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/3.png" width="80%"></div></p>
+<center> 图3 流体深度贴图 </center>
+
+
+<h3 id="2、流体厚度贴图"><a href="#2、流体厚度贴图" class="headerlink" title="2、流体厚度贴图"></a>2、流体厚度贴图</h3><p>&emsp;&emsp;然后我们需要获取流体的厚度贴图，获取厚度贴图不是必须的，这是因为厚度贴图是为了流体折射计算服务。有些流体并不透光（如牛奶），所以也不存在折射。与渲染流体深度贴图一样，我们以将流体粒子以球形的点精灵形态进行绘制。给定一个方向，流体厚度衡量在这个方向上有多少流体粒子，越多越厚。因此，为了计算流体的厚度，我们采用了OpenGL的blending技巧，也就是透明融合，每个流体粒子计算各自贡献的厚度值，然后将其输出到颜色缓冲中，借助OpenGL的透明融合，将厚度值累积起来，这样就能得到从摄像机方向看去的流体厚度信息。此外，由于我们是采用球形点精灵绘制一个流体粒子，一个流体粒子，其厚度贡献值从中心到边缘应该逐渐减少，为此我们采用计算得到的normal的z分量作为厚度值，并乘上一个缩放系数。具体如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 430 core</span></span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">float</span> pointSize;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line"></span><br><span class="line">layout(location = <span class="number">0</span>) out vec4 fragColor;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;	</span><br><span class="line">	vec3 normal;</span><br><span class="line">	normal.xy = gl_PointCoord.xy * vec2(<span class="number">2.0</span>, <span class="number">-2.0</span>) + vec2(<span class="number">-1.0</span>,<span class="number">1.0</span>);</span><br><span class="line">	<span class="keyword">float</span> mag = dot(normal.xy, normal.xy);</span><br><span class="line">	<span class="keyword">if</span>(mag &gt; <span class="number">1.0</span>) discard;</span><br><span class="line">	normal.z = <span class="built_in">sqrt</span>(<span class="number">1.0</span> - mag);</span><br><span class="line">	fragColor = vec4(normal.z*<span class="number">0.005</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在CPU端，我们关闭深度测试，开启透明融合，并设置融合函数为additive blending，即加法融合。所谓加法融合，就是原像素值和目标像素值直接相加，不乘上任何的缩放系数。在OpenGL的加法融合就是设置glBlendFunc的参数均为GL_ONE、GL_ONE。这样不同流体粒子之间的厚度值直接叠加，达到我们所需的效果。同时为了凸显厚度，我们设当地设大一点粒子的大小。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> LiquidDrawable::drawLiquidThick(Camera3D::ptr camera, Light::ptr sunLight,</span><br><span class="line">	Camera3D::ptr lightCamera, Shader::ptr shader)</span><br><span class="line">&#123;</span><br><span class="line">	m_framebuffer-&gt;bind();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// calculate particle size scale factor.</span></span><br><span class="line">	<span class="keyword">float</span> aspect = camera-&gt;getAspect();</span><br><span class="line">	<span class="keyword">float</span> fovy = camera-&gt;getFovy();</span><br><span class="line">	<span class="keyword">float</span> pointScale = m_screenWidth / aspect * (<span class="number">1.0f</span> / tanf(glm::radians(fovy) * <span class="number">0.5f</span>));</span><br><span class="line"></span><br><span class="line">	<span class="comment">// render state.</span></span><br><span class="line">	glEnable(GL_BLEND);</span><br><span class="line">	glBlendFunc(GL_ONE, GL_ONE);</span><br><span class="line">	glDepthMask(GL_FALSE);</span><br><span class="line">	glEnable(GL_DEPTH_TEST);</span><br><span class="line">	glDisable(GL_DEPTH_TEST);</span><br><span class="line">	glEnable(GL_PROGRAM_POINT_SIZE);</span><br><span class="line">	glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);</span><br><span class="line">	glClearColor(<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">1.0</span>);</span><br><span class="line">	glClear(GL_COLOR_BUFFER_BIT);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// shader.</span></span><br><span class="line">	shader = m_shaderMgr-&gt;getShader(<span class="string">"liquidThick"</span>);</span><br><span class="line">	shader-&gt;bind();</span><br><span class="line">	shader-&gt;setFloat(<span class="string">"pointScale"</span>, pointScale);</span><br><span class="line">	shader-&gt;setFloat(<span class="string">"pointSize"</span>, <span class="number">4.0f</span> * m_particleRadius);</span><br><span class="line">	shader-&gt;setMat4(<span class="string">"modelMatrix"</span>, m_transformation.getWorldMatrix());</span><br><span class="line">	shader-&gt;setMat4(<span class="string">"viewMatrix"</span>, camera-&gt;getViewMatrix());</span><br><span class="line">	shader-&gt;setMat4(<span class="string">"projectMatrix"</span>, camera-&gt;getProjectMatrix());</span><br><span class="line"></span><br><span class="line">	<span class="comment">// draw</span></span><br><span class="line">	glBindVertexArray(m_particleVAO);</span><br><span class="line">	glDrawArrays(GL_POINTS, <span class="number">0</span>, m_numParticles);</span><br><span class="line">	glBindVertexArray(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// restore.</span></span><br><span class="line">	glDepthMask(GL_TRUE);</span><br><span class="line">	glDisable(GL_BLEND);</span><br><span class="line">	glDisable(GL_PROGRAM_POINT_SIZE);</span><br><span class="line">	m_shaderMgr-&gt;unBindShader();</span><br><span class="line">	m_framebuffer-&gt;unBind();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/4.png" width="80%"></div></p>
+<center> 图4 流体厚度贴图 </center>
+
+
+<p>&emsp;&emsp;图4就是渲染出来的流体厚度贴图，越红的地方越厚。</p>
+<h3 id="3、水体折射、Blin-Phong光照"><a href="#3、水体折射、Blin-Phong光照" class="headerlink" title="3、水体折射、Blin-Phong光照"></a>3、水体折射、Blin-Phong光照</h3><p>&emsp;&emsp;在前面的步骤我们获取了两张纹理贴图：流体深度纹理、流体厚度纹理。然后我们需要根据这两张纹理计算水体的光照效果。前面已经提到过，这是一种类似于延迟渲染的技术，光照计算都是在屏幕空间的四边形上进行。我们首先要根据流体的深度纹理信息重建流体表面的法线向量。在屏幕空间中，我们已知当前像素的纹理坐标，和对应的流体深度信息，那么如何根据这些信息重建法线向量呢？这就涉及到了如何从设备标准空间ndc顶点转换到摄像机空间$^{[1]}$。</p>
+<p>&emsp;&emsp;设摄像机空间的顶点坐标为$(vx,vy,vz,vw)$，其中$vw=1.0$，ndc空间的顶点坐标为$(nx,ny,nz)$，其中$x、y、z\in[-1,+1]$。我们知道从摄像机空间变换到ndc空间，需要经过投影变换、透视除法这两个步骤：</p>
+<script type="math/tex; mode=display">
+clip=projectMatrix \cdot (vx,vy,vz,1.0)\\
+(nx,ny,nz) = clip.xyz/clip.w \tag {1}</script><p>&emsp;&emsp;其中的clip就是裁剪空间的顶点坐标。所以我们的问题就是，已知ndc空间的$(nx,ny,nz)$、摄像机空间的$vw=1.0$以及投影变换矩阵，如何计算得到摄像机空间的$(vx,vy,vz)$顶点坐标。根据公式$(1)$，我们有：</p>
+<script type="math/tex; mode=display">
+(vx,vy,vz,1.0)=(projectMatrix)^{-1}\cdot clip \tag {2}</script><p>&emsp;&emsp;而根据ndc顶点坐标$(nx,ny,nz)$与裁剪空间顶点坐标$clip$的关系，我们又有：</p>
+<script type="math/tex; mode=display">
+clip=(clip.xyz,clip.w)=((nx,ny,nz)\cdot clip.w, clip.w)=clip.w \cdot (nx,ny,nz,1.0) \tag {3}</script><p>&emsp;&emsp;联立公式$(2)$与公式$(3)$，我们有：</p>
+<script type="math/tex; mode=display">
+(vx,vy,vz,1.0)=clip.w \cdot (projectMatrix)^{-1}\cdot (nx,ny,nz,1.0) \tag {4}</script><p>&emsp;&emsp;公式$(4)$直接表明了摄像机空间顶点坐标与ndc空间坐标之间的关系，其中只有$clip.w$是未知，这是一个关键点。我们注意到$vw=1.0$，也就是在摄像机空间，顶点的分量为1.0。这一点可以利用起来：</p>
+<script type="math/tex; mode=display">
+clip.w\cdot[(projectMatrix)^{-1}\cdot (nx,ny,nz,1.0)].w = 1.0 \\
+\to\\
+clip.w=\frac{1.0}{[(projectMatrix)^{-1}\cdot (nx,ny,nz,1.0)].w} \tag {5}</script><p>&emsp;&emsp;公式$(5)$意思就是$clip.w$等于ndc空间的坐标$(nx,ny,nz,1.0)$右乘逆投影矩阵所得向量的$w$分量的倒数。将其代入公式$(4)$中，我们可得：</p>
+<script type="math/tex; mode=display">
+(vx,vy,vz,1.0)=\frac{1.0}{[(projectMatrix)^{-1}\cdot (nx,ny,nz,1.0)].w} \cdot (projectMatrix)^{-1}\cdot (nx,ny,nz,1.0)</script><p>&emsp;&emsp;因此，从ndc空间的坐标到摄像机空间的坐标，我们首先计算$(projectMatrix)^{-1}\cdot (nx,ny,nz,1.0)$，然后再将其$xyz$分量除以$w$分量即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">vec3 <span class="title">uvToEye</span><span class="params">(vec2 coord, <span class="keyword">float</span> z)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	vec2 pos = coord * <span class="number">2.0f</span> - <span class="number">1.0f</span>;</span><br><span class="line">	vec4 clipPos = vec4(pos, z, <span class="number">1.0f</span>);</span><br><span class="line">	vec4 viewPos = invProjectMatrix * clipPos;</span><br><span class="line">	<span class="keyword">return</span> viewPos.xyz / viewPos.w;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;知道了摄像机空间的顶点坐标，紧接着我们需要根据顶点坐标重建顶点法线。法线向量可以根据沿着x方向和沿着y方向的偏导数做叉乘得到，这里的x方向和y方向均为屏幕空间中的纹理坐标方向。求偏导数可以根据有限差分法：</p>
+<script type="math/tex; mode=display">
+\frac{\partial f}{\partial s}\approx\frac{f(s+\Delta s)-f(s)}{\Delta s} \tag {6}</script><p>&emsp;&emsp;这里我们采用了单向差分法（前向差分法、后向差分法），没有采用中心差分法。为了避免计算出错误的法线向量，我们综合考虑前向差分法和后向差分法，取较小的那个差分值（差分值较大的很可能是在边界处与背景或距离比较远的流体深度值做了一个差分，这个时候得到的法线是错误的，因为深度值不连续）。我们对深度纹理图的周围四个像素分别做x方向和y方向的差分，$\Delta s=1$。最后根据得到的偏导向量做叉乘得到法线。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// -----------------reconstruct normal----------------------------</span></span><br><span class="line">vec2 depthTexelSize = <span class="number">1.0</span> / textureSize(depthTex, <span class="number">0</span>);</span><br><span class="line"><span class="comment">// calculate eye space position.</span></span><br><span class="line">vec3 eyeSpacePos = uvToEye(Texcoord, depth);</span><br><span class="line"><span class="comment">// finite difference.</span></span><br><span class="line">vec3 ddxLeft   = eyeSpacePos - uvToEye(Texcoord - vec2(depthTexelSize.x,<span class="number">0.0f</span>),</span><br><span class="line">				texture(depthTex, Texcoord - vec2(depthTexelSize.x,<span class="number">0.0f</span>)).r);</span><br><span class="line">vec3 ddxRight  = uvToEye(Texcoord + vec2(depthTexelSize.x,<span class="number">0.0f</span>),</span><br><span class="line">				texture(depthTex, Texcoord + vec2(depthTexelSize.x,<span class="number">0.0f</span>)).r) - eyeSpacePos;</span><br><span class="line">vec3 ddyTop    = uvToEye(Texcoord + vec2(<span class="number">0.0f</span>,depthTexelSize.y),</span><br><span class="line">				texture(depthTex, Texcoord + vec2(<span class="number">0.0f</span>,depthTexelSize.y)).r) - eyeSpacePos;</span><br><span class="line">vec3 ddyBottom = eyeSpacePos - uvToEye(Texcoord - vec2(<span class="number">0.0f</span>,depthTexelSize.y),</span><br><span class="line">				texture(depthTex, Texcoord - vec2(<span class="number">0.0f</span>,depthTexelSize.y)).r);</span><br><span class="line">vec3 dx = ddxLeft;</span><br><span class="line">vec3 dy = ddyTop;</span><br><span class="line"><span class="keyword">if</span>(<span class="built_in">abs</span>(ddxRight.z) &lt; <span class="built_in">abs</span>(ddxLeft.z))</span><br><span class="line">	dx = ddxRight;</span><br><span class="line"><span class="keyword">if</span>(<span class="built_in">abs</span>(ddyBottom.z) &lt; <span class="built_in">abs</span>(ddyTop.z))</span><br><span class="line">	dy = ddyBottom;</span><br><span class="line">vec3 normal = normalize(cross(dx, dy));</span><br><span class="line">vec3 worldPos = (invViewMatrix * vec4(eyeSpacePos, <span class="number">1.0f</span>)).xyz;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;下图5显示了重建得到的法线情况，<strong>需要特别注意的是，这里我们重建得到的法线是在摄像机空间而非世界空间，这是因为我们还原的顶点也是摄像机空间的，因此计算光照时需要将光线向量变换到摄像机空间。</strong></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/5.png" width="80%"></div></p>
+<center> 图5 重建的法线 </center>
+
+
+<p>&emsp;&emsp;有了法线向量，接下来我们就计算水体折射、Blin-Phong光照。我这里只考虑水体折射，反射不考虑，因为一般清澈的水很少有反射现象。Beer-Lambert定律揭示了液体的光吸收现象。根据Beer-Lambert定律，液体的透光率随着液体的厚度增加呈指数衰减：</p>
+<script type="math/tex; mode=display">
+I(d)=I_0\cdot e^{-kd} \tag {7}</script><p>&emsp;&emsp;公式$(7)$中，$d$是液体的厚度值，$I_0$是光照强度rgb向量，$k$是液体的光能衰减因子向量，通常等于$1.0-liquidColor$。液体的透光率计算如下所示，厚度值从之前渲染得到的贴图中直接采样得到。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> thickness = max(texture(thicknessTex, Texcoord).r, <span class="number">0.3f</span>);</span><br><span class="line">vec3 transmission = <span class="built_in">exp</span>(-(vec3(<span class="number">1.0f</span>) - liquidColor.xyz) * thickness);</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后，我们还需要从背景纹理图中采样，因为我们要实现折射的效果。为了实现折射的效果，我们需要对采样的纹理坐标做一个偏移，使之产生折射的效果。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> refractScale = <span class="number">1.33</span> * <span class="number">0.025</span>;	<span class="comment">// refracted index.</span></span><br><span class="line">refractScale *= smoothstep(<span class="number">0.1</span>, <span class="number">0.4</span>, worldPos.y);</span><br><span class="line">vec2 refractCoord = Texcoord + normal.xy * refractScale;</span><br><span class="line">vec3 refractedColor = texture(backgroundTex, refractCoord).xyz * transmission;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后就是关于Blin-Phong光照部分，比较简单，不再赘述。唯一需要注意的是我们获取的法线是在摄像机空间的，需要将光的方向也变换到摄像机空间。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// -----------------Phong lighting----------------------------</span></span><br><span class="line">vec3 viewDir = -normalize(eyeSpacePos);</span><br><span class="line">vec3 lightDir = normalize((viewMatrix * vec4(dirLight.direction, <span class="number">0.0f</span>)).xyz);</span><br><span class="line">vec3 halfVec = normalize(viewDir + lightDir);</span><br><span class="line">vec3 specular = vec3(dirLight.specular * <span class="built_in">pow</span>(max(dot(halfVec, normal), <span class="number">0.0f</span>), <span class="number">400.0f</span>));</span><br><span class="line">vec3 diffuse = liquidColor.xyz * max(dot(lightDir, normal), <span class="number">0.0f</span>) * dirLight.diffuse * liquidColor.w;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----------------Merge all effect----------------------------</span></span><br><span class="line">fragColor.rgb = diffuse + specular + refractedColor;</span><br><span class="line">fragColor.a = <span class="number">1.0f</span>;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;实现出来的效果如下图6所示。可以看到，渲染的效果很差，液体看起来像是由很多粒果冻组成，流体的粒子感非常明显，这并不是我们想要的。<strong>产生果冻壮流体的根本原因是因为我们的法线向量并不平滑，仔细观察图5，我们重建后的法线还是原来的球面上的法线，这造成光照效果的失真。</strong></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/6.png" width="80%"></div></p>
+<center> 图6 实现的果冻壮流体 </center>
+
+
+<p>&emsp;&emsp;因此，为了进一步提升渲染效果，我们要想办法使得流体表面得法线平滑。而法线来源于深度贴图，因为我们追溯到源头就是使得深度贴图尽可能地平滑。接下来我们将讨论在屏幕空间对深度贴图做的一些平滑后处理方案。</p>
+<h2 id="三、流体深度贴图的平滑处理"><a href="#三、流体深度贴图的平滑处理" class="headerlink" title="三、流体深度贴图的平滑处理"></a>三、流体深度贴图的平滑处理</h2><p>&emsp;&emsp;我们现在需要对深度贴图做平滑处理，这其实属于图像处理的范畴。</p>
+<h3 id="1、采用高斯滤波平滑深度贴图"><a href="#1、采用高斯滤波平滑深度贴图" class="headerlink" title="1、采用高斯滤波平滑深度贴图"></a>1、采用高斯滤波平滑深度贴图</h3><p>&emsp;&emsp;首先是高斯模糊的平滑方案，我们把深度纹理当场一张图片，采用高斯权重做一个滤波操作。为了性能，同样我们将二维的高斯模糊分成水平方向和垂直方向两个pass。在之前实现辉光效果时已经介绍过，不再赘述。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> DepthGaussianBlurFilter::blurTexture(<span class="keyword">unsigned</span> <span class="keyword">int</span> targetTexIndex, <span class="keyword">const</span> glm::mat4 &amp;projectMat)</span><br><span class="line">	&#123;</span><br><span class="line">		m_framebuffer-&gt;bind();</span><br><span class="line">		glDepthMask(GL_TRUE);</span><br><span class="line">		glEnable(GL_DEPTH_TEST);</span><br><span class="line">		glClear(GL_DEPTH_BUFFER_BIT);</span><br><span class="line"></span><br><span class="line">		Shader::ptr blurShader = ShaderMgr::getSingleton()-&gt;getShader(m_blurShaderIndex);</span><br><span class="line">		blurShader-&gt;bind();</span><br><span class="line">		blurShader-&gt;setInt(<span class="string">"image"</span>, <span class="number">0</span>);</span><br><span class="line">		TextureMgr::getSingleton()-&gt;bindTexture(targetTexIndex, <span class="number">0</span>);</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> index = <span class="number">0</span>; index &lt; <span class="number">5</span>; ++index) &#123;</span><br><span class="line">			<span class="comment">// horizontal blur.</span></span><br><span class="line">			blurShader-&gt;setInt(<span class="string">"horizontal"</span>, <span class="number">1</span>);</span><br><span class="line">			MeshMgr::getSingleton()-&gt;drawMesh(m_screenQuadIndex, <span class="literal">false</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// copy to target texture.</span></span><br><span class="line">			glCopyTexSubImage2D(GL_TEXTURE_2D, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, m_width, m_height);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// vertical blur.</span></span><br><span class="line">			blurShader-&gt;setInt(<span class="string">"horizontal"</span>, <span class="number">0</span>);</span><br><span class="line">			MeshMgr::getSingleton()-&gt;drawMesh(m_screenQuadIndex, <span class="literal">false</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// copy to target texture.</span></span><br><span class="line">			glCopyTexSubImage2D(GL_TEXTURE_2D, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, m_width, m_height);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		TextureMgr::getSingleton()-&gt;unBindTexture(targetTexIndex);</span><br><span class="line">		blurShader-&gt;unBind();</span><br><span class="line">		m_framebuffer-&gt;unBind();</span><br><span class="line">		<span class="keyword">return</span> targetTexIndex;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">==============Fragment Shader==================</span><br><span class="line">#version <span class="number">330</span> core</span><br><span class="line"></span><br><span class="line">in vec2 Texcoord;</span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">int</span> horizontal;</span><br><span class="line">uniform sampler2D image;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">float</span> weight[<span class="number">8</span>] = <span class="keyword">float</span>[] (<span class="number">0.197448</span>, <span class="number">0.174697</span>, <span class="number">0.120999</span>, <span class="number">0.065602</span>, <span class="number">0.02784</span>, <span class="number">0.009246</span>, <span class="number">0.002403</span>, <span class="number">0.000489</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">// gets size of single texel.</span></span><br><span class="line">    vec2 tex_offset = <span class="number">1.0</span> / textureSize(image, <span class="number">0</span>);</span><br><span class="line">    <span class="keyword">float</span> result = texture(image, Texcoord).r * weight[<span class="number">0</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(image, Texcoord + vec2(tex_offset.x * <span class="number">1</span> * horizontal, tex_offset.y * <span class="number">1</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">1</span>];</span><br><span class="line">    result += texture(image, Texcoord - vec2(tex_offset.x * <span class="number">1</span> * horizontal, tex_offset.y * <span class="number">1</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(image, Texcoord + vec2(tex_offset.x * <span class="number">2</span> * horizontal, tex_offset.y * <span class="number">2</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">2</span>];</span><br><span class="line">    result += texture(image, Texcoord - vec2(tex_offset.x * <span class="number">2</span> * horizontal, tex_offset.y * <span class="number">2</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(image, Texcoord + vec2(tex_offset.x * <span class="number">3</span> * horizontal, tex_offset.y * <span class="number">3</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">3</span>];</span><br><span class="line">    result += texture(image, Texcoord - vec2(tex_offset.x * <span class="number">3</span> * horizontal, tex_offset.y * <span class="number">3</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">3</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(image, Texcoord + vec2(tex_offset.x * <span class="number">4</span> * horizontal, tex_offset.y * <span class="number">4</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">4</span>];</span><br><span class="line">    result += texture(image, Texcoord - vec2(tex_offset.x * <span class="number">4</span> * horizontal, tex_offset.y * <span class="number">4</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(image, Texcoord + vec2(tex_offset.x * <span class="number">5</span> * horizontal, tex_offset.y * <span class="number">5</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">5</span>];</span><br><span class="line">    result += texture(image, Texcoord - vec2(tex_offset.x * <span class="number">5</span> * horizontal, tex_offset.y * <span class="number">5</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">5</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(image, Texcoord + vec2(tex_offset.x * <span class="number">6</span> * horizontal, tex_offset.y * <span class="number">6</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">6</span>];</span><br><span class="line">    result += texture(image, Texcoord - vec2(tex_offset.x * <span class="number">6</span> * horizontal, tex_offset.y * <span class="number">6</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">6</span>];</span><br><span class="line"></span><br><span class="line">	result += texture(image, Texcoord + vec2(tex_offset.x * <span class="number">7</span> * horizontal, tex_offset.y * <span class="number">7</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">7</span>];</span><br><span class="line">    result += texture(image, Texcoord - vec2(tex_offset.x * <span class="number">7</span> * horizontal, tex_offset.y * <span class="number">7</span> * (<span class="number">1</span>-horizontal))).r * weight[<span class="number">7</span>];</span><br><span class="line"></span><br><span class="line">	gl_FragDepth = result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;经过高斯模糊之后的，重建得到的法线向量平滑了一下如下所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/7.png" width="80%"></div></p>
+<center> 图7 高斯模糊平滑得到的法线 </center>
+
+
+<p>&emsp;&emsp;然后用高斯模糊平滑得到法线向量做光照着色，得到下面的效果。渲染得到的效果看起来明显比图6的果冻壮好很多了。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/8.png" width="80%"></div></p>
+<center> 图8 高斯模糊-光照着色 </center>
+
+
+<p>&emsp;&emsp;然后高斯模糊的平滑方法存在一个问题，高斯模糊没有考虑深度值，它仅仅考虑当前像素到中心像素的距离。这就导致了高斯模糊会明显地模糊掉边界，使得边界与背景或较远处的流体看起来融合在一起了。如下图9所示，上面的这张图红框部分，流体的边界于后面的流体融合在了一起，看不出有一个边界在那里。下面这张图可以看到，流体是分开的，但是从上面的这个视角看起又是连在一起的。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/11.jpg" width="80%"></div></p>
+<center> 图9 高斯滤波模糊掉了边界 </center>
+
+
+<h3 id="3、采用双边滤波平滑深度贴图"><a href="#3、采用双边滤波平滑深度贴图" class="headerlink" title="3、采用双边滤波平滑深度贴图"></a>3、采用双边滤波平滑深度贴图</h3><p>&emsp;&emsp;既然高斯模糊没有良好地保留边界，我们就选取一个能够保边去噪的滤波器，高斯双边滤波算法就是这样的一个滤波器。高斯模糊仅仅考虑了像素的空间分布，权重从中间向周边降低。而双边滤波则进一步考虑了图像的像素值，从而保证边缘部分不会被过滤掉。根据维基百科$^{[3]}$，一个双边滤波器定义为：</p>
+<script type="math/tex; mode=display">
+I^{filtered}(x)=\frac{1}{W_p}\Sigma_{x_i\in \Omega}I(x_i)f_r(||I(x_i)-I(x)||)g_s(||x_i-x||) \tag {8}</script><p>&emsp;&emsp;其中，$I_{filtered}(x)$是过滤后的图像，$x$是被过滤的像素坐标，$\Omega$是像素$x$的滤波核领域，$I(x)$是初始未被过滤的图像。然后$f_r$是域值权重函数，$g_r$是空间权重函数。而$W_p$是归一化因子，其计算方式如下：</p>
+<script type="math/tex; mode=display">
+W_p=\Sigma_{x_i\in \Omega}f_r(||I(x_i)-I(x)||)g_s(||x_i-x||) \tag {9}</script><p>&emsp;&emsp;可以看到$f_r$函数输入的是两个像素之间的差，而$g_s$输入的是两个像素坐标之间的差。考虑一个像素，其坐标为$(i,j)$，而其邻域像素的坐标为$(k,l)$，则计算与邻域像素$(k,l)$的滤波核函数为：</p>
+<script type="math/tex; mode=display">
+w(i,j,k,l)=exp(-\frac{(i-k)^2+(j-l)^2}{2\sigma_d^2}-\frac{||I(i,j)-I(k,l)||^2}{2\sigma_r^2}) \tag {10}</script><p>&emsp;&emsp;公式$(10)$给出的核函数包含了$f_r$和$g_s$，其中左边部分就是$g_s$，而右边部分则为$f_r$。在片元着色器中，我实现的双边滤波函数如下所示。这是一个暴力的两重循环，因为图像的邻域是二维的。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line"></span><br><span class="line">in vec2 Texcoord;</span><br><span class="line"></span><br><span class="line">uniform sampler2D image;</span><br><span class="line">uniform <span class="keyword">float</span> filterRadius;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">float</span> blurScale = <span class="number">0.05f</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">float</span> blurDepthFalloff = <span class="number">500.0f</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">// gets size of single texel.</span></span><br><span class="line">    vec2 tex_offset = <span class="number">1.0</span> / textureSize(image, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">float</span> sum = <span class="number">0.0f</span>;</span><br><span class="line">	<span class="keyword">float</span> wsum = <span class="number">0.0f</span>;</span><br><span class="line">	<span class="keyword">float</span> value = texture(image, Texcoord).r;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">float</span> y = -filterRadius;y &lt;= filterRadius;y += <span class="number">1.0f</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">float</span> x = -filterRadius;x &lt;= filterRadius;x += <span class="number">1.0f</span>)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">float</span> sample = texture(image, Texcoord + vec2(x, y) * tex_offset).r;</span><br><span class="line">			<span class="comment">// spatial domain.</span></span><br><span class="line">			<span class="keyword">float</span> r = length(vec2(x, y)) * blurScale;</span><br><span class="line">			<span class="keyword">float</span> w = <span class="built_in">exp</span>(-r * r);</span><br><span class="line">			<span class="comment">// range domain.</span></span><br><span class="line">			<span class="keyword">float</span> r2 = (sample - value) * blurDepthFalloff;</span><br><span class="line">			<span class="keyword">float</span> g = <span class="built_in">exp</span>(-r2 * r2);</span><br><span class="line">			sum += sample * w * g;</span><br><span class="line">			wsum += w * g;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(wsum &gt;= <span class="number">0.0f</span>)</span><br><span class="line">		sum /= wsum;</span><br><span class="line">	gl_FragDepth = sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后根据双边滤波平滑后的深度图重建的法线如下图10所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/13.png" width="80%"></div></p>
+<center> 图10 双边滤波平滑深度重建的法线 </center>
+
+
+<p>&emsp;&emsp;由双边滤波平滑得到的法线做流体渲染如下图11，可以看到流体边界部分的保持得非常良好。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/14.png" width="80%"></div></p>
+<center> 图11 双边滤波-保边良好 </center>
+
+
+<p>&emsp;&emsp;但是这里又出现了一个性能方面的问题。双边滤波并不能像高斯模糊一样，拆分成水平方向依次、垂直方向一次，这是因为双边滤波考虑了图像的像素内容。一个核直径为20的双边滤波，每个像素要处理$20\times20=400$个邻域像素，这对于我的rtx2070显卡来说还好，但是在其他一些不那么好的显卡上会严重地拖慢渲染速度。Nvidia$^{[5]}$指出，可以强行将双边滤波分成两个pass，将$O(n^2)$的时间复杂度降到$O(n)$，一些失真可以勉强接受。然后我就尝试了将双边滤波分割成两个pass，水平方向和垂直方向各一次。效果如下图12所示，并不是非常好，在流体的一些边缘部分出现了拉伸的失真。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/15.png" width="80%"></div></p>
+<center> 图12 双边分离滤波-边缘失真 </center>
+
+
+<h3 id="4、采用曲率流平滑深度贴图"><a href="#4、采用曲率流平滑深度贴图" class="headerlink" title="4、采用曲率流平滑深度贴图"></a>4、采用曲率流平滑深度贴图</h3><p>&emsp;&emsp;由于双边滤波的不可分割性，Wladimir等人转向了另外一个不同的思路$^{[4]}$。我们的目标是寻转一个算法，能够平滑掉不同流体粒子之间的曲率突变，构建一个平滑、连续的流体表面。因此，一种思路就是最小化流体的曲率，这也跟流体的自然物理属性-流体表面张力相对应。我们称这个过程为曲率流（curvature flow）。</p>
+<p>&emsp;&emsp;曲率流沿着表面法线方向扩展，其速度取决于表面平均曲率。在我们的这个流体渲染中，我们仅仅处理的是流体表面的深度。在一帧当中，视角固定了，我们同样可以通过沿着曲率修改深度值达到平滑的效果：</p>
+<script type="math/tex; mode=display">
+\frac{\partial z}{\partial t} = H \tag {11}</script><p>&emsp;&emsp;其中$t$是平滑时间步长，$z$就是我们的深度值，$H$就是流体表面的平均曲率，公式$(11)$意思是在每一次的平滑迭代中，深度值的变化梯度为流体表面的平均曲率。因此，我们首先要求流体表面的平均曲率，平均曲率的定义为表面单位法线的散度：</p>
+<script type="math/tex; mode=display">
+2H=\nabla\cdot \overline n \tag {12}</script><p>&emsp;&emsp;给定屏幕空间的坐标以及深度值，视口宽高$V_x$、$V_y$，以及投影的x和y方向的焦距长（就是投影矩阵的mat[0][0]、mat[1][1]），我们得到摄像机空间顶点坐标与屏幕空间的x和y的关系：</p>
+<script type="math/tex; mode=display">
+P(x,y)=
+\left(
+\begin{matrix}
+\frac{\frac{2x}{V_x}-1.0}{F_x}\\
+\frac{\frac{2y}{V_y}-1.0}{F_y}\\
+1.0
+\end{matrix}
+\right)z(x,y)
+=
+\left(
+\begin{matrix}
+W_x\\
+W_y\\
+1.0
+\end{matrix}
+\right)z(x,y) \tag {13}</script><p>&emsp;&emsp;然后法线向量由两个偏导叉乘得到：</p>
+<script type="math/tex; mode=display">
+n(x,y)=\frac{\partial P}{\partial x}\times \frac{\partial P}{\partial y}
+\\=
+\left(
+\begin{matrix}
+C_xz+W_x\frac{\partial z}{\partial x}\\
+W_y\frac{\partial z}{\partial x}\\
+\frac{\partial z}{\partial x}
+\end{matrix}
+\right)
+\times
+\left(
+\begin{matrix}
+W_x\frac{\partial z}{\partial y}\\
+C_yz+W_y\frac{\partial z}{\partial y}\\
+\frac{\partial z}{\partial y}
+\end{matrix}
+\right)\\
+\approx
+\left(
+\begin{matrix}
+C_xz\\
+0\\
+\frac{\partial z}{\partial x}
+\end{matrix}
+\right)
+\times
+\left(
+\begin{matrix}
+0\\
+C_yz\\
+\frac{\partial z}{\partial y}
+\end{matrix}
+\right)
+=
+\left(
+\begin{matrix}
+-C_y\frac{\partial z}{\partial x}\\
+-C_x\frac{\partial z}{\partial y}\\
+C_xC_yz
+\end{matrix}
+\right)z \tag {14}</script><p>&emsp;&emsp;其中$C_x=\frac{2}{V_xF_x}$，$C_y=\frac{2}{V_yF_y}$，公式$(14)$中我们忽略$W_x$和$W_y$是因为能够大大简化计算，且其贡献非常小。然后单位法线向量则为：</p>
+<script type="math/tex; mode=display">
+\overline n=\frac{n(x,y)}{|n(x,y)|}=\frac{(-C_y\frac{\partial z}{\partial x},-C_x\frac{\partial z}{\partial y},C_xC_yz)^T}{\sqrt{D}} \tag {15}</script><script type="math/tex; mode=display">
+D=C_y^2(\frac{\partial z}{\partial x})^2+C_x^2(\frac{\partial z}{\partial y})^2+C_x^2C_y^2z^2 \tag {16}</script><p>&emsp;&emsp;单位法线公式有了，现在回过头来看平均曲率的计算公式$(12)$，我们要求单位法线的散度。由于深度值z是关于屏幕空间坐标x和y的函数，因此$\frac{\partial \overline n}{\partial z}=0$，因为求偏导时x和y定为常数。故：</p>
+<script type="math/tex; mode=display">
+2H=\frac{\partial \overline n_x}{\partial x}+\frac{\partial \overline n_y}{\partial y}
+=\frac{C_yE_x+C_xE_y}{D^{\frac32}} \tag {17}</script><script type="math/tex; mode=display">
+E_x=\frac12\frac{\partial z}{\partial x}\frac{\partial D}{\partial x}-\frac{\partial^2z}{\partial x^2}D \tag {18}</script><script type="math/tex; mode=display">
+E_y=\frac12\frac{\partial z}{\partial y}\frac{\partial D}{\partial y}-\frac{\partial^2z}{\partial y^2}D \tag {19}</script><p>&emsp;&emsp;求得了平均曲率之后，我们就根据公式$(11)$采用简单的欧拉差分法修改深度值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line"></span><br><span class="line">in vec2 Texcoord;</span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">float</span> step;</span><br><span class="line">uniform sampler2D image;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> depth = texture(image, Texcoord).r;</span><br><span class="line">	<span class="keyword">if</span>(depth &gt;= <span class="number">1.0f</span> || depth &lt;= <span class="number">-1.0f</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		gl_FragDepth = depth;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	vec2 imageDim = textureSize(image, <span class="number">0</span>);</span><br><span class="line">	vec2 texelSize = <span class="number">1.0</span> / imageDim;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// central differences.</span></span><br><span class="line">	<span class="keyword">float</span> depthRight = texture(image, Texcoord + vec2(texelSize.x, <span class="number">0</span>)).r;</span><br><span class="line">	<span class="keyword">float</span> depthLeft = texture(image, Texcoord - vec2(texelSize.x, <span class="number">0</span>)).r;</span><br><span class="line">	<span class="keyword">float</span> zdx = <span class="number">0.5f</span> * (depthRight - depthLeft);</span><br><span class="line">	<span class="keyword">if</span>(depthRight == <span class="number">0.0f</span> || depthLeft == <span class="number">0.0f</span>)</span><br><span class="line">		zdx = <span class="number">0.0f</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">float</span> depthUp = texture(image, Texcoord + vec2(<span class="number">0</span>, texelSize.y)).r;</span><br><span class="line">	<span class="keyword">float</span> depthDown = texture(image, Texcoord - vec2(<span class="number">0</span>, texelSize.y)).r;</span><br><span class="line">	<span class="keyword">float</span> zdy = <span class="number">0.5f</span> * (depthUp - depthDown);</span><br><span class="line">	<span class="keyword">if</span>(depthUp == <span class="number">0.0f</span> || depthDown == <span class="number">0.0f</span>)</span><br><span class="line">		zdy = <span class="number">0.0f</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">float</span> zdxx = depthRight + depthLeft - <span class="number">2.0f</span> * depth;</span><br><span class="line">	<span class="keyword">float</span> zdyy = depthUp + depthDown - <span class="number">2.0f</span> * depth;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">float</span> depthFalloff = <span class="number">0.00005f</span>;</span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">abs</span>(depth - depthRight) &gt; depthFalloff || <span class="built_in">abs</span>(depth - depthLeft) &gt; depthFalloff)</span><br><span class="line">		zdx = zdxx = <span class="number">0.0f</span>;</span><br><span class="line">	<span class="keyword">if</span>(<span class="built_in">abs</span>(depth - depthDown) &gt; depthFalloff || <span class="built_in">abs</span>(depth - depthUp) &gt; depthFalloff)</span><br><span class="line">		zdy = zdyy = <span class="number">0.0f</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">float</span> Fx = projectMatrix[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">	<span class="keyword">float</span> Fy = projectMatrix[<span class="number">1</span>][<span class="number">1</span>];</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">float</span> Cx = <span class="number">-2.0f</span>/(imageDim.x * Fx);</span><br><span class="line">	<span class="keyword">float</span> Cy = <span class="number">-2.0f</span>/(imageDim.y * Fy);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">float</span> D = Cy * Cy * zdx * zdx + Cx * Cx * zdy * zdy + Cx * Cx * Cy * Cy * depth;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">float</span> Ex = <span class="number">0.5f</span> * zdx * dFdx(D) - zdxx * D;</span><br><span class="line">	<span class="keyword">float</span> Ey = <span class="number">0.5f</span> * zdy * dFdy(D) - zdyy * D;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// curvature flow.</span></span><br><span class="line">	<span class="keyword">float</span> curvature = <span class="number">0.5f</span> * (Cy * Ex + Cx * Ey)/ <span class="built_in">pow</span>(D, <span class="number">1.5</span>);</span><br><span class="line">	<span class="keyword">if</span>(curvature &gt; <span class="number">1.0f</span>)</span><br><span class="line">		curvature = <span class="number">1.0f</span>;</span><br><span class="line"></span><br><span class="line">	gl_FragDepth = depth + curvature * step;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后在CPU端设置迭代多次，注意平滑的时间步长不能设置得太长。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">int</span> DepthCurvatureFlowBlurFilter::blurTexture(<span class="keyword">unsigned</span> <span class="keyword">int</span> targetTexIndex, <span class="keyword">const</span> glm::mat4 &amp;projectMat)</span><br><span class="line">&#123;</span><br><span class="line">	m_framebuffer-&gt;bind();</span><br><span class="line">	glDepthMask(GL_TRUE);</span><br><span class="line">	glEnable(GL_DEPTH_TEST);</span><br><span class="line">	glClear(GL_DEPTH_BUFFER_BIT);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// blur.</span></span><br><span class="line">	Shader::ptr blurShader = ShaderMgr::getSingleton()-&gt;getShader(m_blurShaderIndex);</span><br><span class="line">	blurShader-&gt;bind();</span><br><span class="line">	blurShader-&gt;setInt(<span class="string">"image"</span>, <span class="number">0</span>);</span><br><span class="line">	blurShader-&gt;setFloat(<span class="string">"step"</span>, <span class="number">0.00070f</span>);</span><br><span class="line">	blurShader-&gt;setMat4(<span class="string">"projectMatrix"</span>, projectMat);</span><br><span class="line">	TextureMgr::getSingleton()-&gt;bindTexture(targetTexIndex, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> iter = <span class="number">0</span>; iter &lt; m_iterations; ++iter)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// blur.</span></span><br><span class="line">		MeshMgr::getSingleton()-&gt;drawMesh(m_screenQuadIndex, <span class="literal">false</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// copy to target texture.</span></span><br><span class="line">		glCopyTexSubImage2D(GL_TEXTURE_2D, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, m_width, m_height);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	TextureMgr::getSingleton()-&gt;unBindTexture(targetTexIndex);</span><br><span class="line">	blurShader-&gt;unBind();</span><br><span class="line">	m_framebuffer-&gt;unBind();</span><br><span class="line">	<span class="keyword">return</span> targetTexIndex;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<strong>然而采用曲率流得方法我实现的效果并不是想象中的那么好，总体上不如采用双边滤波的方法，颗粒感较强。而且不知道为什么，流体的表面有一些抖动，看起来很奇怪，大概这就是买家秀跟买家秀的区别吧。</strong></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/16.png" width="80%"></div></p>
+<center> 图13 采用曲率流的平滑效果 </center>
+
+
+
+<h2 id="四、实现效果"><a href="#四、实现效果" class="headerlink" title="四、实现效果"></a>四、实现效果</h2><p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/ret1.gif" width="99%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/ret2.gif" width="99%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.17/blog/FluidRendering/ret3.gif" width="99%"></div></p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p>$[1]$ <a href="http://feepingcreature.github.io/math.html" target="_blank" rel="noopener">How to go from device coordinates back to worldspace in OpenGL</a></p>
+<p>$[2]$ W. E. Lorensen and H. E. Cline, “Marching cubes: A high resolution 3D surface construction algorithm,” in Proceedings of the 14th annual conference on Computer graphics and interactive techniques - SIGGRAPH ’87, 1987, pp. 163–169.</p>
+<p>$[3]$ <a href="https://en.wikipedia.org/wiki/Bilateral_filter" target="_blank" rel="noopener">Bilateral filter. From Wikipedia, the free encyclopedia</a></p>
+<p>$[4]$ W. J. van der Laan, S. Green, and M. Sainz, “Screen space fluid rendering with curvature flow” in Proceedings of the 2009 symposium on Interactive 3D graphics and games - I3D ’09, 2009, p. 91.</p>
+<p>$[5]$ <a href="https://link.zhihu.com/?target=http%3A//developer.download.nvidia.com/presentations/2010/gdc/Direct3D_Effects.pdf" target="_blank" rel="noopener">Screen Space Fluid Rendering for Games - Nvidia</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-04T21:13:19+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2019年7月4日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Fluid-Simulation/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Fluid Simulation</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Position-Based-Dynamics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Position Based Dynamics</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/07/04/FluidRendering/&title=流体渲染Fluid Rendering：基于屏幕空间的液体渲染 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本文主要是关于屏幕空间的液体渲染算法，分别介绍了高斯滤波、双边滤波和曲率流方法平滑流体深度的方法。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/07/04/FluidRendering/&title=流体渲染Fluid Rendering：基于屏幕空间的液体渲染 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本文主要是关于屏幕空间的液体渲染算法，分别介绍了高斯滤波、双边滤波和曲率流方法平滑流体深度的方法。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/07/04/FluidRendering/&title=流体渲染Fluid Rendering：基于屏幕空间的液体渲染 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本文主要是关于屏幕空间的液体渲染算法，分别介绍了高斯滤波、双边滤波和曲率流方法平滑流体深度的方法。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2019/06/26/PBF_CUDA/" rel="prev" title="流体模拟Fluid Simulation：基于CUDA的PBF实现">
+                                    
+                                        流体模拟Fluid Simulation：基于CUDA的PBF实现
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Fluid-Simulation/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Fluid Simulation</a> <a class="tag" href="/tags/Position-Based-Dynamics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Position Based Dynamics</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: '流体渲染Fluid Rendering：基于屏幕空间的液体渲染',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.jpg"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、基于屏幕空间的流体渲染"><span class="toc-text">一、基于屏幕空间的流体渲染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、水体的光照计算"><span class="toc-text">二、水体的光照计算</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、流体深度贴图"><span class="toc-text">1、流体深度贴图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、流体厚度贴图"><span class="toc-text">2、流体厚度贴图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、水体折射、Blin-Phong光照"><span class="toc-text">3、水体折射、Blin-Phong光照</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、流体深度贴图的平滑处理"><span class="toc-text">三、流体深度贴图的平滑处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、采用高斯滤波平滑深度贴图"><span class="toc-text">1、采用高斯滤波平滑深度贴图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、采用双边滤波平滑深度贴图"><span class="toc-text">3、采用双边滤波平滑深度贴图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、采用曲率流平滑深度贴图"><span class="toc-text">4、采用曲率流平滑深度贴图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、实现效果"><span class="toc-text">四、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(12)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16.5px; color: #ccc">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 21.5px; color: #eee">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 19px; color: #ddd">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 16.5px; color: #ccc">Ray Tracer</a> <a href="/tags/Soft-Renderer/" style="font-size: 21.5px; color: #eee">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

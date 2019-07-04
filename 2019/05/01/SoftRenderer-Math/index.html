@@ -335,9 +335,7 @@ R_z(\theta)=\left[\begin{matrix}cos\theta&-sin\theta&0\\
 sin\theta&cos\theta&0\\0&0&1\end{matrix}\right] \tag {5}</script><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Matrix4x4::setRotationX(<span class="keyword">const</span> <span class="keyword">double</span> angle)</span><br><span class="line">&#123;</span><br><span class="line">    loadIdentity();</span><br><span class="line">    entries[<span class="number">5</span>]  =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(<span class="built_in">cos</span>(M_PI*angle/<span class="number">180</span>));</span><br><span class="line">    entries[<span class="number">6</span>]  =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(<span class="built_in">sin</span>(M_PI*angle/<span class="number">180</span>));</span><br><span class="line">    entries[<span class="number">9</span>]  = -entries[<span class="number">6</span>];</span><br><span class="line">    entries[<span class="number">10</span>] =  entries[<span class="number">5</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Matrix4x4::setRotationY(<span class="keyword">const</span> <span class="keyword">double</span> angle)</span><br><span class="line">&#123;</span><br><span class="line">    loadIdentity();</span><br><span class="line">    entries[<span class="number">0</span>]  =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(<span class="built_in">cos</span>(M_PI*angle/<span class="number">180</span>));</span><br><span class="line">    entries[<span class="number">2</span>]  = -<span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(<span class="built_in">sin</span>(M_PI*angle/<span class="number">180</span>));</span><br><span class="line">    entries[<span class="number">8</span>]  = -entries[<span class="number">2</span>];</span><br><span class="line">    entries[<span class="number">10</span>] =  entries[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> Matrix4x4::setRotationZ(<span class="keyword">const</span> <span class="keyword">double</span> angle)</span><br><span class="line">&#123;</span><br><span class="line">    loadIdentity();</span><br><span class="line">    entries[<span class="number">0</span>]  =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(<span class="built_in">cos</span>(M_PI*angle/<span class="number">180</span>));</span><br><span class="line">    entries[<span class="number">1</span>]  =  <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(<span class="built_in">sin</span>(M_PI*angle/<span class="number">180</span>));</span><br><span class="line">    entries[<span class="number">4</span>]  = -entries[<span class="number">1</span>];</span><br><span class="line">    entries[<span class="number">5</span>]  =  entries[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>&emsp;&emsp;但是更一般的情况是绕任意轴进行旋转，构建这样的矩阵稍微有点麻烦，我们接下来就做一些绕任意轴旋转的矩阵构建推到。在这里我们不考虑平移，因而围绕旋转的轴一定是通过原点的。如下图1所示，将$\vec v$旋转到$\vec v ‘$，任意轴用单位向量$\vec n$表示，绕$\vec n$旋转$\theta$角度的矩阵记为$R(\vec n, \theta)$，$\vec v’$是向量绕轴$\vec n$旋转后的向量，即$\vec v’=R(\vec n,\theta)\vec v$。</p>
 <p><img src="https://img-my.csdn.net/uploads/201304/08/1365419995_7039.png" alt="img"></p>
-<center>图1 绕任意轴旋转</center>
-
-<p>&emsp;&emsp;<strong>我们的目标就是用$\vec v$、$\vec n$和$\theta$来表示$\vec v’$，从而构造出$R(\vec n, \theta)$。</strong>首先将$\vec v$分解成平行于$\vec n$的向量$\vec v_{||}$和垂直于$\vec n$的分量$\vec v_{⊥}$，而$\vec v’_{⊥}$是垂直于$\vec n$的分向量。注意，$\vec n$是单位向量，但$\vec v$不是单位向量，可得$\vec v$在$\vec n$方向的投影向量$\vec v_{||}$为：</p>
+<p><center>图1 绕任意轴旋转</center><br>&emsp;&emsp;<strong>我们的目标就是用$\vec v$、$\vec n$和$\theta$来表示$\vec v’$，从而构造出$R(\vec n, \theta)$。</strong>首先将$\vec v$分解成平行于$\vec n$的向量$\vec v_{||}$和垂直于$\vec n$的分量$\vec v_{⊥}$，而$\vec v’_{⊥}$是垂直于$\vec n$的分向量。注意，$\vec n$是单位向量，但$\vec v$不是单位向量，可得$\vec v$在$\vec n$方向的投影向量$\vec v_{||}$为：</p>
 <script type="math/tex; mode=display">
 \vec v_{||}=(\vec v\cdot\vec n)\vec n \tag {6}</script><p>&emsp;&emsp;从而根据$\vec v_{||}$和$\vec v$可知$\vec v_{⊥}$和$w$，$w$是垂直于$\vec n$和$\vec v_{⊥}$的向量：</p>
 <script type="math/tex; mode=display">
@@ -384,15 +382,9 @@ R(\vec n, \theta)
 <h3 id="透视投影矩阵"><a href="#透视投影矩阵" class="headerlink" title="透视投影矩阵"></a>透视投影矩阵</h3><p>&emsp;&emsp;关于透视投影矩阵的前世今生我不过多说，直接上透视投影矩阵的推导过程。一个视锥体我们目前用六个参数表示：$left$，$right$，$bottom$，$top$，$near$，$far$，简写为$l$、$r$、$b$、$t$、$n$和$f$，即视锥体的六个面。<strong>我们的目标就是将视图空间中在视锥体内的点变换到标准化设备坐标中的立方体内。</strong>即$x$轴方向从$[l,r]$映射到$[-1,1]$，$y$轴方向从$[b,t]$映射到$[-1,1]$，$z$轴方向从$[-n,-f]$映射到$[-1,1]$。</p>
 <p>&emsp;&emsp;<strong>可能你会觉得奇怪，$z$轴方向为什么是从$[-n,-f]$映射到$[-1,1]$？这是因为摄像机空间的坐标系是右手坐标系，在视图空间中摄像机是朝向视图坐标系的$z$轴的负方向，如下图左边所示，$+Y$、$+Z$、$+X$标准摄像机坐标系的三个轴，而摄像机的观察视锥体是朝向$-Z$方向的。而$NDC$又是左手坐标系，朝向$+Z$方向，所以我们要取负。</strong></p>
 <p><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix01.png" alt="OpenGL Perspective Frustum and NDC"></p>
-<center>图2 透视投影视锥和标准化设备坐标</center>
-
-<p><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix03.png" alt="Top View of Frustum"></p>
-<center>图3 从-Y方向看去的视锥横截面</center>
-
-<p><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix04.png" alt="Side View of Frustum"></p>
-<center>图4 从-X方向看去的视锥横截面</center>
-
-<p>&emsp;&emsp;在视锥体中的顶点$(x_e,y_e,z_e)$被投影到视锥体的近平面，近平面上的点我们记为$(x_p,y_p,-n)$。如图3和图4所示，根据三角形相似的原理，我们有：</p>
+<p><center>图2 透视投影视锥和标准化设备坐标</center><br><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix03.png" alt="Top View of Frustum"></p>
+<p><center>图3 从-Y方向看去的视锥横截面</center><br><img src="http://www.songho.ca/opengl/files/gl_projectionmatrix04.png" alt="Side View of Frustum"></p>
+<p><center>图4 从-X方向看去的视锥横截面</center><br>&emsp;&emsp;在视锥体中的顶点$(x_e,y_e,z_e)$被投影到视锥体的近平面，近平面上的点我们记为$(x_p,y_p,-n)$。如图3和图4所示，根据三角形相似的原理，我们有：</p>
 <script type="math/tex; mode=display">
 \frac{x_p}{x_e}=\frac{-n}{z_e}\ \rightarrow\ x_p=\frac{-n\cdot x_e}{z_e}=\frac{n\cdot x_e}{-z_e} \tag {15}</script><script type="math/tex; mode=display">
 \frac{y_p}{y_e}=\frac{-n}{y_e}\ \rightarrow\ y_p=\frac{-n\cdot y_e}{z_e}=\frac{n\cdot y_e}{-z_e} \tag {16}</script><p>&emsp;&emsp;注意到公式$(15)$和$(16)$中分母都是一个$-z_e$，这与我们将裁剪空间中的顶点做透视除法相对应，透视投影然后做透视除法如下公式$(17)$、$(18)$所示：</p>
@@ -696,10 +688,10 @@ Z_x&Z_y&Z_z&-(\vec Z\cdot \vec {eye})\\
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-05-05T21:13:44+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-02T11:54:51+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年5月5日</p>
+    <p>最后更新于 2019年7月2日</p>
   </a>
 </div>
 
@@ -1030,13 +1022,13 @@ Z_x&Z_y&Z_z&-(\vec Z\cdot \vec {eye})\\
     <div class="content material">
       <ul class="entry">
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(11)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(12)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(3)</div></a></li>
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(4)</div></a></li>
         
           <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(2)</div></a></li>
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
         
@@ -1067,7 +1059,7 @@ Z_x&Z_y&Z_z&-(\vec Z\cdot \vec {eye})\\
 </header>
 
     <div class="content material">
-      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16.5px; color: #ccc">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 19px; color: #ddd">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 16.5px; color: #ccc">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 16.5px; color: #ccc">Ray Tracer</a> <a href="/tags/Soft-Renderer/" style="font-size: 21.5px; color: #eee">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16.5px; color: #ccc">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 21.5px; color: #eee">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 19px; color: #ddd">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 16.5px; color: #ccc">Ray Tracer</a> <a href="/tags/Soft-Renderer/" style="font-size: 21.5px; color: #eee">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
     </div>
   </section>
 
