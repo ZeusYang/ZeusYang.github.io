@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>实时渲染Real-time Rendering：基于物理的光照模型 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+									<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/friends/" rel="nofollow" id="friends">
+								<i class="fas fa-comment fa-fw"></i>&nbsp;大佬
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2019/07/14/PhysicallyBasedRendering/">
+        实时渲染Real-time Rendering：基于物理的光照模型
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="http://yoursite.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-07-14</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Physically-Based-Rendering/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Real-time Rendering&nbsp;/&nbsp;Physically Based Rendering</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>本文采用OpenGL搭建了一个基于物理着色的渲染器，目前大多数的实时应用都是采用了PBR，相对于传统的Phong等基于经验的光照模型，基于物理着色的渲染方法更为真实。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/header.gif" width="99%"></div></p>
+<a id="more"></a>
+<ul>
+<li>能量守恒</li>
+<li>微平面模型</li>
+<li>基于物理的BRDF</li>
+<li>屏幕空间环境光遮蔽</li>
+<li>实现效果</li>
+<li>参考资料</li>
+</ul>
+<center><font size="6">基于物理的渲染</font></center>
+&emsp;&emsp;基于物理的渲染（Physically Based Rendering，简称PBR）技术致力于渲染出更贴近于真实物理世界的光影效果，它倾向于探索光影背后的物理规律，然后在此基础上构建一个基于物理规律的光照模型，最后应用到光照计算中。基于物理的渲染除了更为真实，它也给光照计算的赋予了更多的物理意义，从而使得设计师们摆脱基于经验的参数调整，只要设置的物理量正确，则最终光照效果也将会是正确的。即便如此，基于物理的渲染技术依然只是现实物理世界的一个逼近。对于一个基于物理渲染的光照模型，它通常需要满足以下的三个条件：
+
+&emsp;&emsp;1、能量守恒
+
+&emsp;&emsp;2、基于微平面的表面模型
+
+&emsp;&emsp;3、使用基于物理的BRDF
+
+&emsp;&emsp;接下来我们就按照上面的顺序一一展开。
+
+
+
+## 一、能量守恒（Energy Conservation）
+
+&emsp;&emsp;基于物理的光照模型必须遵守这样的一个能量守恒原则：对于一个非自发光的物体，出射光线的能量永远不能超过入射光线的能量。当一束光线照射到物体表面，它就被分割成两个部分，分别是折射部分和反射部分。反射部分的光线则是直接撞击到表面然后反弹开来的那部分光线，这部分构成中我们日常生活中常见的镜面高光。折射部分的光线则进入物体内部，光线在内部与物体的粒子发生碰撞，此时光线的一部分能量就转变成热能。一般情况下，并非所有光能都被转化成热能，还有一些光线在内部经过多次散射最终又离开物体表面，这部分的光线构成了物体的漫反射光。这里还要特别区分一下金属材质，与非金属材质和电介质不同，金属材质会直接吸收折射光而不会散开，只表现出镜面反射光。即金属表面不会显示出漫反射的颜色。
+
+&emsp;&emsp;根据能量守恒的原则，反射光与折射光是相互排斥的，因此我们只要知道其中一部分占总入射光的百分比，就能立马得到另外一部分的能量占比。通过这样的一个方案，我们就能保证出射光的总能量小于等于入射光的总能量。下面的图1展示Blin-Phong的光照渲染结果，Blin-Phong光照模型并不是一个基于物理的光照模型，它并不满足能量守恒的原则，可以看到，图1场景看起来太亮了，而我仅仅将光照的辐射率设置为vec3(0.6)。
+
+<div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/1.png" width="80%">
+<center> 图1 Blin-Phong光照模型的渲染结果 </center>
+
+
+
+
+<h2 id="二、微平面模型（Microfacet-Model）"><a href="#二、微平面模型（Microfacet-Model）" class="headerlink" title="二、微平面模型（Microfacet Model）"></a>二、微平面模型（Microfacet Model）</h2><p>&emsp;&emsp;PBR技术采用了微平面理论：在微观尺度下，任意的一个平面都可以用一组微小的光滑镜面来描述，这个微小的光滑镜面就是微平面（Microfacet）。根据平面粗糙程度的不同，这些微平面的排列取向也各不相同。一个平面越是粗糙，则其平面上的微平面排列就越混乱。微平面的排列越混乱，则入射光线照射到该平面上时更趋向于朝向完全不同的方向散射开来，从而产生更大范围的镜面光。同理，若平面越光滑，则其微平面排列取向越规整，入射光线大体上越趋向于向同一个方向反射，产生更小范围、更加锐利的镜面高光。正如如下图2所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/2.png" width="80%"></div></p>
+<center> 图2 粗糙和光滑的微平面 </center>
+
+
+<p>&emsp;&emsp;微平面的取向排列混乱程度我们采用一个粗糙度（Roughness）的参数来衡量。直接在微观尺度下操作显然不可行，因为我们将在宏观尺度下采用统计学的方法来估算微平面的粗糙度。这个粗糙度我们定义为某个向量的方向与微平面平均取向方向一致的概率，这个向量便是光线向量$l$和视线向量$v$之间的中间向量$h$：</p>
+<script type="math/tex; mode=display">
+h=\frac{l+v}{||l+v||} \tag {1}</script><p>&emsp;&emsp;在一个表面的微平面中，越多微平面的法线方向与中间向量的方向一致，则镜面的反射效果就越强烈、越锐利。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/3.png" width="90%"></div></p>
+<center> 图3 不同粗糙度的镜面高光 </center>
+
+
+
+
+<h2 id="三、基于物理的BRDF"><a href="#三、基于物理的BRDF" class="headerlink" title="三、基于物理的BRDF"></a>三、基于物理的BRDF</h2><p>&emsp;&emsp;在前面的能量守恒原则和微平面理论的基础上，我们将展开基于物理的光照计算。首先我们要了解的是渲染方程，PBR采用的渲染方程是一个特化版本，也被称为反射方程，如下所示：</p>
+<script type="math/tex; mode=display">
+L_o(p,\omega_o)=\int _{\Omega}f_r(p,\omega_i,\omega_o)L_i(p,\omega_i)n\cdot \omega_id\omega_i \tag {2}</script><p>&emsp;&emsp;上式中，$L_o$是反射辐射率，$L_i$是入射辐射率，$p$为物体表面上的一点，$\omega_o$为出射方向向量，$\omega_i$为入射方向向量，$n$是表面法线向量，$f_r(p,\omega_i,\omega_o)$是后面我们将要提到的BRDF函数。积分区域$\Omega$是以表面法线$n$为轴的半球领域。PBR渲染方程主要是关于光能辐射度量学的（Radiometry）的内容，这里简单介绍一些辐射度量学的物理量。</p>
+<p>&emsp;&emsp;<strong>辐射通量（Radiant Flux）</strong>：辐射通量以瓦特为单位，符号为$\Phi$，它衡量一个光源所辐射的能量。光是由多种不同波长的能量所集合而成的，一个光源所放射出来的能量可以被视作这个光源包含的所有各种波长的一个函数。但是在计算机图形学中，我们通常采用三原色编码即RGB来简化辐射通量的表示，这套编码带来的损失基本可以忽略。</p>
+<p>&emsp;&emsp;<strong>立体角（Solid Angle）</strong>：这个物理量在前面的文章都有提及过了，立体角符号为$\omega$，它描述了一个几何体投影到单位球面上的大小，立体角可以看成是带有体积的方向向量。</p>
+<p>&emsp;&emsp;<strong>辐射强度（Radiant Intensity）</strong>：辐射强度衡量了在单位球面上，一个光源每单位立体角所辐射的辐射通量。其定义公式为$I=\frac{d\Phi}{d\omega}$，即微分辐射通量除以微分立体角。对于一个全向且向所有方向均匀辐射的光源，辐射强度表示了光源在一个单位球面上单位立体角的辐射能量。</p>
+<p>&emsp;&emsp;<strong>辐射率（Radiance）</strong>：辐射率就是具有辐射强度$\Phi$的光源在单位面积$A$、单位立体角$\omega$下的辐射总能量，其定义见下面的公式$(3)$。$d\omega cos\theta$将单位立体角（也就是单位球体上的面积）投影到法线方向。</p>
+<script type="math/tex; mode=display">
+L=\frac{d^2\Phi}{dAd\omega cos\theta} \tag {3}</script><p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/4.png" width="50%"></div></p>
+<center> 图4 辐射率示意图 </center>
+
+
+<p>&emsp;&emsp;辐射率是辐射度量学上表示一个区域平面上光线总量的物理量，它受到入射光线与平面法线间的夹角$\theta$的余弦值$cos\theta$的影响：当直接辐射到平面上的程度越低时，光线就越弱，而当光线完全垂直于平面时强度最高。当立体角$\omega$和面积$A$趋向于无穷小时，我们能用辐射率来表示单束光线穿过空间中的一个点的通量。这就使我们可以计算得出作用于单个片段或点上的单束光线的辐射率，即把立体角$\omega$转变为方向向量然后把面$A$转换为点$p$，这样我们就能直接在我们的着色器中使用辐射率来计算单束光线对每个片段的作用。</p>
+<p>&emsp;&emsp;上面讨论的仅仅是一束光线投射到点$p$上，但是通常我们需要计算的是所有投射到点$p$上的光线总和，这个和就是辐照度（Irradiance）。注意到反射方程$(2)$对半球领域$\Omega$进行积分，这是因为我们要计算的不只是单一一个方向上的入射光，而是一个以点$p$为球心、以法向为中轴的半球领域$\Omega$内所有方向上的入射光。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/5.png" width="50%"></div></p>
+<center> 图5 半球领域 </center>
+
+
+<p>&emsp;&emsp;由于渲染方程都没有解析解，求解公式$(2)$即反射方程时我们将采用离散的方法来积分的数值解。目前常用的就是梯形法，在半球领域$\Omega$按一定的步长将反射率方程分散求解，然后再按照步长大小将所得的结果平均化，这个就是黎曼和（Riemann Sum）。</p>
+<p>&emsp;&emsp;然后剩下的就是BRDF函数，也就是公式$(2)$中的$f_r(p,\omega_i,\omega_o)$部分。BRDF的全称为Bidirectional Reflective Distribution Function，即双向反射分布函数。对于一个给定材质属性，BRDF函数给出了入射光和反射光的关系，一束给定入射方向的入射光照射到物体表面时，会被反射到表面半球范围内的各个方向，不同反射角度的反射光线在入射光线中的占比各不相同，BRDF函数就用来表示这种比例关系，其定义如下：</p>
+<script type="math/tex; mode=display">
+f(l,v)=\frac{dL_o(v)}{dE(l)} \tag {4}</script><p>&emsp;&emsp;Cook-Torrance模型是目前应用最为广泛的基于物理的BRDF模型，它被用于很多实时渲染管线的材质和光照环境下。Cook-Torrance的BRDF包含漫反射和镜面反射两个部分，其中的镜面反射部分比较复杂：</p>
+<script type="math/tex; mode=display">
+f_r=k_df_{lambert}+k_sf_{cook-torrance} \tag {5}</script><p>&emsp;&emsp;其中，$k_d$就是前面提到的入射光线中被折射的光线部分的能量占比，而$k_s$则是被反射的光线部分所占的比例。$f_{lambert}$是BRDF的漫反射部分，这个是Lambertian漫反射模型，其计算公式如下所示：</p>
+<script type="math/tex; mode=display">
+f_{lambert}=\frac{c}{\pi} \tag {6}</script><p>&emsp;&emsp;其中$c$是物体的反照率（Albedo），大部分的实时渲染应用都采用了Lambertian漫反射模型。然后就是镜面反射部分，镜面反射部分就是Cook-Torrance的各向同性光照模型：</p>
+<script type="math/tex; mode=display">
+f_{cook-torrance} = \frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)} \tag {7}</script><p>&emsp;&emsp;其中$\omega_i$是入射方向，$\omega_o$是观察方向。Cook-Torrance的模型包含三个函数，D、F、G分别是法线分布函数、菲尼尔方程、几何函数。接下来我们将讨论的是Trowbridge-Reitz GGX法线分布函数，Fresnel-Schlick菲涅尔方程以及Smith’s Schlick-GGX几何函数。</p>
+<p>&emsp;&emsp;首先是<strong>法线分布函数（Normal Distribution Function）</strong>，给定表面的粗糙度，法线分布函数估算平面法线取向与中间向量一致的微平面数量。从统计学上讲，法线分布函数近似地描述了与中间向量$h$取向相同的微平面占全部微平面的比例。例如，给定中间向量$h$，若我们要估算的微平面中有$35\%$与向量$h$取向相同，那么法线分布函数将返回$0.35$。Trowbridge-Reitz GGX法线分布函数的数学定义如下所示：</p>
+<script type="math/tex; mode=display">
+NDF_{GGXTR}(n,h,\alpha)=\frac{\alpha ^2}{\pi ((n\cdot h)^2(\alpha^2-1)+1)^2} \tag {8}</script><p>&emsp;&emsp;其中，$n$为宏观法线，$h$是中间向量，而$\alpha$则表示平面的粗糙度。当粗糙度$\alpha$值很低时，即表面比较光滑时，与中间向量$h$取向相同的微平面会高度地集中在一个小半径范围内。此时镜面反射会形成一个非常明亮的光斑。相反，当表面的粗糙度值较高时，与$h$向量取向一致的微平面分布在一个比较大的半径范围内，这使得最终的镜面反射效果显得较为灰暗。</p>
+<p>&emsp;&emsp;然后就是<strong>菲涅尔方程（Fresnel Equation）</strong>，描述了指定角度下表面反射的光线所占的比例。当一束光线照射到表面时，菲涅尔方程会依据观察角度给出反射光线所占的百分比。然后根据这个反射光所占的百分比和能量守恒定律就可以得出光线折射部分所占的比率。当我们垂直观察物体的时候，任何表面都有一个基础的反射率。例如，用垂直的视角看向木制桌面或者金属桌面，此时只有最基本的反射，但若近乎与平面平行的角度去观察的话就会看到非常明显的反光效果。Fresnel-Schlick近似菲涅尔方程如下所示：</p>
+<script type="math/tex; mode=display">
+F_{schlick}(h,v,F_0)=F_0+(1-F_0)(1-(h\cdot v))^5 \tag {9}</script><p>&emsp;&emsp;其中，$F_0$就是表面的基础反射率，它是通过折射系数计算得到的，$h$即前面提到的中间向量，$v$为观察方向向量。</p>
+<p>&emsp;&emsp;最后就是<strong>几何函数（Geometry Function）</strong>，几何函数描述了微平面自我遮挡的属性。当一个平面比较粗糙的时候，表面上的微平面可能会挡住其他的微平面从而减弱表面反射光的强度。与法线分布函数类似，几何函数也是从统计学的角度近似求出微平面之间相互遮蔽的比率。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/6.png" width="50%"></div></p>
+<center> 图6 微平面的相互遮蔽现象 </center>
+
+
+<p>&emsp;&emsp;几何函数也采用一个材质的粗糙度作为输入的参数，越粗糙的表面其微平面之间相互遮挡的概率也就越高。Schlick-GGX几何函数的数学定义如下：</p>
+<script type="math/tex; mode=display">
+G_{schlickGGX}(n,v,k)=\frac{n\cdot v}{(n\cdot v)(1-k)+k} \tag {10}</script><p>&emsp;&emsp;公式$(10)$中的$k$是关于粗糙度$\alpha$的重映射，取决于几何函数是针对直接光照还是针对IBL（Image Based Lighting）光照：</p>
+<script type="math/tex; mode=display">
+k_{direct}=\frac{(\alpha+1)^2}{8} \\
+k_{IBL}=\frac{\alpha^2}{2} \tag {11}</script><p>&emsp;&emsp;微平面的相互遮蔽主要有两个方面，分别是几何遮蔽（Geometry Obstruction）和几何阴影（Geometry Shadowing），几何遮蔽与视线向量有关，而几何阴影则于入射方向向量相关。我们采用史密斯法将两者纳入其中：</p>
+<script type="math/tex; mode=display">
+G(n,v,l,k)=G_{schlickGGX}(n,v,k)G_{schlickGGX}(n,l,k) \tag {12}</script><p>&emsp;&emsp;最终，我们得到反射方程$(2)$中的BRDF计算公式：</p>
+<script type="math/tex; mode=display">
+f_r=k_d\frac{c}{\pi}+k_s\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)} \tag {13}</script><p>&emsp;&emsp;实际上，BRDF的计算公式$(13)$有个错误，公式中的$F$即菲涅尔项就是$k_s$，因为菲涅尔项表示的就是反射光线的占比，因此应该把$k_s$去掉，然后$k_d=1-F$。</p>
+<script type="math/tex; mode=display">
+f_r=k_d\frac{c}{\pi}+\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)} \tag {14}</script><p>&emsp;&emsp;将公式$(14)$代入到公式$(2)$中，我们最终得到一个具体的渲染方程：</p>
+<script type="math/tex; mode=display">
+L_o(p,\omega_o)=\int _{\Omega}(k_d\frac{c}{\pi}+\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)})L_i(p,\omega_i)n\cdot \omega_id\omega_i \tag {15}</script><h2 id="三、PBR渲染器的实现"><a href="#三、PBR渲染器的实现" class="headerlink" title="三、PBR渲染器的实现"></a>三、PBR渲染器的实现</h2><p>&emsp;&emsp;有了前面的理论基础，接下来我们就展开相关的PBR实现。首先我们要讨论的是PBR材质，仔细观察渲染方程公式$(15)$，求解这个渲染方程我们需要获取物体的反照率向量、法线向量、粗糙度。除此之外，我还需要物体的金属度参数，这是因为Fresnel-Schlick近似仅仅对电介质或者说非金属表面有定义，对于导体(Conductor)表面（金属），使用它们的折射指数计算基础折射率并不能得出正确的结果。金属度用来描述一个材质表面是金属还是非金属的，基于金属表面特性，我们要么使用电介质的基础反射率要么就使用物体的表面颜色。因为金属表面会吸收所有折射光线而没有漫反射，所以我们可以直接使用表面颜色纹理来作为它们的基础反射率。</p>
+<p>&emsp;&emsp;因此，对于一个PBR渲染器，我们需要获取物体的PBR材质，PBR材质包含了反照率（Albedo）纹理、法线（Normal）纹理、粗糙度（Roughness）纹理以及金属度（Metallic）纹理，正如如下图7所示。在一些PBR渲染器中，还有一个环境遮蔽光贴图（Ambient Occulsion），这里我们不考虑AO贴图，而是考虑在后面采用SSAO实现环境遮蔽光的效果。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/7.jpg" width="99%"></div></p>
+<center> 图7 PBR材质 </center>
+
+
+<p>&emsp;&emsp;然后还需要提一点的是，我们目前仅考虑直接光照部分，不考虑反弹多次的间接光照。仅考虑直接光照时，对于渲染方程$(15)$，我们不需要对整个半球领域进行积分，因为此时的被积函数是一个狄拉克函数。也就是被积函数仅在某一个特定的方向上才不为0，剩余部分函数值全为0，因此没有必要进行积分。在光照计算中，我们是可以直接知道空间中的光源位置，因此可以直接计算。当空间中有多个光源时，渲染方程的值就是直接计算点与这些光源之间的被击函数值最后累加起来。</p>
+<script type="math/tex; mode=display">
+L_o(p,\omega_o)=\Sigma_{i}^m(k_d\frac{c}{\pi}+\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)})L_i(p,\omega_i)n\cdot \omega_i \tag {16}</script><p>&emsp;&emsp;公式$(16)$就是场景中有$m$个光源时的实际渲染方程。为了支持大量的光源，我采用了延迟渲染，将物体空间位置和PBR材质信息存储到多张纹理中，然后在屏幕空间计算光照。首先将物体的信息渲染到纹理中，因为采用了法线贴图，所以要在顶点着色器中构建TBN矩阵提取出法线向量：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">---------------Vertex Shader-------------------</span><br><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line">layout (location = <span class="number">0</span>) in vec3 position;</span><br><span class="line">layout (location = <span class="number">1</span>) in vec3 normal;</span><br><span class="line">layout (location = <span class="number">2</span>) in vec2 texcoord;</span><br><span class="line">layout (location = <span class="number">3</span>) in vec3 color;</span><br><span class="line">layout (location = <span class="number">4</span>) in vec3 tangent;</span><br><span class="line">layout (location = <span class="number">5</span>) in vec3 bitangent;</span><br><span class="line">layout (location = <span class="number">6</span>) in mat4 instanceMatrix;</span><br><span class="line"></span><br><span class="line">out vec3 FragPos;</span><br><span class="line">out vec2 Texcoord;</span><br><span class="line">out mat3 TBNMatrix;</span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">bool</span> instance;</span><br><span class="line">uniform mat4 modelMatrix;</span><br><span class="line">uniform mat4 viewMatrix;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line">uniform mat4 normalMatrix;</span><br><span class="line">uniform mat4 lightSpaceMatrix;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	vec3 T = normalize(vec3(modelMatrix * vec4(tangent, <span class="number">0.0f</span>)));</span><br><span class="line">	vec3 B = normalize(vec3(modelMatrix * vec4(bitangent, <span class="number">0.0f</span>)));</span><br><span class="line">	vec3 N = normalize(vec3(modelMatrix * vec4(normal, <span class="number">0.0f</span>)));</span><br><span class="line">	TBNMatrix = mat3(T, B, N);</span><br><span class="line">	Texcoord = texcoord;</span><br><span class="line">	<span class="keyword">if</span>(!instance)</span><br><span class="line">		FragPos = vec3(modelMatrix * vec4(position,<span class="number">1.0f</span>));</span><br><span class="line">	<span class="keyword">else</span> </span><br><span class="line">		FragPos = vec3(modelMatrix * instanceMatrix * vec4(position,<span class="number">1.0f</span>));</span><br><span class="line">	gl_Position = projectMatrix * viewMatrix * vec4(FragPos,<span class="number">1.0f</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">---------------Fragment Shader-------------------</span><br><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line">in vec3 FragPos;</span><br><span class="line">in vec2 Texcoord;</span><br><span class="line">in mat3 TBNMatrix;</span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">float</span> nearPlane;</span><br><span class="line">uniform <span class="keyword">float</span> farPlane;</span><br><span class="line">uniform sampler2D albedoMap;</span><br><span class="line">uniform sampler2D normalMap;</span><br><span class="line">uniform sampler2D roughMap;</span><br><span class="line">uniform sampler2D metallicMap;</span><br><span class="line">uniform sampler2D depthMap;</span><br><span class="line"></span><br><span class="line">layout(location = <span class="number">0</span>) out vec3 dposition;</span><br><span class="line">layout(location = <span class="number">1</span>) out vec3 dnormal;</span><br><span class="line">layout(location = <span class="number">2</span>) out vec3 dalbedo;</span><br><span class="line">layout(location = <span class="number">3</span>) out vec3 droughness;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">// sample albedo.</span></span><br><span class="line">	vec3 albedo = texture(albedoMap, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample normal.</span></span><br><span class="line">	vec3 normal = normalize(<span class="number">2.0f</span> * texture(normalMap, Texcoord).rgb - vec3(<span class="number">1.0f</span>));</span><br><span class="line">	normal = TBNMatrix * normal;</span><br><span class="line">	<span class="comment">// sample roughness.</span></span><br><span class="line">	<span class="keyword">float</span> roughness = texture(roughMap, Texcoord).r;</span><br><span class="line">	<span class="comment">// sample metallic.</span></span><br><span class="line">	<span class="keyword">float</span> metallic = texture(metallicMap, Texcoord).r;</span><br><span class="line">	dposition = FragPos;</span><br><span class="line">	dnormal = normal;</span><br><span class="line">	dalbedo = albedo;</span><br><span class="line">	droughness = vec3(roughness, metallic, gl_FragCoord.z);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后在屏幕空间中实现我们的PBR算法。首先是BRDF的三个函数。根据公式$(8)$，法线分布函数如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">NormalDistributionGGX</span><span class="params">(vec3 N, vec3 H, <span class="keyword">float</span> roughness)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> a = roughness * roughness;</span><br><span class="line">	<span class="keyword">float</span> aSquared = a * a;</span><br><span class="line">	<span class="keyword">float</span> NdotH = max(dot(N, H), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> NdotHSquared = NdotH * NdotH;</span><br><span class="line">	<span class="keyword">float</span> nom = aSquared;</span><br><span class="line">	<span class="keyword">float</span> denom = (NdotHSquared * (aSquared - <span class="number">1.0f</span>) + <span class="number">1.0f</span>);</span><br><span class="line">	denom = PI * denom * denom;</span><br><span class="line">	<span class="keyword">return</span> nom / denom;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;根据公式$(9)$，菲涅尔方程的计算代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">vec3 <span class="title">fresnelSchlick</span><span class="params">(<span class="keyword">float</span> cosTheta, vec3 F0)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> F0 + (<span class="number">1.0f</span> - F0) * <span class="built_in">pow</span>(<span class="number">1.0</span> - cosTheta, <span class="number">5.0f</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;根据公式$(10)$、$(11)$、$(12)$，几何函数的计算代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">GeometrySchlickGGX</span><span class="params">(<span class="keyword">float</span> NdotV, <span class="keyword">float</span> roughness)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> r = (roughness + <span class="number">1.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> k = (r * r) / <span class="number">8.0f</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">float</span> nom = NdotV;</span><br><span class="line">	<span class="keyword">float</span> denom = NdotV * (<span class="number">1.0f</span> - k) + k;</span><br><span class="line">	<span class="keyword">return</span> nom / denom;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">GeometrySmith</span><span class="params">(vec3 N, vec3 V, vec3 L, <span class="keyword">float</span> roughness)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> NdotV = max(dot(N, V), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> NdotL = max(dot(N, L), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> ggx2 = GeometrySchlickGGX(NdotV, roughness);</span><br><span class="line">	<span class="keyword">float</span> ggx1 = GeometrySchlickGGX(NdotL, roughness);</span><br><span class="line">	<span class="keyword">return</span> ggx2 * ggx1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后就是光照部分，我实现的渲染器支持一个平行光、多个点光源。首先来看平行光部分，平行光部分因为不用考虑衰减，因而更为简单：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DirLight</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    vec3 direction;</span><br><span class="line">    vec3 radiance;</span><br><span class="line">&#125;;</span><br><span class="line">uniform DirLight dirLight;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// sample position.</span></span><br><span class="line">	vec3 FragPos = texture(dposition, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample albedo.</span></span><br><span class="line">	vec3 albedo = texture(dalbedo, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample normal.</span></span><br><span class="line">	vec3 normal = texture(dnormal, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample roughness.</span></span><br><span class="line">	<span class="keyword">float</span> roughness = texture(droughness, Texcoord).r;</span><br><span class="line">	<span class="comment">// sample metallic.</span></span><br><span class="line">	<span class="keyword">float</span> metallic = texture(droughness, Texcoord).g;</span><br><span class="line">	<span class="comment">// sample depth.</span></span><br><span class="line">	<span class="keyword">float</span> depth = texture(droughness, Texcoord).b;</span><br><span class="line">	<span class="comment">// sample ambient occlusion.</span></span><br><span class="line">	<span class="keyword">float</span> ao = texture(ddepth, Texcoord).r;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// emssive</span></span><br><span class="line">	<span class="keyword">if</span>(normal.x == <span class="number">0.0f</span> &amp;&amp; normal.y == <span class="number">0.0f</span> &amp;&amp; normal.z == <span class="number">0.0f</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		fragColor.rgb = albedo;</span><br><span class="line">		<span class="comment">// glow map.</span></span><br><span class="line">		<span class="keyword">float</span> brightness = dot(fragColor.rgb, vec3(<span class="number">0.2126</span>, <span class="number">0.7152</span>, <span class="number">0.0722</span>));</span><br><span class="line">		brightColor = vec4(fragColor.rgb, <span class="number">1.0f</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// write depth to buffer for forwarding shading.</span></span><br><span class="line">		gl_FragDepth = depth;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// some directions.</span></span><br><span class="line">	vec3 viewDir = normalize(cameraPos - FragPos);</span><br><span class="line">	<span class="comment">// index of refracted.</span></span><br><span class="line">	vec3 F0 = vec3(<span class="number">0.04</span>);</span><br><span class="line">	F0 = mix(F0, albedo, metallic);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ************************directional light************************************</span></span><br><span class="line">	vec3 lightDir = dirLight.direction;</span><br><span class="line">	vec3 halfwayDir = normalize(lightDir + viewDir);</span><br><span class="line">	<span class="comment">// fresnel factor.</span></span><br><span class="line">	vec3 fresnel = fresnelSchlick(max(dot(halfwayDir, viewDir), <span class="number">0.0f</span>), F0);</span><br><span class="line">	<span class="comment">// normal distribution factor.</span></span><br><span class="line">	<span class="keyword">float</span> distribution = NormalDistributionGGX(normal, halfwayDir, roughness);</span><br><span class="line">	<span class="comment">// geometry facror.</span></span><br><span class="line">	<span class="keyword">float</span> geometryFactor = GeometrySmith(normal, viewDir, lightDir, roughness);</span><br><span class="line">	<span class="comment">// brdf function.</span></span><br><span class="line">	vec3 brdf = distribution * fresnel * geometryFactor / </span><br><span class="line">				(<span class="number">4.0f</span> * max(dot(viewDir, normal), <span class="number">0.0f</span>) * max(dot(lightDir, normal), <span class="number">0.0f</span>) + <span class="number">0.0001f</span>);</span><br><span class="line">	vec3 kSpecular = fresnel;</span><br><span class="line">	vec3 kDiffuse = vec3(<span class="number">1.0f</span>) - kSpecular;</span><br><span class="line">	kDiffuse *= (<span class="number">1.0f</span> - metallic);</span><br><span class="line">	<span class="comment">// rendering equation.</span></span><br><span class="line">	fragColor.rgb = (kDiffuse * albedo / PI + brdf) * dirLight.radiance * max(dot(normal, lightDir), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="comment">// *****************************************************************************</span></span><br><span class="line"> 	</span><br><span class="line">    <span class="comment">// other.</span></span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;需要特别说明的就是基础反射率部分，在上面的代码第41、42行，对于电介质我们令其基础反射率为0.04，然后根据材质的金属度在0.04和反照率直接做一个混合。然后就是点光源部分，点光源通常要有一个衰减的过程，这里我采用的衰减因子计算公式如下：</p>
+<script type="math/tex; mode=display">
+attenuation = \frac{1.0}{c\cdot d^2}\\
+d = length(lightPosition - fragPosition) \tag {17}</script><p>&emsp;&emsp;即点光的光照强度以距离的平方的倒数衰减，其中$c$是衰减系数，可由用户根据想要的效果指定。确定了衰减方程之后，我们还需要计算点光源的光体积，这是因为当光源与当前点的距离超过一定的值时，计算得到的光照值将小到可以忽略不计。因此，我们可以做这样的一个优化，当距离超过一定值时直接不计算光照，这对于拥有大量光源的场景来说是非常有意义的，它能够减少大量的计算。</p>
+<p>&emsp;&emsp;那么如何知道这个距离的阈值呢？这个距离的阈值必须要刚刚好，太小则会产生明显的光照硬边，太大则优化又没有那么明显。事实上，这个距离阈值与上面的衰减因子计算（即公式$(17)$）息息相关。理想情况下，当$attenuation$变为0时，光照的贡献值也变为0。但是事实上$attenuation$不能为0，只能无限地趋于0，我们可以根据一个自己设置的阈值来求解$d$，我设置的阈值为$\frac{1}{256}$，当光照贡献值小于这个值时，可以忽略不计了：</p>
+<script type="math/tex; mode=display">
+\frac{1}{256}=I_{max}\cdot attenuation = I_{max}\frac{1.0}{c\cdot d^2}\\
+\to d=\sqrt{\frac{256I_{max}}{c}} \tag {18}</script><p>&emsp;&emsp;上式中的$I_{max}$是光照颜色中的最大分量，根据公式$(18)$我们就得到了点光源的光体积，这是一个以该$d$为半径的球体。当片段位置到光源位置的距离大于这个半径时，我们直接跳过该光源的光照计算。这个光体积直接在CPU上计算一次即可：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> PointLight::setAttenuationCoff(<span class="keyword">float</span> coff)</span><br><span class="line">&#123;</span><br><span class="line">	m_atteunationCoff = coff;</span><br><span class="line">	<span class="comment">// calculate point light's volume.</span></span><br><span class="line">	GLfloat lightMax = <span class="built_in">std</span>::fmaxf(<span class="built_in">std</span>::fmaxf(m_radiance.r, m_radiance.g), m_radiance.b);</span><br><span class="line">	m_radius = <span class="built_in">sqrt</span>(<span class="number">256.0f</span> * lightMax / (<span class="number">1.0f</span> * m_atteunationCoff));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> PointLight::setLightColor(glm::vec3 radiance)</span><br><span class="line">&#123;</span><br><span class="line">	Light::setLightColor(radiance);</span><br><span class="line">	<span class="comment">// calculate point light's volume.</span></span><br><span class="line">	GLfloat lightMax = <span class="built_in">std</span>::fmaxf(<span class="built_in">std</span>::fmaxf(m_radiance.r, m_radiance.g), m_radiance.b);</span><br><span class="line">	m_radius = <span class="built_in">sqrt</span>(<span class="number">256.0f</span> * lightMax / (<span class="number">1.0f</span> * m_atteunationCoff));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后完整的着色器代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 330 core</span></span><br><span class="line">in vec2 Texcoord;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DirLight</span> </span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    vec3 direction;</span><br><span class="line">    vec3 radiance;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">PointLight</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">	<span class="keyword">float</span> radius;</span><br><span class="line">	vec3 position;</span><br><span class="line">	vec3 radiance;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">uniform vec3 cameraPos;</span><br><span class="line"></span><br><span class="line"><span class="comment">// lighting.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_POINT_LIGHT 128</span></span><br><span class="line">uniform <span class="keyword">int</span> pointLightNum;</span><br><span class="line">uniform DirLight dirLight;</span><br><span class="line">uniform PointLight pointLight[MAX_POINT_LIGHT];</span><br><span class="line">uniform <span class="keyword">float</span> lightAttenuationCoff;</span><br><span class="line">uniform mat4 lightSpaceMatrix;</span><br><span class="line"></span><br><span class="line"><span class="comment">// pbr material texture.</span></span><br><span class="line">uniform sampler2D dposition;</span><br><span class="line">uniform sampler2D dnormal;</span><br><span class="line">uniform sampler2D dalbedo;</span><br><span class="line">uniform sampler2D droughness;</span><br><span class="line">uniform sampler2D ddepth;</span><br><span class="line">uniform sampler2D shadowDepth;</span><br><span class="line"></span><br><span class="line">layout(location = <span class="number">0</span>) out vec4 fragColor;</span><br><span class="line">layout(location = <span class="number">1</span>) out vec4 brightColor;</span><br><span class="line"></span><br><span class="line"><span class="comment">// brdf auxiliary functions.</span></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">NormalDistributionGGX</span><span class="params">(vec3 N, vec3 H, <span class="keyword">float</span> roughness)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">GeometrySchlickGGX</span><span class="params">(<span class="keyword">float</span> NdotV, <span class="keyword">float</span> roughness)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">GeometrySmith</span><span class="params">(vec3 N, vec3 V, vec3 L, <span class="keyword">float</span> roughness)</span></span>;</span><br><span class="line"><span class="function">vec3 <span class="title">fresnelSchlick</span><span class="params">(<span class="keyword">float</span> cosTheta, vec3 F0)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">shadowCalculation</span><span class="params">(vec4 fragPosLightSpace, <span class="keyword">float</span> bias)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">float</span> PI = <span class="number">3.14159265359</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// sample position.</span></span><br><span class="line">	vec3 FragPos = texture(dposition, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample albedo.</span></span><br><span class="line">	vec3 albedo = texture(dalbedo, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample normal.</span></span><br><span class="line">	vec3 normal = texture(dnormal, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample roughness.</span></span><br><span class="line">	<span class="keyword">float</span> roughness = texture(droughness, Texcoord).r;</span><br><span class="line">	<span class="comment">// sample metallic.</span></span><br><span class="line">	<span class="keyword">float</span> metallic = texture(droughness, Texcoord).g;</span><br><span class="line">	<span class="comment">// sample depth.</span></span><br><span class="line">	<span class="keyword">float</span> depth = texture(droughness, Texcoord).b;</span><br><span class="line">	<span class="comment">// sample ambient occlusion.</span></span><br><span class="line">	<span class="keyword">float</span> ao = texture(ddepth, Texcoord).r;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// emssive</span></span><br><span class="line">	<span class="keyword">if</span>(normal.x == <span class="number">0.0f</span> &amp;&amp; normal.y == <span class="number">0.0f</span> &amp;&amp; normal.z == <span class="number">0.0f</span>)</span><br><span class="line">	&#123;</span><br><span class="line">		fragColor.rgb = albedo;</span><br><span class="line">		<span class="comment">// glow map.</span></span><br><span class="line">		<span class="keyword">float</span> brightness = dot(fragColor.rgb, vec3(<span class="number">0.2126</span>, <span class="number">0.7152</span>, <span class="number">0.0722</span>));</span><br><span class="line">		brightColor = vec4(fragColor.rgb, <span class="number">1.0f</span>);</span><br><span class="line"></span><br><span class="line">		<span class="comment">// write depth to buffer for forwarding shading.</span></span><br><span class="line">		gl_FragDepth = depth;</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// some directions.</span></span><br><span class="line">	vec3 viewDir = normalize(cameraPos - FragPos);</span><br><span class="line">	<span class="comment">// index of refracted.</span></span><br><span class="line">	vec3 F0 = vec3(<span class="number">0.04</span>);</span><br><span class="line">	F0 = mix(F0, albedo, metallic);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// *******************************directional light************************************</span></span><br><span class="line">	vec3 lightDir = dirLight.direction;</span><br><span class="line">	vec3 halfwayDir = normalize(lightDir + viewDir);</span><br><span class="line">	<span class="comment">// fresnel factor.</span></span><br><span class="line">	vec3 fresnel = fresnelSchlick(max(dot(halfwayDir, viewDir), <span class="number">0.0f</span>), F0);</span><br><span class="line">	<span class="comment">// normal distribution factor.</span></span><br><span class="line">	<span class="keyword">float</span> distribution = NormalDistributionGGX(normal, halfwayDir, roughness);</span><br><span class="line">	<span class="comment">// geometry facror.</span></span><br><span class="line">	<span class="keyword">float</span> geometryFactor = GeometrySmith(normal, viewDir, lightDir, roughness);</span><br><span class="line">	<span class="comment">// brdf function.</span></span><br><span class="line">	vec3 brdf = distribution * fresnel * geometryFactor / </span><br><span class="line">				(<span class="number">4.0f</span> * max(dot(viewDir, normal), <span class="number">0.0f</span>) * max(dot(lightDir, normal), <span class="number">0.0f</span>) + <span class="number">0.0001f</span>);</span><br><span class="line">	vec3 kSpecular = fresnel;</span><br><span class="line">	vec3 kDiffuse = vec3(<span class="number">1.0f</span>) - kSpecular;</span><br><span class="line">	kDiffuse *= (<span class="number">1.0f</span> - metallic);</span><br><span class="line">	<span class="comment">// rendering equation.</span></span><br><span class="line">	fragColor.rgb = (kDiffuse * albedo / PI + brdf) * dirLight.radiance * max(dot(normal, lightDir), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="comment">// ************************************************************************************</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// *************************************point lights***********************************</span></span><br><span class="line">	vec3 pointLightRadiance = vec3(<span class="number">0.0f</span>);</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; pointLightNum;++ i)</span><br><span class="line">	&#123;</span><br><span class="line">		vec3 lightDir = normalize(pointLight[i].position - FragPos);</span><br><span class="line">		vec3 halfwayDir = normalize(viewDir + lightDir);</span><br><span class="line">		<span class="keyword">float</span> distance = length(pointLight[i].position - FragPos);</span><br><span class="line">		<span class="keyword">if</span>(distance &gt; pointLight[i].radius) 	</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		<span class="keyword">float</span> attenuation = <span class="number">1.0f</span> / (lightAttenuationCoff * distance * distance + <span class="number">0.00001</span>);</span><br><span class="line">		vec3 radiance = pointLight[i].radiance * attenuation;</span><br><span class="line">		</span><br><span class="line">		vec3 fresnel = fresnelSchlick(max(dot(halfwayDir, viewDir), <span class="number">0.0f</span>), F0);</span><br><span class="line">		<span class="comment">// normal distribution factor.</span></span><br><span class="line">		<span class="keyword">float</span> distribution = NormalDistributionGGX(normal, halfwayDir, roughness);</span><br><span class="line">		<span class="comment">// geometry facror.</span></span><br><span class="line">		<span class="keyword">float</span> geometryFactor = GeometrySmith(normal, viewDir, lightDir, roughness);</span><br><span class="line">		<span class="comment">// brdf function.</span></span><br><span class="line">		vec3 brdf = distribution * fresnel * geometryFactor / </span><br><span class="line">					(<span class="number">4.0f</span> * max(dot(viewDir, normal), <span class="number">0.0f</span>) * max(dot(lightDir, normal), <span class="number">0.0f</span>) + <span class="number">0.0001f</span>);</span><br><span class="line">		vec3 kSpecular = fresnel;</span><br><span class="line">		vec3 kDiffuse = vec3(<span class="number">1.0f</span>) - kSpecular;</span><br><span class="line">		kDiffuse *= (<span class="number">1.0f</span> - metallic);</span><br><span class="line">		<span class="comment">// rendering equation.</span></span><br><span class="line">		pointLightRadiance += (kDiffuse * albedo / PI + brdf) * radiance * max(dot(normal, lightDir), <span class="number">0.0f</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// ************************************************************************************</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// shadow</span></span><br><span class="line">	<span class="keyword">float</span> shadow = <span class="number">1.0f</span>;</span><br><span class="line">	vec4 FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, <span class="number">1.0f</span>);</span><br><span class="line">	shadow = <span class="number">1.0f</span> - shadowCalculation(FragPosLightSpace, <span class="number">0.0f</span>);</span><br><span class="line">	fragColor.xyz = ao * albedo * <span class="number">0.02f</span> + fragColor.xyz * shadow + pointLightRadiance;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// glow map.</span></span><br><span class="line">	<span class="keyword">float</span> brightness = dot(fragColor.rgb / (fragColor.rgb + vec3(<span class="number">1.0f</span>)), vec3(<span class="number">0.2126</span>, <span class="number">0.7152</span>, <span class="number">0.0722</span>));</span><br><span class="line">	<span class="keyword">if</span>(brightness &gt; <span class="number">0.55f</span>)</span><br><span class="line">		brightColor = vec4(fragColor.rgb / (fragColor.rgb + vec3(<span class="number">1.0f</span>)), <span class="number">1.0f</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// write depth to buffer for forwarding shading.</span></span><br><span class="line">	gl_FragDepth = depth;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">NormalDistributionGGX</span><span class="params">(vec3 N, vec3 H, <span class="keyword">float</span> roughness)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> a = roughness * roughness;</span><br><span class="line">	<span class="keyword">float</span> aSquared = a * a;</span><br><span class="line">	<span class="keyword">float</span> NdotH = max(dot(N, H), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> NdotHSquared = NdotH * NdotH;</span><br><span class="line">	<span class="keyword">float</span> nom = aSquared;</span><br><span class="line">	<span class="keyword">float</span> denom = (NdotHSquared * (aSquared - <span class="number">1.0f</span>) + <span class="number">1.0f</span>);</span><br><span class="line">	denom = PI * denom * denom;</span><br><span class="line">	<span class="keyword">return</span> nom / denom;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">GeometrySchlickGGX</span><span class="params">(<span class="keyword">float</span> NdotV, <span class="keyword">float</span> roughness)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> r = (roughness + <span class="number">1.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> k = (r * r) / <span class="number">8.0f</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">float</span> nom = NdotV;</span><br><span class="line">	<span class="keyword">float</span> denom = NdotV * (<span class="number">1.0f</span> - k) + k;</span><br><span class="line">	<span class="keyword">return</span> nom / denom;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">GeometrySmith</span><span class="params">(vec3 N, vec3 V, vec3 L, <span class="keyword">float</span> roughness)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> NdotV = max(dot(N, V), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> NdotL = max(dot(N, L), <span class="number">0.0f</span>);</span><br><span class="line">	<span class="keyword">float</span> ggx2 = GeometrySchlickGGX(NdotV, roughness);</span><br><span class="line">	<span class="keyword">float</span> ggx1 = GeometrySchlickGGX(NdotL, roughness);</span><br><span class="line">	<span class="keyword">return</span> ggx2 * ggx1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">vec3 <span class="title">fresnelSchlick</span><span class="params">(<span class="keyword">float</span> cosTheta, vec3 F0)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> F0 + (<span class="number">1.0f</span> - F0) * <span class="built_in">pow</span>(<span class="number">1.0</span> - cosTheta, <span class="number">5.0f</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">shadowCalculation</span><span class="params">(vec4 fragPosLightSpace, <span class="keyword">float</span> bias)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// perspective division.</span></span><br><span class="line">	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;</span><br><span class="line">	projCoords = projCoords * <span class="number">0.5</span> + <span class="number">0.5</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(projCoords.z &gt; <span class="number">1.0</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.0f</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// pcf.</span></span><br><span class="line">	<span class="keyword">float</span> shadowFactor = <span class="number">0.0f</span>;</span><br><span class="line">	<span class="keyword">float</span> currentDepth = projCoords.z;</span><br><span class="line">	vec2 texelSize = <span class="number">1.0</span> / textureSize(shadowDepth, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> x = <span class="number">-1</span>; x &lt;= <span class="number">1</span>; ++x)</span><br><span class="line">	&#123;</span><br><span class="line">    		<span class="keyword">for</span>(<span class="keyword">int</span> y = <span class="number">-1</span>; y &lt;= <span class="number">1</span>; ++y)</span><br><span class="line">    		&#123;</span><br><span class="line">        		<span class="keyword">float</span> pcfDepth = texture(shadowDepth, projCoords.xy + vec2(x, y) * texelSize).r; </span><br><span class="line">        		shadowFactor += ((currentDepth - bias) &gt; pcfDepth) ? <span class="number">1.0</span> : <span class="number">0.0</span>;        </span><br><span class="line">    		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	shadowFactor /= <span class="number">9.0</span>;</span><br><span class="line">	<span class="keyword">return</span> shadowFactor;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="四、屏幕空间环境光遮蔽"><a href="#四、屏幕空间环境光遮蔽" class="headerlink" title="四、屏幕空间环境光遮蔽"></a>四、屏幕空间环境光遮蔽</h2><p>&emsp;&emsp;本文前面主要介绍了PBR的直接光照，这意味着在没有被光源直接照亮的区域，依然没有产生符合物理规律的光影效果，这是因为我们还没有考虑间接光照。在实时应用中，为了实现物体的相互遮蔽效果，通常采用SSAO（即Screen Space Ambient Occlusion），实际上这是一个比较tricky的做法，但是产生的效果非常不错。</p>
+<p>&emsp;&emsp;SSAO采用的原理非常简单，：对于每一个片段，我们都会根据周边深度值计算一个<strong>遮蔽因子(Occlusion Factor)</strong>。这个遮蔽因子之后会被用来减少或者抵消片段的环境光照分量。遮蔽因子是通过采集片段周围球型核心(Kernel)的多个深度样本，并和当前片段深度值对比而得到的。高于片段深度值样本的个数就是我们想要的遮蔽因子。正如下图8所示。到这里文章篇幅有点太长了，SSAO也比较简单，因此我就不再赘述了。SSAO因子计算的核心代码：</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/7.png" width="60%"></div></p>
+<center> 图8 Occlusion Factor </center>
+
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#version 430 core</span></span><br><span class="line">in vec2 Texcoord;</span><br><span class="line"></span><br><span class="line">uniform vec3 samples[<span class="number">64</span>];</span><br><span class="line">uniform mat4 viewMatrix;</span><br><span class="line">uniform mat4 projectMatrix;</span><br><span class="line">uniform sampler2D dposition;</span><br><span class="line">uniform sampler2D dnormal;</span><br><span class="line">uniform sampler2D ddepth;</span><br><span class="line">uniform sampler2D randomNoise;</span><br><span class="line"></span><br><span class="line">uniform <span class="keyword">float</span> farPlane;</span><br><span class="line">uniform <span class="keyword">float</span> nearPlane;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">float</span> radius = <span class="number">10.0f</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> sampleNum = <span class="number">64</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="comment">// sample position.</span></span><br><span class="line">	vec3 FragPos = texture(dposition, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample normal.</span></span><br><span class="line">	vec3 normal = texture(dnormal, Texcoord).rgb;</span><br><span class="line">	<span class="comment">// sample depth.</span></span><br><span class="line">	<span class="keyword">float</span> depth = texture(ddepth, Texcoord).r;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// sample random vectors.</span></span><br><span class="line">	vec2 depthTextureSize = textureSize(ddepth, <span class="number">0</span>);</span><br><span class="line">	vec2 noiseTextureSize = textureSize(randomNoise, <span class="number">0</span>);</span><br><span class="line">	vec2 noiseTexScale = vec2(depthTextureSize.x / noiseTextureSize.x, depthTextureSize.y / noiseTextureSize.y);</span><br><span class="line">	vec3 randomVec = texture(randomNoise, Texcoord * noiseTexScale).rgb;</span><br><span class="line">	</span><br><span class="line">	vec3 tangent = normalize(randomVec - normal * dot(randomVec, normal));</span><br><span class="line">	vec3 bitangent = cross(normal, tangent);</span><br><span class="line">	mat3 TBNMatrix = mat3(tangent, bitangent, normal);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// calculate ambient occlusion.</span></span><br><span class="line">	<span class="keyword">float</span> occlusion = <span class="number">0.0f</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; sampleNum;++i)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// change to world space.</span></span><br><span class="line">		vec3 samplePoint = TBNMatrix * samples[i];</span><br><span class="line">		samplePoint = FragPos + samplePoint * radius;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// change to view space.</span></span><br><span class="line">		samplePoint = vec3(viewMatrix * vec4(samplePoint, <span class="number">1.0f</span>));</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// change to ndc space &amp; screen space.</span></span><br><span class="line">		vec4 tmp = vec4(samplePoint, <span class="number">1.0f</span>);</span><br><span class="line">		tmp = projectMatrix * tmp;</span><br><span class="line">		tmp.xyz /= tmp.w;</span><br><span class="line">		tmp.xyz = tmp.xyz * <span class="number">0.5f</span> + <span class="number">0.5f</span>;</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// get sample point's depth.</span></span><br><span class="line">		<span class="keyword">float</span> sampleDepth = texture(ddepth, tmp.xy).r;</span><br><span class="line">		samplePoint.z /= -farPlane;</span><br><span class="line">					</span><br><span class="line">		<span class="comment">// range check and accumulate.</span></span><br><span class="line">		<span class="keyword">float</span> rangeCheck = smoothstep(<span class="number">0.0</span>, <span class="number">1.0</span>, radius / (<span class="built_in">abs</span>(depth - sampleDepth) * farPlane));</span><br><span class="line">		occlusion += (sampleDepth &gt; samplePoint.z ? <span class="number">0.0</span> : <span class="number">1.0</span>) * rangeCheck;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	occlusion /= sampleNum;</span><br><span class="line">	occlusion = <span class="number">1.0f</span> - occlusion;</span><br><span class="line"></span><br><span class="line">	gl_FragDepth = occlusion;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;SSAO对于场景的真实感觉有着非常重要的作用，可能我们平时不会太过注意，但是却又是一个非常关键的点。下面左边就是计算得到的AO因子，最后将AO因子的乘上物体的反照率以及环境光缩放系数即可。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/8.png" width="90%"></div></p>
+<center> 图9 ao因子计算结果 </center>
+
+
+
+
+<h2 id="五、实现效果"><a href="#五、实现效果" class="headerlink" title="五、实现效果"></a>五、实现效果</h2><p>&emsp;&emsp;除了PBR、SSAO，其他如延迟渲染、HDR、Glow Effect、因子等不再赘述。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/ret1.png" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/ret2.png" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/ret3.png" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/ret4.png" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/ret5.png" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/ret6.png" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/ret7.png" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/retAni1.gif" width="90%"></div></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/retAni2.gif" width="90%"></div></p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p>$[1]$ <a href="https://learnopengl.com/PBR/Theory" target="_blank" rel="noopener">https://learnopengl.com/PBR/Theory</a></p>
+<p>$[2]$ <a href="https://learnopengl.com/PBR/Lighting" target="_blank" rel="noopener">https://learnopengl.com/PBR/Lighting</a></p>
+<p>$[3]$ <a href="https://learnopengl.com/Advanced-Lighting/Deferred-Shading" target="_blank" rel="noopener">https://learnopengl.com/Advanced-Lighting/Deferred-Shading</a></p>
+<p>$[4]$ <a href="https://learnopengl.com/Advanced-Lighting/SSAO" target="_blank" rel="noopener">https://learnopengl.com/Advanced-Lighting/SSAO</a></p>
+</div>
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-14T17:24:25+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2019年7月14日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Real-time-Rendering/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Real-time Rendering</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Physically-Based-Rendering/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Physically Based Rendering</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/07/14/PhysicallyBasedRendering/&title=实时渲染Real-time Rendering：基于物理的光照模型 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本文采用OpenGL搭建了一个基于物理着色的渲染器，目前大多数的实时应用都是采用了PBR，相对于传统的Phong等基于经验的光照模型，基于物理着色的渲染方法更为真实。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/07/14/PhysicallyBasedRendering/&title=实时渲染Real-time Rendering：基于物理的光照模型 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本文采用OpenGL搭建了一个基于物理着色的渲染器，目前大多数的实时应用都是采用了PBR，相对于传统的Phong等基于经验的光照模型，基于物理着色的渲染方法更为真实。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/07/14/PhysicallyBasedRendering/&title=实时渲染Real-time Rendering：基于物理的光照模型 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/title.png&summary=本文采用OpenGL搭建了一个基于物理着色的渲染器，目前大多数的实时应用都是采用了PBR，相对于传统的Phong等基于经验的光照模型，基于物理着色的渲染方法更为真实。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2019/07/04/FluidRendering/" rel="prev" title="流体渲染Fluid Rendering：基于屏幕空间的液体渲染">
+                                    
+                                        流体渲染Fluid Rendering：基于屏幕空间的液体渲染
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Fluid-Simulation/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Fluid Simulation</a> <a class="tag" href="/tags/Position-Based-Dynamics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Position Based Dynamics</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: '实时渲染Real-time Rendering：基于物理的光照模型',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.jpg"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#二、微平面模型（Microfacet-Model）"><span class="toc-text">二、微平面模型（Microfacet Model）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、基于物理的BRDF"><span class="toc-text">三、基于物理的BRDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、PBR渲染器的实现"><span class="toc-text">三、PBR渲染器的实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、屏幕空间环境光遮蔽"><span class="toc-text">四、屏幕空间环境光遮蔽</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、实现效果"><span class="toc-text">五、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(13)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16.5px; color: #ccc">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 21.5px; color: #eee">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 14px; color: #bbb">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 19px; color: #ddd">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 16.5px; color: #ccc">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 14px; color: #bbb">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 21.5px; color: #eee">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
