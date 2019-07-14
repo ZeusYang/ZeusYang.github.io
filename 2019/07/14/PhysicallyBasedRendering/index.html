@@ -304,25 +304,16 @@
 <li>参考资料</li>
 </ul>
 <center><font size="6">基于物理的渲染</font></center>
-&emsp;&emsp;基于物理的渲染（Physically Based Rendering，简称PBR）技术致力于渲染出更贴近于真实物理世界的光影效果，它倾向于探索光影背后的物理规律，然后在此基础上构建一个基于物理规律的光照模型，最后应用到光照计算中。基于物理的渲染除了更为真实，它也给光照计算的赋予了更多的物理意义，从而使得设计师们摆脱基于经验的参数调整，只要设置的物理量正确，则最终光照效果也将会是正确的。即便如此，基于物理的渲染技术依然只是现实物理世界的一个逼近。对于一个基于物理渲染的光照模型，它通常需要满足以下的三个条件：
-
-&emsp;&emsp;1、能量守恒
-
-&emsp;&emsp;2、基于微平面的表面模型
-
-&emsp;&emsp;3、使用基于物理的BRDF
-
-&emsp;&emsp;接下来我们就按照上面的顺序一一展开。
 
 
-
-## 一、能量守恒（Energy Conservation）
-
-&emsp;&emsp;基于物理的光照模型必须遵守这样的一个能量守恒原则：对于一个非自发光的物体，出射光线的能量永远不能超过入射光线的能量。当一束光线照射到物体表面，它就被分割成两个部分，分别是折射部分和反射部分。反射部分的光线则是直接撞击到表面然后反弹开来的那部分光线，这部分构成中我们日常生活中常见的镜面高光。折射部分的光线则进入物体内部，光线在内部与物体的粒子发生碰撞，此时光线的一部分能量就转变成热能。一般情况下，并非所有光能都被转化成热能，还有一些光线在内部经过多次散射最终又离开物体表面，这部分的光线构成了物体的漫反射光。这里还要特别区分一下金属材质，与非金属材质和电介质不同，金属材质会直接吸收折射光而不会散开，只表现出镜面反射光。即金属表面不会显示出漫反射的颜色。
-
-&emsp;&emsp;根据能量守恒的原则，反射光与折射光是相互排斥的，因此我们只要知道其中一部分占总入射光的百分比，就能立马得到另外一部分的能量占比。通过这样的一个方案，我们就能保证出射光的总能量小于等于入射光的总能量。下面的图1展示Blin-Phong的光照渲染结果，Blin-Phong光照模型并不是一个基于物理的光照模型，它并不满足能量守恒的原则，可以看到，图1场景看起来太亮了，而我仅仅将光照的辐射率设置为vec3(0.6)。
-
-<div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/1.png" width="80%">
+<p>&emsp;&emsp;基于物理的渲染（Physically Based Rendering，简称PBR）技术致力于渲染出更贴近于真实物理世界的光影效果，它倾向于探索光影背后的物理规律，然后在此基础上构建一个基于物理规律的光照模型，最后应用到光照计算中。基于物理的渲染除了更为真实，它也给光照计算的赋予了更多的物理意义，从而使得设计师们摆脱基于经验的参数调整，只要设置的物理量正确，则最终光照效果也将会是正确的。即便如此，基于物理的渲染技术依然只是现实物理世界的一个逼近。对于一个基于物理渲染的光照模型，它通常需要满足以下的三个条件：</p>
+<p>&emsp;&emsp;1、能量守恒</p>
+<p>&emsp;&emsp;2、基于微平面的表面模型</p>
+<p>&emsp;&emsp;3、使用基于物理的BRDF</p>
+<p>&emsp;&emsp;接下来我们就按照上面的顺序一一展开。</p>
+<h2 id="一、能量守恒（Energy-Conservation）"><a href="#一、能量守恒（Energy-Conservation）" class="headerlink" title="一、能量守恒（Energy Conservation）"></a>一、能量守恒（Energy Conservation）</h2><p>&emsp;&emsp;基于物理的光照模型必须遵守这样的一个能量守恒原则：对于一个非自发光的物体，出射光线的能量永远不能超过入射光线的能量。当一束光线照射到物体表面，它就被分割成两个部分，分别是折射部分和反射部分。反射部分的光线则是直接撞击到表面然后反弹开来的那部分光线，这部分构成中我们日常生活中常见的镜面高光。折射部分的光线则进入物体内部，光线在内部与物体的粒子发生碰撞，此时光线的一部分能量就转变成热能。一般情况下，并非所有光能都被转化成热能，还有一些光线在内部经过多次散射最终又离开物体表面，这部分的光线构成了物体的漫反射光。这里还要特别区分一下金属材质，与非金属材质和电介质不同，金属材质会直接吸收折射光而不会散开，只表现出镜面反射光。即金属表面不会显示出漫反射的颜色。</p>
+<p>&emsp;&emsp;根据能量守恒的原则，反射光与折射光是相互排斥的，因此我们只要知道其中一部分占总入射光的百分比，就能立马得到另外一部分的能量占比。通过这样的一个方案，我们就能保证出射光的总能量小于等于入射光的总能量。下面的图1展示Blin-Phong的光照渲染结果，Blin-Phong光照模型并不是一个基于物理的光照模型，它并不满足能量守恒的原则，可以看到，图1场景看起来太亮了，而我仅仅将光照的辐射率设置为vec3(0.6)。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.18/blog/Pbr/1.png" width="80%"></div></p>
 <center> 图1 Blin-Phong光照模型的渲染结果 </center>
 
 
@@ -451,7 +442,7 @@ d = length(lightPosition - fragPosition) \tag {17}</script><p>&emsp;&emsp;即点
 <p>$[2]$ <a href="https://learnopengl.com/PBR/Lighting" target="_blank" rel="noopener">https://learnopengl.com/PBR/Lighting</a></p>
 <p>$[3]$ <a href="https://learnopengl.com/Advanced-Lighting/Deferred-Shading" target="_blank" rel="noopener">https://learnopengl.com/Advanced-Lighting/Deferred-Shading</a></p>
 <p>$[4]$ <a href="https://learnopengl.com/Advanced-Lighting/SSAO" target="_blank" rel="noopener">https://learnopengl.com/Advanced-Lighting/SSAO</a></p>
-</div>
+
         </div>
         
           
@@ -462,7 +453,7 @@ d = length(lightPosition - fragPosition) \tag {17}</script><p>&emsp;&emsp;即点
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-14T17:24:25+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-14T20:36:22+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
     <p>最后更新于 2019年7月14日</p>
@@ -695,7 +686,7 @@ d = length(lightPosition - fragPosition) \tag {17}</script><p>&emsp;&emsp;即点
 </header>
 
     <div class="content material">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#二、微平面模型（Microfacet-Model）"><span class="toc-text">二、微平面模型（Microfacet Model）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、基于物理的BRDF"><span class="toc-text">三、基于物理的BRDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、PBR渲染器的实现"><span class="toc-text">三、PBR渲染器的实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、屏幕空间环境光遮蔽"><span class="toc-text">四、屏幕空间环境光遮蔽</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、实现效果"><span class="toc-text">五、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、能量守恒（Energy-Conservation）"><span class="toc-text">一、能量守恒（Energy Conservation）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、微平面模型（Microfacet-Model）"><span class="toc-text">二、微平面模型（Microfacet Model）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、基于物理的BRDF"><span class="toc-text">三、基于物理的BRDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、PBR渲染器的实现"><span class="toc-text">三、PBR渲染器的实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、屏幕空间环境光遮蔽"><span class="toc-text">四、屏幕空间环境光遮蔽</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、实现效果"><span class="toc-text">五、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
     </div>
   </section>
 
