@@ -303,43 +303,30 @@
 <li>参考资料</li>
 </ul>
 <center><font size="6">2D Lighting</font></center>
-&emsp;&emsp;偶然在知乎上看到图形学大佬的几篇关于二维渲染绘制的文章，感觉非常有趣，二维的相对而言比较简单但是涉及到的知识也不少，遂记录下来一些自己的学习总结。一些内容跟前面光线追踪的重合了，所以就不细细展开了。本文主要是关于SDF方面的内容。
 
 
-
-## 一、二维渲染
-
-&emsp;&emsp;我们要绘制的世界是一个二维的场景，场景中有发光的二维体。对于一个二维屏幕上的像素，我们要求在360度方向上接收的光照值，故给定二维空间的坐标$(x,y)$，渲染方程为对$[0,2\pi]$方向的单重积分：
-$$
-L_o(x,y)=\int_0^{2\pi}L_i(x,y,\theta)d\theta \tag {1}
-$$
-&emsp;&emsp;在这里我们就对二维图像的每个像素求解方程$(1)$的积分公式，用tbb多线程库加速渲染，然后将像素矩阵用stb_image保存成png文件。原点在图像的左上角。
-
+<p>&emsp;&emsp;偶然在知乎上看到图形学大佬的几篇关于二维渲染绘制的文章，感觉非常有趣，二维的相对而言比较简单但是涉及到的知识也不少，遂记录下来一些自己的学习总结。一些内容跟前面光线追踪的重合了，所以就不细细展开了。本文主要是关于SDF方面的内容。</p>
+<h2 id="一、二维渲染"><a href="#一、二维渲染" class="headerlink" title="一、二维渲染"></a>一、二维渲染</h2><p>&emsp;&emsp;我们要绘制的世界是一个二维的场景，场景中有发光的二维体。对于一个二维屏幕上的像素，我们要求在360度方向上接收的光照值，故给定二维空间的坐标$(x,y)$，渲染方程为对$[0,2\pi]$方向的单重积分：</p>
+<script type="math/tex; mode=display">
+L_o(x,y)=\int_0^{2\pi}L_i(x,y,\theta)d\theta \tag {1}</script><p>&emsp;&emsp;在这里我们就对二维图像的每个像素求解方程$(1)$的积分公式，用tbb多线程库加速渲染，然后将像素矩阵用stb_image保存成png文件。原点在图像的左上角。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> <span class="keyword">char</span> * Renderer::render()</span><br><span class="line">&#123;</span><br><span class="line">	parallel_for(blocked_range&lt;<span class="keyword">size_t</span>&gt;(<span class="number">0</span>, m_height * m_width, <span class="number">5000</span>),</span><br><span class="line">		[&amp;](blocked_range&lt;<span class="keyword">size_t</span>&gt;&amp; r)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">size_t</span> i = r.begin(); i != r.end(); ++i)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">size_t</span> col = i % m_width;</span><br><span class="line">			<span class="keyword">size_t</span> row = i / m_width;</span><br><span class="line">			glm::vec3 color(<span class="number">0.0f</span>);</span><br><span class="line">			<span class="comment">// sampling and lighting.</span></span><br><span class="line">			color.x = color.y = color.z =</span><br><span class="line">				sample(<span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(col) / m_width, <span class="keyword">static_cast</span>&lt;<span class="keyword">float</span>&gt;(row) / m_height);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// save to pixel.</span></span><br><span class="line">			drawPixel(row, col, color);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> m_image;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-&emsp;&emsp;由于被积函数$L(x,y,\theta)$并没有一个显示的数学表达式，我们无法求解公式$(1)$单重积分的解析解，因此采用蒙特卡洛数值积分法。我们首先考虑随机均匀采样$N$个方向，每个方向用$\theta_1,\theta_2,...,\theta_N$表示，因为是均匀采样，所以概率密度函数$pdf=\frac {1}{2\pi}$，蒙特卡洛数值积分公式如下：
-$$
+<p>&emsp;&emsp;由于被积函数$L(x,y,\theta)$并没有一个显示的数学表达式，我们无法求解公式$(1)$单重积分的解析解，因此采用蒙特卡洛数值积分法。我们首先考虑随机均匀采样$N$个方向，每个方向用$\theta_1,\theta_2,…,\theta_N$表示，因为是均匀采样，所以概率密度函数$pdf=\frac {1}{2\pi}$，蒙特卡洛数值积分公式如下：</p>
+<script type="math/tex; mode=display">
 L_o(x,y)=\frac 1N\Sigma_{i=1}^N\frac{L_i(x,y,\theta)}{\frac{1}{2\pi}}
 =\frac {2\pi}N\Sigma_{i=1}^N{L_i(x,y,\theta)}
-\tag {2}
-$$
-&emsp;&emsp;因此一个随机均匀采样的蒙特卡洛积分如下所示，此外在这里我们不考虑实际单位，所以实现时把系数$2\pi$去掉了。
-
+\tag {2}</script><p>&emsp;&emsp;因此一个随机均匀采样的蒙特卡洛积分如下所示，此外在这里我们不考虑实际单位，所以实现时把系数$2\pi$去掉了。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> Renderer::sample(<span class="keyword">float</span> x, <span class="keyword">float</span> y)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">float</span> sum = <span class="number">0.0f</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m_samples; ++i)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// randome sampling.</span></span><br><span class="line">		<span class="keyword">float</span> angle = M_2PI * rand() / RAND_MAX;</span><br><span class="line">		sum += trace(x, y, cosf(angle), sinf(angle));</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span>  sum / m_samples;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-&emsp;&emsp;紧接着我们将实现trace函数，这个函数返回给定方向上的光照值。我们采用光线步进法（Ray Marching），场景中的物体以符号距离场（Signed Distance Field，简称SDF）表示，符号距离场是一个这样的映射：$\phi:R^2\to R$，具有如下的性质：
-
-&emsp;&emsp;(1)、当$\phi(x)>0$时，坐标$x$位于场景的物体外面，$x$到最近物体表面的距离为$\phi(x)$；
-
-&emsp;&emsp;(2)、当$\phi(x)<0$时，坐标$x$位于场景的物体里面，$x$到最近物体表面的距离为$-\phi(x)$； &emsp;&emsp;(3)、当$\phi(x)="0$时，坐标$x$恰好位于场景的物体表面上。" &emsp;&emsp;一个圆心为$c$、半径为$r$的圆盘sdf为： $$ \phi_{disk}(x)="||x-c||-r" \tag {3} <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> Renderer::circleSDF(<span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> cx, <span class="keyword">float</span> cy, <span class="keyword">float</span> radius)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">float</span> ux = x - cx, uy = y - cy;</span><br><span class="line">	<span class="keyword">return</span> sqrtf(ux * ux + uy * uy) - radius;</span><br><span class="line">&#125;</span><br></pre></td></tr></table>
-
-&emsp;&emsp;目前我们的场景只有一个发光的圆盘，圆心位于$(0.5, 0.5)$，半径大小为$0.1$，向各个方向发射2个单位的光。我们采样光线步进法进行追踪，给定起始点$(x,y)$，每一步我们计算符号距离场，若符号距离场给出的值依然在物体的外面，我们按照符号距离场的值（也就是点$(x,y)$到物体表面的最近距离长度）移动点$(x,y)$，依次迭代下去，直到达到物体表面或里面，或者达到最大的迭代次数、最长步进距离。
-
+<p>&emsp;&emsp;紧接着我们将实现trace函数，这个函数返回给定方向上的光照值。我们采用光线步进法（Ray Marching），场景中的物体以符号距离场（Signed Distance Field，简称SDF）表示，符号距离场是一个这样的映射：$\phi:R^2\to R$，具有如下的性质：</p>
+<p>&emsp;&emsp;(1).当$\phi(x)&gt;0$时，坐标$x$位于场景的物体外面，$x$到最近物体表面的距离为$\phi(x)$；</p>
+<p>&emsp;&emsp;(2).当$\phi(x)&lt;0$时，坐标$x$位于场景的物体里面，$x$到最近物体表面的距离为$-\phi(x)$；</p>
+<p>&emsp;&emsp;(3).当$\phi(x)=0$时，坐标$x$恰好位于场景的物体表面上。</p>
+<p>&emsp;&emsp;一个圆心为$c$、半径为$r$的圆盘SDF为：</p>
+<script type="math/tex; mode=display">
+\phi_{disk}(x)=||x-c||-r \tag {3}</script><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> Renderer::circleSDF(<span class="keyword">float</span> x, <span class="keyword">float</span> y, <span class="keyword">float</span> cx, <span class="keyword">float</span> cy, <span class="keyword">float</span> radius)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">float</span> ux = x - cx, uy = y - cy;</span><br><span class="line">	<span class="keyword">return</span> sqrtf(ux * ux + uy * uy) - radius;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;目前我们的场景只有一个发光的圆盘，圆心位于$(0.5, 0.5)$，半径大小为$0.1$，向各个方向发射2个单位的光。我们采样光线步进法进行追踪，给定起始点$(x,y)$，每一步我们计算符号距离场，若符号距离场给出的值依然在物体的外面，我们按照符号距离场的值（也就是点$(x,y)$到物体表面的最近距离长度）移动点$(x,y)$，依次迭代下去，直到达到物体表面或里面，或者达到最大的迭代次数、最长步进距离。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> Renderer::trace(<span class="keyword">float</span> ox, <span class="keyword">float</span> oy, <span class="keyword">float</span> dx, <span class="keyword">float</span> dy)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">float</span> step = <span class="number">0.0f</span>;</span><br><span class="line">	<span class="keyword">int</span> maxIter = <span class="number">10</span>;</span><br><span class="line">	<span class="keyword">float</span> maxDistance = <span class="number">2.0f</span>;</span><br><span class="line">	<span class="keyword">float</span> epsilon = <span class="number">1e-6</span>f;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; maxIter &amp;&amp; step &lt; maxDistance; ++i)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">float</span> sdf = circleSDF(ox + dx * step, oy + dy * step, <span class="number">0.5f</span>, <span class="number">0.5f</span>, <span class="number">0.1f</span>);</span><br><span class="line">		<span class="comment">// reach the egde(==0) or inside(&lt;0)</span></span><br><span class="line">		<span class="keyword">if</span> (sdf &lt; epsilon)</span><br><span class="line">			<span class="keyword">return</span> <span class="number">2.0f</span>;</span><br><span class="line">		step += sdf;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0.0f</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-&emsp;&emsp;我们设定随机均匀的采样数为$64$，则运行程序得到下面的结果：
-
-<div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/1.png" width="60%">
+<p>&emsp;&emsp;我们设定随机均匀的采样数为$64$，则运行程序得到下面的结果：</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/1.png" width="60%"></div></p>
 <center> 图1 随机均匀采样 </center>
 
 
@@ -461,7 +448,7 @@ T=e^{-\alpha'cd} \tag {12}</script><p>&emsp;&emsp;$T\in[0,1]$即为透射率，$
 <p>$[2]$ <a href="https://zhuanlan.zhihu.com/p/30748318" target="_blank" rel="noopener">用 C 语言画光（二）：构造实体几何</a></p>
 <p>$[3]$ <a href="https://zhuanlan.zhihu.com/p/30816284" target="_blank" rel="noopener">用 C 语言画光（三）：形状</a></p>
 <p>$[4]$ <a href="https://zhuanlan.zhihu.com/p/31901449" target="_blank" rel="noopener">用 C 语言画光（七）：比尔-朗伯定律</a></p>
-</div></0$时，坐标$x$位于场景的物体里面，$x$到最近物体表面的距离为$-\phi(x)$；>
+
         </div>
         
           
@@ -472,7 +459,7 @@ T=e^{-\alpha'cd} \tag {12}</script><p>&emsp;&emsp;$T\in[0,1]$即为透射率，$
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-23T18:36:02+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-23T18:42:40+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
     <p>最后更新于 2019年7月23日</p>
@@ -650,7 +637,7 @@ T=e^{-\alpha'cd} \tag {12}</script><p>&emsp;&emsp;$T\in[0,1]$即为透射率，$
   <div class="content material">
     
       <div class="avatar">
-        <fancybox><img class="avatar" src="/image/avator.jpg"></fancybox>
+        <fancybox><img class="avatar" src="/image/avator.png"></fancybox>
       </div>
     
     
@@ -705,7 +692,7 @@ T=e^{-\alpha'cd} \tag {12}</script><p>&emsp;&emsp;$T\in[0,1]$即为透射率，$
 </header>
 
     <div class="content material">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#二、SDF构造实体几何"><span class="toc-text">二、SDF构造实体几何</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、比尔-郎伯定律"><span class="toc-text">三、比尔-郎伯定律</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、实现效果"><span class="toc-text">四、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、二维渲染"><span class="toc-text">一、二维渲染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、SDF构造实体几何"><span class="toc-text">二、SDF构造实体几何</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、比尔-郎伯定律"><span class="toc-text">三、比尔-郎伯定律</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、实现效果"><span class="toc-text">四、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
     </div>
   </section>
 
