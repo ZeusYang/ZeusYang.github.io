@@ -323,7 +323,7 @@ distance_S(\vec x)=min_{\vec p\in S}||\vec x-\vec p|| \tag {1}</script><p>&emsp;
 \end{matrix} \tag {2}</script><p>&emsp;&emsp;符号距离场具有需要非常有用的性质。首先是符号距离场的梯度，根据矢量微积分，梯度指向函数值变换最快的方向，在这里显然沿着法线方向距离场函数值的变换最快，因而表面上的法线向量就等于表面上的符号距离场函数的梯度$\nabla \phi(\vec x)$。在几何体的外部，$-\nabla \phi(\vec x)$指向$\vec x$到几何体表面上的最近点$\vec p$；在几何体内部，$\nabla \phi(\vec x)$指向$\vec x$到几何体表面上的最近点$\vec p$。</p>
 <p>&emsp;&emsp;以外部的点$\vec x$为例，记$\vec p$为点$\vec x$到几何体表面上的最近的点，$\vec c$为点$\vec x$到最近点$\vec p$的单位方向向量：</p>
 <script type="math/tex; mode=display">
-\vec c = \frac{\vec p-\vec x}{||\vec p-\vec x||} \tag {3}</script><p>&emsp;&emsp;如果我们将点$\vec x$沿着$\vec c$方向移动非常小的距离$\epsilon$，即$\vec x^<em>=\vec x+ \epsilon \vec c$，那么点到几何体表面上的最近点依然是$\vec p$。即若沿着$\vec c$方向移动$\vec x$点，其到物体表面上的最近点$\vec p$保持不变。挪动得到的新的点$\vec x^</em>$的符号距离场函数为$\phi(\vec x^*)=\phi(x)-\epsilon$，从而我们可以得出符号距离场关于$\vec c$方向向量上的方向导数为：</p>
+\vec c = \frac{\vec p-\vec x}{||\vec p-\vec x||} \tag {3}</script><p>&emsp;&emsp;如果我们将点$\vec x$沿着$\vec c$方向移动非常小的距离$\epsilon$，即$\vec x’=\vec x+ \epsilon \vec c$，那么点$\vec x’$到几何体表面上的最近点依然是$\vec p$。即若沿着$\vec c$方向移动$\vec x$点，其到物体表面上的最近点$\vec p$保持不变。挪动得到的新的点$\vec x’$的符号距离场函数为$\phi(\vec x’)=\phi(x)-\epsilon$，从而我们可以得出符号距离场关于$\vec c$方向向量上的方向导数为：</p>
 <script type="math/tex; mode=display">
 \frac{\partial \phi(\vec x)}{\partial \vec c}
 =lim_{\epsilon\to 0}\frac{\phi(\vec x+\epsilon \vec c)-\phi(\vec x)}{\epsilon}\\
@@ -441,7 +441,7 @@ p=((i+\theta)\Delta x,j\Delta x,k\Delta x) \tag {10}</script><figure class="high
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-30T11:43:46+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-07-30T11:45:58+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
     <p>最后更新于 2019年7月30日</p>
