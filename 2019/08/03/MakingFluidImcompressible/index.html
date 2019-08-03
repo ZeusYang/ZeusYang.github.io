@@ -304,7 +304,6 @@
 <center><font size="6">流体的不可压缩投影</font></center>
 
 
-
 <p>&emsp;&emsp;在流体模拟中，确保流体的不可压缩性是非常重要、关键的一步，也是最耗时的一步，这是整个流体模拟过程中的核心，涉及到模拟效果的真实性、模拟过程的效率快慢两方面的内容，因而相关的数学内容比较多。在流体模拟中，确保流体的不可压缩性的算法我们通常用$project(\Delta t, \vec u)$来表示，它输入时间步长$\Delta t$和流体的速度场$\vec u$，然后在流体内部的压力的作用下更新速度场：</p>
 <script type="math/tex; mode=display">
 \vec u^{n+1}=\vec u-\Delta t\frac1\rho \nabla p \tag {1}</script><p>&emsp;&emsp;上述公式中，$\vec u^{n+1}$就是新的速度场，$\rho$是流体密度，$p$为压力。通过公式$(1)$，我们就可以得到满足流体不可压缩性的流体，此时得到的新速度场$\vec u^{n+1}$的散度为0：</p>
@@ -438,7 +437,7 @@ p_k^Tb=\Sigma_{i=1}^n\alpha_i <p_k,p_i>_A \tag {27}</script><p>&emsp;&emsp;最�
 <p_k,b>=\alpha_k <p_k,p_k>_A \\
 \to \\
 \alpha_k=\frac{<p_k,b>}{<p_k,p_k>_A} \tag {28}</script><p>&emsp;&emsp;由此，我们可以得到一个求解方程$Ax=b$的方法，首先找到$n$个互相共轭的向量，然后计算其组合系数$\alpha_k$，最后未知向量就由这$n$个互相共轭的向量线性组合而成（即公式$(24)$）。但显然直接寻找$n$个互相共轭的向量在$n$比较大的时候不现实，因为这将耗费大量的时间。</p>
-<p>&emsp;&emsp;共轭梯度采用的是迭代法，我们给出了一个初始预测解$x_0$，致力于寻找最终解$x_<em>$，通过迭代的方法使得初始的预测解$x_0$逐步向$x_</em>$逼近，每一次的迭代中我们挑选出一个共轭向量$p$。迭代过程中的目标就是最小化预测向量与最终解$x_*$之间的差距，此时我们的问题就转换为如下的二次方程的最优化问题：</p>
+<p>&emsp;&emsp;共轭梯度采用的是迭代法，我们给出了一个初始预测解$x_0$，致力于寻找最终解$x_d$，通过迭代的方法使得初始的预测解$x_0$逐步向$x_d$逼近，每一次的迭代中我们挑选出一个共轭向量$p$。迭代过程中的目标就是最小化预测向量与最终解$x_d$之间的差距，此时我们的问题就转换为如下的二次方程的最优化问题：</p>
 <script type="math/tex; mode=display">
 f(x)=x^T(\frac12Ax-b)=\frac12x^TAx-x^Tb, x\in R^n \tag {29}</script><p>&emsp;&emsp;公式$(29)$是一个关于$n$维向量的二次方程，是一个$n$元函数，其一阶导数和二阶导数分别如下所示：</p>
 <script type="math/tex; mode=display">
@@ -537,7 +536,7 @@ A_{(i,j,k),(i,j,k)}-(A_{(i-1,j,k),(i,j,k)}/E_{(i-1,j,k)})^2\\
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-08-03T11:06:12+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-08-03T11:09:11+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
     <p>最后更新于 2019年8月3日</p>
