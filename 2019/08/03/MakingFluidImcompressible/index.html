@@ -291,7 +291,6 @@
 </ul>
 <center><font size="6">流体的不可压缩投影</font></center>
 
-
 <p>&emsp;&emsp;在流体模拟中，确保流体的不可压缩性是非常重要、关键的一步，也是最耗时的一步，这是整个流体模拟过程中的核心，涉及到模拟效果的真实性、模拟过程的效率快慢两方面的内容，因而相关的数学内容比较多。在流体模拟中，确保流体的不可压缩性的算法我们通常用$project(\Delta t, \vec u)$来表示，它输入时间步长$\Delta t$和流体的速度场$\vec u$，然后在流体内部的压力的作用下更新速度场：</p>
 <script type="math/tex; mode=display">
 \vec u^{n+1}=\vec u-\Delta t\frac1\rho \nabla p \tag {1}</script><p>&emsp;&emsp;上述公式中，$\vec u^{n+1}$就是新的速度场，$\rho$是流体密度，$p$为压力。通过公式$(1)$，我们就可以得到满足流体不可压缩性的流体，此时得到的新速度场$\vec u^{n+1}$的散度为0：</p>
@@ -338,7 +337,7 @@ u_{i+1/2,j,k}^{n+1}=u_{i+1/2,j,k}-\Delta t\frac{1}{\rho}\frac{p_{i+1,j,k}-p_{i,j
 \frac{\Delta t}{\rho}\frac{p_{i+1,j,k}-p_{i,j,k}^{ghost}}{\Delta x}=
 u_{i+1/2,j,k}-u_{i+1/2,j,k}^{solid} \tag {9}</script><p>&emsp;&emsp;上述公式中的左边压强部分可以看成是关于压强梯度的有限差分，即关于下面公式的一个近似：</p>
 <script type="math/tex; mode=display">
-\frac{\Delta t}{\rho}\frac{\partial p}{\partial x}=u-u^{solid} \tag {10}</script><p>&emsp;&emsp;公式$(10)$仅仅是关于一个方向，同样地，我们可以取其他方向的固体边界条件，得到更一般的公式：</p>
+\frac{\Delta t}{\rho}\frac{\partial p}{\partial x}=u-u^{solid} \tag {10}</script><p>&emsp;&emsp;公式$<a href="10">Math Processing Error</a>$仅仅是关于一个方向，同样地，我们可以取其他方向的固体边界条件，得到更一般的公式：</p>
 <script type="math/tex; mode=display">
 \frac{\Delta t}{\rho}\nabla p\cdot \vec n=(\vec u-\vec u^{solid})\cdot \vec n \tag {11}</script><p>&emsp;&emsp;公式$(11)$给出了固体边界处的压力梯度值，与狄利克雷条件处理方式不同，这里给出的是梯度的取值，这种边界处理方式被称为第二类边界条件——冯诺依曼边界条件（Neumannn boundary condition）$^{[1]}$。最后，假设流体的压力已知（实际上未知），根据压力梯度更新流体的速度场，算法伪代码如下：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">scale = dt/(density*dx);</span><br><span class="line">loop over i,j,k:</span><br><span class="line">	<span class="meta">#update u component.</span></span><br><span class="line">	<span class="function"><span class="keyword">if</span> <span class="title">label</span><span class="params">(i<span class="number">-1</span>,j,k)</span></span>==FLUID <span class="keyword">or</span> label(i,j,k)==FLUID:</span><br><span class="line">		<span class="keyword">if</span> label(i<span class="number">-1</span>,j,k)==SOLID <span class="keyword">or</span> label(i,j,k)==SOLID:</span><br><span class="line">			u(i,j,k) = usolid(i,j,k);</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			u(i,j,k) -= scale * (p(i,j,k) - p(i<span class="number">-1</span>,j,k));</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		mark u(i,j,k) as unknown;</span><br><span class="line">	<span class="meta">#update v component.</span></span><br><span class="line">    <span class="function"><span class="keyword">if</span> <span class="title">label</span><span class="params">(i,j<span class="number">-1</span>,k)</span></span>==FLUID <span class="keyword">or</span> label(i,j,k)==FLUID:</span><br><span class="line">        <span class="keyword">if</span> label(i,j<span class="number">-1</span>,k)==SOLID <span class="keyword">or</span> label(i,j,k)==SOLID:</span><br><span class="line">        	v(i,j,k) = vsolid(i,j,k);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        	v(i,j,k) -= scale * (p(i,j,k) - p(i,j<span class="number">-1</span>,k));</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    	mark v(i,j,k) as unknown;</span><br><span class="line">	<span class="meta">#update w component.</span></span><br><span class="line">    <span class="function"><span class="keyword">if</span> <span class="title">label</span><span class="params">(i,j,k<span class="number">-1</span>)</span></span>==FLUID <span class="keyword">or</span> label(i,j,k)==FLUID:</span><br><span class="line">        <span class="keyword">if</span> label(i,j,k<span class="number">-1</span>)==SOLID <span class="keyword">or</span> label(i,j,k)==SOLID:</span><br><span class="line">        	w(i,j,k) = wsolid(i,j,k);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        	w(i,j,k) -= scale * (p(i,j,k) - p(i,j,k<span class="number">-1</span>));</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    	mark w(i,j,k) as unknown;</span><br></pre></td></tr></table></figure>
@@ -418,9 +417,9 @@ x_*=\Sigma_{i=1}^n\alpha_i p_i \tag {24}</script><p>&emsp;&emsp;将上述的$x_*
 <script type="math/tex; mode=display">
 Ax_*=\Sigma_{i=1}^n\alpha_iAp_i \tag {25}</script><p>&emsp;&emsp;再左乘上$P$中的一个向量$p_k^T$：</p>
 <script type="math/tex; mode=display">
-p_k^TAx_*=\Sigma_{i=1}^n\alpha_ip_k^TAp_i \tag {26}</script><p>&emsp;&emsp;然后将$Ax_*=b$、$u^TAv=<u,v>_A$代入公式$(26)$中：</u,v></p>
+p_k^TAx_*=\Sigma_{i=1}^n\alpha_ip_k^TAp_i \tag {26}</script><p>&emsp;&emsp;然后将$Ax_*=b$、$u^TAv=(u,v)_A$代入公式$(26)$中：</p>
 <script type="math/tex; mode=display">
-p_k^Tb=\Sigma_{i=1}^n\alpha_i <p_k,p_i>_A \tag {27}</script><p>&emsp;&emsp;最后根据$u^Tv=<u,v>$以及$\forall i\neq k: <p_k,p_i>_A=0$，可得：</p_k,p_i></u,v></p>
+p_k^Tb=\Sigma_{i=1}^n\alpha_i <p_k,p_i>_A \tag {27}</script><p>&emsp;&emsp;最后根据$u^Tv=(u,v)$以及$\forall i\neq k: (p_k,p_i)_A=0$，可得：</p>
 <script type="math/tex; mode=display">
 <p_k,b>=\alpha_k <p_k,p_k>_A \\
 \to \\
@@ -524,10 +523,10 @@ A_{(i,j,k),(i,j,k)}-(A_{(i-1,j,k),(i,j,k)}/E_{(i-1,j,k)})^2\\
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-08-03T11:09:11+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-12T15:45:21+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年8月3日</p>
+    <p>最后更新于 2019年9月12日</p>
   </a>
 </div>
 
@@ -860,9 +859,9 @@ A_{(i,j,k),(i,j,k)}-(A_{(i-1,j,k),(i,j,k)}/E_{(i-1,j,k)})^2\\
         
           <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(18)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(19)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(7)</div></a></li>
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(8)</div></a></li>
         
           <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
         

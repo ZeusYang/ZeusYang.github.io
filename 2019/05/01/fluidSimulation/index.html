@@ -424,11 +424,10 @@ p=\lambda k \tag {2.24}</script><p>​        </p>
 <hr>
 <h3 id="1、时间步长"><a href="#1、时间步长" class="headerlink" title="1、时间步长"></a>1、时间步长</h3><p>&emsp;&emsp;在流体模拟算法中，确定适当的时间步长是算法的第一步。因为计算流体模拟的最后结果是呈现在屏幕上的，所以$\Delta t$的选取与屏幕的刷新率有重要的关系。若选取的$\Delta t$有$t_n+\Delta t &gt; t_{frame}$，那么必须做一个截断使$\Delta t=t_{frame}-t_n$。此外，流体模拟的三个步骤即对流项、体积力项、无散度投影项对时间步长$\Delta t$的要求不尽相同，要选择一个满足所有要求的最小时间步长能确保计算的收敛性。此外，一方面为了流体模拟的真实性，我们可能需要选取一个足够小的时间步长来复现流体的高质量细节。另一方面，有时高性能的需求又使得我们不能选取太小的时间步长去渲染一帧。假设一帧至少要进行三个时间步的模拟，那么$\Delta t$应该至少设成帧间隔时间的三分之一。</p>
 <h3 id="2、网格结构"><a href="#2、网格结构" class="headerlink" title="2、网格结构"></a>2、网格结构</h3><p>&emsp;&emsp;欧拉法的整个流程都是基于网格的，所以合理的网格结构是算法高效的关键点。$Harlow$和$Welch$提出了一种经典的$MAC$（marker and cell）网格结构，许多不可压缩流体模拟的算法都在这个网格结构上呈现出了良好的效率。$MAC$网格是一种交叉排列的网格，不同类型的物理量被存储于网格的不同位置。以二维的网格为例，如图3-1左图所示，流体粒子的压力数据存储于网格的中心点$P_{i,j}$，而速度则沿着笛卡尔坐标被分成了两部分。水平方向的$u$成分被存储在了网格单元竖直边的中心处，例如网格单元$(i,j)$和$(i+1,j)$之间的水平速度记为$u_{i+1/2,j}$。垂直方向的$v$成分则被存储在了网格单元水平面的中心上。这样的存储方案十分有利于估算流体流进/流出某个网格单元的量。</p>
-<p><figure class="half">
-    <img src="assets/1555851524585.png">
-    <img src="assets/1555851793961.png">
-</figure></p>
-<p><center>图3-1 MAC网格,左图二维,右图三维</center><br>&emsp;&emsp;扩展到三维的情况，$MAC$网格同样是交错排列的结构网格，如图3-1右图所示。压力数值存储在立方体网格单元的中心，三个速度分量分别被记录在立方体网格单元的三个表面的中心点上。在数值计算时，这样的分配方式使得我们可以准确地采用中心差分法计算压力梯度和速度的散度，同时克服了中心差分法的一个普遍的缺点。一维的情况为例，在网格顶点位置$…,q_{i-1},q_i,q_{i+1}…$上估算量场$q$的导数，为了无偏（所谓无偏，就是不偏向左边或者右边）估计网格顶点$i$处的$\frac{\partial q}{\partial x}$，一种比较自然的方式就是采用一阶中心差分法：</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.26/blog/FluidSimulation/1.jpg" width="50%"></div></p>
+<center>图3-1 MAC网格,左图二维,右图三维</center>
+
+<p>&emsp;&emsp;扩展到三维的情况，$MAC$网格同样是交错排列的结构网格，如图3-1右图所示。压力数值存储在立方体网格单元的中心，三个速度分量分别被记录在立方体网格单元的三个表面的中心点上。在数值计算时，这样的分配方式使得我们可以准确地采用中心差分法计算压力梯度和速度的散度，同时克服了中心差分法的一个普遍的缺点。一维的情况为例，在网格顶点位置$…,q_{i-1},q_i,q_{i+1}…$上估算量场$q$的导数，为了无偏（所谓无偏，就是不偏向左边或者右边）估计网格顶点$i$处的$\frac{\partial q}{\partial x}$，一种比较自然的方式就是采用一阶中心差分法：</p>
 <script type="math/tex; mode=display">
 (\frac{\partial q}{\partial x})_i\approx \frac{q_{i+1}-q_{i-1}}{2\Delta x} \tag {3.4}</script><p>&emsp;&emsp;公式$(3.4)$是无偏的，且精确度为$O(\Delta x^2)$。而前向欧拉差分法偏向右边且精确度只有$O(\Delta x)$：</p>
 <script type="math/tex; mode=display">
@@ -463,7 +462,7 @@ q^{n+1}=advect(\vec u,\Delta t,q^n) \tag {4.2}</script><p>&emsp;&emsp;公式$(4.
 <script type="math/tex; mode=display">
 q^{n+1}_i=q^n_i-\Delta t u^n_i\frac{q^n_{i+1}-q^n_{i-1}}{2\Delta x} \tag {4.5}</script><p>&emsp;&emsp;公式$(4.5)$看起来没什么问题，但是却存在非常严重的漏洞。首先，前向欧拉法被证明是无条件不稳定的空间离散方法：无论取多么小Δ𝑡，随着时间步的推进，累积误差终将发散。即使使用更稳定的时间积分方法来取代前向欧拉方法，解决了时间上的PDE（Partial Differential Equation，偏微分方程）计算，空间上的PDE计算还是会带来重大的麻烦。标准中心差分方法不可避免地会出现的零空间问题，具有高频震荡性质的速度场对空间的导数被错误地计算为$0$或几乎为$0$，低离速度分量被分离出来，从而导致模拟效果中出现许多奇怪的高频摆动和震荡。</p>
 <p>&emsp;&emsp;针对这些问题，研究者们提出了一个解然不同的、更加简单和更具物理直观意义的半拉格朗日法。之所以叫半拉格朗日法，是因为这种方法是以拉格朗日视角去解决欧拉视角的对流方程（“半”字的由来）。假设我们的目标是求解网格点$\vec x_G$的在第$n+1$个时间步时关于物理量$q$的新值，记为$q^{n+1}_G$。在拉格朗日的视角下，我们可以寻找在第$n+1$时间步之前，是空间中的哪一个点上的流体粒子在速度场$\vec u$的作用下“流向”了$\vec x_G$，我们记这个粒子在第$n$个时间步时的网格位置为$\vec x_P$，则第$n+1$个时间步时$\vec x_G$的$q^{n+1}_G$即为第$n$个时间步时$\vec x_P$的$q^{n}_P$。如下图4-1为半拉格朗日对流法的示意图。</p>
-<p><img src="assets/1555901521756.png" alt="1555901521756"></p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.26/blog/FluidSimulation/2.png" width="30%"></div></p>
 <p><center>图4-1 半拉格朗日对流法</center><br>&emsp;&emsp;半拉格朗日对流法的第一步就是要找出$\vec x_P$，为此我们根据$\vec x_G$做反向的追踪。粒子位置对时间的导数就是速度场：</p>
 <script type="math/tex; mode=display">
 \frac{d\vec x}{dt}=\vec u(\vec x) \tag {4.6}</script><p>&emsp;&emsp;经过一个时间步长$\Delta t$之后，粒子由$\vec x_P$移动到$\vec x_G$。为了得到$\vec x_P$，最简单的方法就是采用前向欧拉法进行倒推：</p>
@@ -527,10 +526,10 @@ q=w_{-1}(t)q_{j-1}+w_0(t)q_j+w_1(t)q_{j+1}+w_2(t)q_{j+2} \tag {4.23}</script><p>
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-07T19:43:10+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-12T16:52:00+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年9月7日</p>
+    <p>最后更新于 2019年9月12日</p>
   </a>
 </div>
 
@@ -844,9 +843,9 @@ q=w_{-1}(t)q_{j-1}+w_0(t)q_j+w_1(t)q_{j+1}+w_2(t)q_{j+2} \tag {4.23}</script><p>
         
           <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(18)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(19)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(7)</div></a></li>
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(8)</div></a></li>
         
           <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
         
