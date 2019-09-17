@@ -297,34 +297,19 @@
 </li>
 </ul>
 <center><font size="6">基于欧拉网格的流体模拟</font></center>
-&emsp;&emsp;基于粒子与基于网格的流体模拟算法是计算机图形学中的流体模拟界的两大算法框架，这两种算法分别对应了物理模拟中的两个视角：拉格朗日视角和欧拉视角。与基于粒子的拉格朗日流体模拟解然不同，基于欧拉网格的流体模拟采用了完全不同的算法策略，它不再关注随着物理规律运动的流体粒子，而将目光转向空间中的一组固定的网格点。流体模拟的这两种算法各有利弊，其中基于欧拉网格的模拟方法可以实现无条件稳定，这是基于粒子的模拟方法所不能及的。目前已经有人提出了两种方法结合的模拟策略，这里暂且不说。**相比于基于粒子的模拟方法，无论是从理论上还是从实现上，基于欧拉网格的模拟方法要复杂得多**。
 
 
-
-## 一、基于欧拉网格的流体模拟
-
-&emsp;&emsp;首先来看基于欧拉网格的流体模拟算法的整体框架，主要参考了Jos Stam$^{[1]}$的极为经典的无条件稳定的流体模拟论文。基于欧拉网格的流体模拟算法同样是围绕Navier-Stokes流体力学方程展开，只不过采用了不同的偏微分方程求解方式：
-$$
-\nabla \cdot u=0 \tag {1}
-$$
-
-$$
-\frac{D u}{Dt}=\frac{\partial u}{\partial t}+u\cdot \nabla u=-\frac1\rho\nabla p+\mu \nabla ^2u+f \tag {2}
-$$
-
-&emsp;&emsp;还是熟悉的流体力学方程，其中$u$是流体的速度场，$t$为时间，$\rho$是流体密度，$\mu$是流体的粘度系数，$f$是体积力项（如重力）。$\frac{Du}{Dt}$是流体关于速度场的物质导数，在基于粒子的流体模拟中，每个粒子的加速度就是关于速度的物质导数$\frac{Du}{Dt}$，这是因为物质导数的定义就是从拉格朗日视角展开的。拉格朗日视角下的物质导数可以转换成欧拉视角下的一个形式，就是公式$(2)$中的左边$\frac{Du}{Dt}=\frac{\partial u}{\partial t}+u\cdot \nabla u$，这是因为欧拉视角下我们关注的是空间中的一个固定点，因而物质导数就变成了给定点上的速度随时间的变化率$\frac{\partial u}{\partial t}$与在流体先前的速度场作用下的变化率$u\cdot \nabla u$之和。因此，在基于欧拉网格的流体模拟方法中，我们需要计算固定点上的加速度$\frac{\partial u}{\partial t}$，将$u\cdot \nabla u$移至右边：
-$$
-\frac{\partial u}{\partial t}=-u\cdot \nabla u-\frac1\rho\nabla p+\mu \nabla^2u+f \tag {3}
-$$
-&emsp;&emsp;所以，相比于基于粒子的模拟方法，基于欧拉网格的模拟方法多了一项需要计算，即$-u\cdot \nabla u$，后面将会提到这一项就是**对流项**，这是粒子方法与网格方法最大的不同之处。
-
-&emsp;&emsp;公式$(3)$中的压强梯度项$-\frac1\rho \nabla p$与保持流体的不可压缩性（即散度为零，公式$(1)$）密切相关，计算压强项这一步我们通常称之为投影，即将速度场投影到散度为零的空间中，从而使得流体表现出不可压缩的特性。根据Helmholtz-Hodge分解定理，给定的一个速度场$w$，可将其分解成一个散度为零的速度矢量$u$与压强标量场的梯度之和$^{[2]}$：
-$$
-w=u+\nabla p \tag {4}
-$$
-&emsp;&emsp;其中的$u$满足$\nabla \cdot u=0$，即散度为零，如下图1所示。为此，我们引入一个正交投影操作算子$P$，通过算子$P$将速度场$w$投影到散度为零的部分$u$，即$u=Pw$。在线性代数中，投影算子$P$有这样的一种性质，即无论投影多少次，最终都等价于只投影一次，例如$P^2=P$。故同样有$Pu=u$，因为$Pu=P(Pw)=P^2w=Pw=u$。
-
-<div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.26/blog/Smoke/1.png" width="50%">
+<p>&emsp;&emsp;基于粒子与基于网格的流体模拟算法是计算机图形学中的流体模拟界的两大算法框架，这两种算法分别对应了物理模拟中的两个视角：拉格朗日视角和欧拉视角。与基于粒子的拉格朗日流体模拟解然不同，基于欧拉网格的流体模拟采用了完全不同的算法策略，它不再关注随着物理规律运动的流体粒子，而将目光转向空间中的一组固定的网格点。流体模拟的这两种算法各有利弊，其中基于欧拉网格的模拟方法可以实现无条件稳定，这是基于粒子的模拟方法所不能及的。目前已经有人提出了两种方法结合的模拟策略，这里暂且不说。<strong>相比于基于粒子的模拟方法，无论是从理论上还是从实现上，基于欧拉网格的模拟方法要复杂得多</strong>。</p>
+<h2 id="一、基于欧拉网格的流体模拟"><a href="#一、基于欧拉网格的流体模拟" class="headerlink" title="一、基于欧拉网格的流体模拟"></a>一、基于欧拉网格的流体模拟</h2><p>&emsp;&emsp;首先来看基于欧拉网格的流体模拟算法的整体框架，主要参考了Jos Stam$^{[1]}$的极为经典的无条件稳定的流体模拟论文。基于欧拉网格的流体模拟算法同样是围绕Navier-Stokes流体力学方程展开，只不过采用了不同的偏微分方程求解方式：</p>
+<script type="math/tex; mode=display">
+\nabla \cdot u=0 \tag {1}</script><script type="math/tex; mode=display">
+\frac{D u}{Dt}=\frac{\partial u}{\partial t}+u\cdot \nabla u=-\frac1\rho\nabla p+\mu \nabla ^2u+f \tag {2}</script><p>&emsp;&emsp;还是熟悉的流体力学方程，其中$u$是流体的速度场，$t$为时间，$\rho$是流体密度，$\mu$是流体的粘度系数，$f$是体积力项（如重力）。$\frac{Du}{Dt}$是流体关于速度场的物质导数，在基于粒子的流体模拟中，每个粒子的加速度就是关于速度的物质导数$\frac{Du}{Dt}$，这是因为物质导数的定义就是从拉格朗日视角展开的。拉格朗日视角下的物质导数可以转换成欧拉视角下的一个形式，就是公式$(2)$中的左边$\frac{Du}{Dt}=\frac{\partial u}{\partial t}+u\cdot \nabla u$，这是因为欧拉视角下我们关注的是空间中的一个固定点，因而物质导数就变成了给定点上的速度随时间的变化率$\frac{\partial u}{\partial t}$与在流体先前的速度场作用下的变化率$u\cdot \nabla u$之和。因此，在基于欧拉网格的流体模拟方法中，我们需要计算固定点上的加速度$\frac{\partial u}{\partial t}$，将$u\cdot \nabla u$移至右边：</p>
+<script type="math/tex; mode=display">
+\frac{\partial u}{\partial t}=-u\cdot \nabla u-\frac1\rho\nabla p+\mu \nabla^2u+f \tag {3}</script><p>&emsp;&emsp;所以，相比于基于粒子的模拟方法，基于欧拉网格的模拟方法多了一项需要计算，即$-u\cdot \nabla u$，后面将会提到这一项就是<strong>对流项</strong>，这是粒子方法与网格方法最大的不同之处。</p>
+<p>&emsp;&emsp;公式$(3)$中的压强梯度项$-\frac1\rho \nabla p$与保持流体的不可压缩性（即散度为零，公式$(1)$）密切相关，计算压强项这一步我们通常称之为投影，即将速度场投影到散度为零的空间中，从而使得流体表现出不可压缩的特性。根据Helmholtz-Hodge分解定理，给定的一个速度场$w$，可将其分解成一个散度为零的速度矢量$u$与压强标量场的梯度之和$^{[2]}$：</p>
+<script type="math/tex; mode=display">
+w=u+\nabla p \tag {4}</script><p>&emsp;&emsp;其中的$u$满足$\nabla \cdot u=0$，即散度为零，如下图1所示。为此，我们引入一个正交投影操作算子$P$，通过算子$P$将速度场$w$投影到散度为零的部分$u$，即$u=Pw$。在线性代数中，投影算子$P$有这样的一种性质，即无论投影多少次，最终都等价于只投影一次，例如$P^2=P$。故同样有$Pu=u$，因为$Pu=P(Pw)=P^2w=Pw=u$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.26/blog/Smoke/1.png" width="50%"></div></p>
 <center> 图1 Helmholtz-Hodge分解</center>
 
 
@@ -354,9 +339,9 @@ Pw=Pu+P(\nabla p)\to u=u+P(\nabla p) \to P(\nabla p)=0 \tag {5}</script><p>&emsp
 <script type="math/tex; mode=display">
 u\cdot n=0 \tag {7}</script><p>&emsp;&emsp;其中，$u$是边界处流体的速度场矢量，$n$是边界出碰撞体的单位表面法线。当然上面说的仅仅是碰撞体静止时的情况，我们还需要考虑碰撞体的移动，因此实际上要求的是流体的速度场与碰撞体的速度场的差（即相对速度）在法线方向上的投影为零：</p>
 <script type="math/tex; mode=display">
-(u-u_c)\cdot n=u_{rel}\cdot n=0 \tag {8}</script><p>&emsp;&emsp;上式中，$u_c$是表面处碰撞体的速度场矢量，$u_{rel}$记为流体与碰撞体之间的相对速度。为了使得相对速度在法线方向上的投影为零，我们可以将相对速度分解成法线方向上的向量与切面向上的向量之和，然后直接取切面上的向量，得到满足碰撞约束的相对速度$u^<code>_{rel}$，最后得到满足约束的流体速度场$u^</code>$：</p>
+(u-u_c)\cdot n=u_{rel}\cdot n=0 \tag {8}</script><p>&emsp;&emsp;上式中，$u_c$是表面处碰撞体的速度场矢量，$u_{rel}$记为流体与碰撞体之间的相对速度。为了使得相对速度在法线方向上的投影为零，我们可以将相对速度分解成法线方向上的向量与切面向上的向量之和，然后直接取切面上的向量，得到满足碰撞约束的相对速度$u^t_{rel}$，最后得到满足约束的流体速度场$u^n$：</p>
 <script type="math/tex; mode=display">
-u^`_{rel}=u_{rel}-(u_{rel}\cdot n)n \\u`=u^`_{rel}+u_c \tag {9}</script><p>&emsp;&emsp;碰撞体边界统一用水平集构成的符号距离场表示，因而其表面法线$n$就是其符号距离场函数的梯度向量。我们实际上处理的不单单是碰撞体表面上的流体网格点，还需要处理在物体内部的点，因而对于符号距离值为负的流体网格点均需要做以上的边界处理，其余部分保持不变，下面是以流体速度场的$u$分量为例（后面均以$u$分量为例，其余的$v$分量和$w$分量类似）：</p>
+u^t_{rel}=u_{rel}-(u_{rel}\cdot n)n \\u^n=u^n_{rel}+u_c \tag {9}</script><p>&emsp;&emsp;碰撞体边界统一用水平集构成的符号距离场表示，因而其表面法线$n$就是其符号距离场函数的梯度向量。我们实际上处理的不单单是碰撞体表面上的流体网格点，还需要处理在物体内部的点，因而对于符号距离值为负的流体网格点均需要做以上的边界处理，其余部分保持不变，下面是以流体速度场的$u$分量为例（后面均以$u$分量为例，其余的$v$分量和$w$分量类似）：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">		velocity-&gt;parallelForEachUIndex([&amp;](<span class="keyword">size_t</span> i, <span class="keyword">size_t</span> j, <span class="keyword">size_t</span> k)</span><br><span class="line">		&#123;</span><br><span class="line">			Vector3D pt = uPos(i, j, k);</span><br><span class="line">			<span class="keyword">if</span> (isInsideSdf(_colliderSdf-&gt;sample(pt)))</span><br><span class="line">			&#123;</span><br><span class="line">				Vector3D colliderVel = collider()-&gt;velocityAt(pt);</span><br><span class="line">				Vector3D vel = velocity-&gt;sample(pt);</span><br><span class="line">				Vector3D g = _colliderSdf-&gt;gradient(pt);</span><br><span class="line">				<span class="keyword">if</span> (g.lengthSquared() &gt; <span class="number">0.0</span>) </span><br><span class="line">				&#123;</span><br><span class="line">					Vector3D n = g.normalized();</span><br><span class="line">					Vector3D velr = vel - colliderVel;</span><br><span class="line">					Vector3D velt = projectAndApplyFriction(velr, n, collider()-&gt;frictionCoefficient());</span><br><span class="line">					Vector3D velp = velt + colliderVel;</span><br><span class="line">					uTemp(i, j, k) = velp.x;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">else</span> </span><br><span class="line">					uTemp(i, j, k) = colliderVel.x;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span> </span><br><span class="line">				uTemp(i, j, k) = u(i, j, k);</span><br><span class="line">		&#125;);</span><br><span class="line"></span><br><span class="line">		......</span><br><span class="line">		u.parallelForEachIndex([&amp;](<span class="keyword">size_t</span> i, <span class="keyword">size_t</span> j, <span class="keyword">size_t</span> k) </span><br><span class="line">		&#123;</span><br><span class="line">			u(i, j, k) = uTemp(i, j, k);</span><br><span class="line">		&#125;);</span><br><span class="line">            </span><br><span class="line"></span><br><span class="line"><span class="comment">//-------------------------------------------------------------------</span></span><br><span class="line">		<span class="keyword">template</span> &lt;<span class="keyword">size_t</span> N&gt;</span><br><span class="line">		<span class="keyword">inline</span> Vector&lt;<span class="keyword">double</span>, N&gt; projectAndApplyFriction(</span><br><span class="line">			<span class="keyword">const</span> Vector&lt;<span class="keyword">double</span>, N&gt;&amp; vel,</span><br><span class="line">			<span class="keyword">const</span> Vector&lt;<span class="keyword">double</span>, N&gt;&amp; normal,</span><br><span class="line">			<span class="keyword">double</span> frictionCoefficient) </span><br><span class="line">		&#123;</span><br><span class="line">			Vector&lt;<span class="keyword">double</span>, N&gt; velt = vel.projected(normal);</span><br><span class="line">			<span class="keyword">if</span> (velt.lengthSquared() &gt; <span class="number">0</span>)</span><br><span class="line">			&#123;</span><br><span class="line">				<span class="keyword">double</span> veln = <span class="built_in">std</span>::max(-vel.dot(normal), <span class="number">0.0</span>);</span><br><span class="line">				velt *= <span class="built_in">std</span>::max(<span class="number">1.0</span> - frictionCoefficient * veln / velt.length(), <span class="number">0.0</span>);</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">return</span> velt;</span><br><span class="line">		&#125;</span><br></pre></td></tr></table></figure>
 <p>&emsp;&emsp;上面的projectAndApplyFriction就是实现了公式$(9)$的函数代码，它负责计算投影到切面上的向量，最后还乘上了一个缩放系数，这个系数来源于我们如何处理无通量边界条件得到的切面上的速度场。通常分为两种情况：自由滑移、无滑移$^{[3]}$。自由滑移就是流体在边界处的速度场直接取值为表面切向上的速度场，无滑移就是流体在边界处的速度场直接取零而不是切向速度，这个不难理解。在这里我们考虑这两者的综合，我们考虑碰撞体的摩擦力：</p>
 <script type="math/tex; mode=display">
@@ -492,7 +477,7 @@ f_{buoy}=-\alpha \rho \vec y+\beta (T-T_{amb})\vec y \tag {37}</script><p>&emsp;
 <p>$[3]$ Kim, D. (2017). <em>Fluid engine development</em>. Boca Raton: Taylor &amp; Francis, a CRC Press, Taylor &amp; Francis Group.</p>
 <p>$[4]$ R. Bridson and M. Müller-Fischer. Fluid simulation: Siggraph 2007 course notes. In ACM SIGGRAPH 2007 Courses, pages 1–81, ACM, 2007.</p>
 <p>$[5]$ Fedkiw R, Stam J, Jensen H W. Visual simulation of smoke[C]// Conference on Computer Graphics &amp;  Interactive Techniques. 2001.</p>
-</div>
+
         </div>
         
           
@@ -503,10 +488,10 @@ f_{buoy}=-\alpha \rho \vec y+\beta (T-T_{amb})\vec y \tag {37}</script><p>&emsp;
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-12T16:51:06+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-17T21:42:04+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年9月12日</p>
+    <p>最后更新于 2019年9月17日</p>
   </a>
 </div>
 
@@ -736,7 +721,7 @@ f_{buoy}=-\alpha \rho \vec y+\beta (T-T_{amb})\vec y \tag {37}</script><p>&emsp;
 </header>
 
     <div class="content material">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MAC网格数据结构"><span class="toc-text">二、MAC网格数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、边界条件处理"><span class="toc-text">三、边界条件处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、体积力项"><span class="toc-text">四、体积力项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、半拉格朗日对流"><span class="toc-text">五、半拉格朗日对流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#六、流体粘度项"><span class="toc-text">六、流体粘度项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#七、流体压强梯度项"><span class="toc-text">七、流体压强梯度项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#八、烟雾流体模拟"><span class="toc-text">八、烟雾流体模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、基于欧拉网格的流体模拟"><span class="toc-text">一、基于欧拉网格的流体模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、MAC网格数据结构"><span class="toc-text">二、MAC网格数据结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、边界条件处理"><span class="toc-text">三、边界条件处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、体积力项"><span class="toc-text">四、体积力项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、半拉格朗日对流"><span class="toc-text">五、半拉格朗日对流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#六、流体粘度项"><span class="toc-text">六、流体粘度项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#七、流体压强梯度项"><span class="toc-text">七、流体压强梯度项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#八、烟雾流体模拟"><span class="toc-text">八、烟雾流体模拟</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
     </div>
   </section>
 
