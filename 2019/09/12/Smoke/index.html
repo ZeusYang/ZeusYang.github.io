@@ -298,7 +298,6 @@
 </ul>
 <center><font size="6">基于欧拉网格的流体模拟</font></center>
 
-
 <p>&emsp;&emsp;基于粒子与基于网格的流体模拟算法是计算机图形学中的流体模拟界的两大算法框架，这两种算法分别对应了物理模拟中的两个视角：拉格朗日视角和欧拉视角。与基于粒子的拉格朗日流体模拟解然不同，基于欧拉网格的流体模拟采用了完全不同的算法策略，它不再关注随着物理规律运动的流体粒子，而将目光转向空间中的一组固定的网格点。流体模拟的这两种算法各有利弊，其中基于欧拉网格的模拟方法可以实现无条件稳定，这是基于粒子的模拟方法所不能及的。目前已经有人提出了两种方法结合的模拟策略，这里暂且不说。<strong>相比于基于粒子的模拟方法，无论是从理论上还是从实现上，基于欧拉网格的模拟方法要复杂得多</strong>。</p>
 <h2 id="一、基于欧拉网格的流体模拟"><a href="#一、基于欧拉网格的流体模拟" class="headerlink" title="一、基于欧拉网格的流体模拟"></a>一、基于欧拉网格的流体模拟</h2><p>&emsp;&emsp;首先来看基于欧拉网格的流体模拟算法的整体框架，主要参考了Jos Stam$^{[1]}$的极为经典的无条件稳定的流体模拟论文。基于欧拉网格的流体模拟算法同样是围绕Navier-Stokes流体力学方程展开，只不过采用了不同的偏微分方程求解方式：</p>
 <script type="math/tex; mode=display">
@@ -488,10 +487,10 @@ f_{buoy}=-\alpha \rho \vec y+\beta (T-T_{amb})\vec y \tag {37}</script><p>&emsp;
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-17T21:42:04+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-22T21:56:09+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年9月17日</p>
+    <p>最后更新于 2019年9月22日</p>
   </a>
 </div>
 
@@ -551,6 +550,25 @@ f_{buoy}=-\alpha \rho \vec y+\beta (T-T_{amb})\vec y \tag {37}</script><p>&emsp;
         
         
             <div class="prev-next">
+                
+                    <section class="prev">
+                        <span class="art-item-left">
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h4>
+                                <a href="/2019/09/22/FreeSurfaceFlow/" rel="prev" title="流体模拟Fluid Simulation：Free-Surface Flow">
+                                  
+                                      流体模拟Fluid Simulation：Free-Surface Flow
+                                  
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Fluid-Simulation/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Fluid Simulation</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
                 
                 
                     <section class="next">
@@ -808,9 +826,9 @@ f_{buoy}=-\alpha \rho \vec y+\beta (T-T_{amb})\vec y \tag {37}</script><p>&emsp;
         
           <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(19)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(20)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(8)</div></a></li>
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(9)</div></a></li>
         
           <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
         
