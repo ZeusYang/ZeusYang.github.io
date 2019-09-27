@@ -290,12 +290,20 @@
 <li>参考资料</li>
 </ul>
 <center><font size="6">Free-Surface Flow</font></center>
+&emsp;&emsp;在基于欧拉网格的烟雾模拟中，流体与自由面的接触面是一个模糊的边界，因此无需对烟雾的边界进行对流。但在液体模拟中，流体与自由面之间是有一个明确的边界，因此我们需要显式地跟踪这个流体边界来模拟液体的物理行为，基于水平集（Level set）的方法是目前的主流方法。
 
-<p>&emsp;&emsp;在基于欧拉网格的烟雾模拟中，流体与自由面的接触面是一个模糊的边界，因此无需对烟雾的边界进行对流。但在液体模拟中，流体与自由面之间是有一个明确的边界，因此我们需要显式地跟踪这个流体边界来模拟液体的物理行为，基于水平集（Level set）的方法是目前的主流方法。</p>
-<h2 id="一、流体表面的定义"><a href="#一、流体表面的定义" class="headerlink" title="一、流体表面的定义"></a>一、流体表面的定义</h2><p>&emsp;&emsp;在基于粒子的流体模拟中，我们无需显式地定义液体与自由面的边界，流体粒子所占据的区域就是液体所在的区域。通过周围的流体粒子，我们能够确定给定的区域是否处于流体内部还是外部。但是在基于欧拉网格的流体模拟中，我们很难直接确定区域是处于流体内部还是外部，这是因为流体表面是连续可微的。如果直接给欧拉网格一个二值标量场，$0$表示流体外部，$1$表示流体内部，那么在流体的边界处该标量场不是连续的，因而也不是可微的。保证流体边界处连续可微对于模拟高质量的流体来说非常重要，这是因为流体表面张力或者计算法线向量的计算都需要在流体表面做一些微分算子。</p>
-<p>&emsp;&emsp;目前最为主流的方法就是采用隐式表面也就是符号距离场来表示流体的边界。隐式表面具有许多非常良好的性质。给定一个隐式表面的符号距离场函数$\phi(x)$，那么我们可以通过符号来判断一个区域是处于流体内部还是外部，隐式表面被定义在$\phi(x)=0$的零等值面上（如图1中的虚线）。$\phi(x)$的梯度满足如下方程（程函方程）：</p>
-<script type="math/tex; mode=display">
-|\nabla \phi(x)|= 1\tag {1}</script><p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.27/blog/FreeSurfaceFlow/1.png" width="60%"></div></p>
+
+
+## 一、流体表面的定义
+
+&emsp;&emsp;在基于粒子的流体模拟中，我们无需显式地定义液体与自由面的边界，流体粒子所占据的区域就是液体所在的区域。通过周围的流体粒子，我们能够确定给定的区域是否处于流体内部还是外部。但是在基于欧拉网格的流体模拟中，我们很难直接确定区域是处于流体内部还是外部，这是因为流体表面是连续可微的。如果直接给欧拉网格一个二值标量场，$0$表示流体外部，$1$表示流体内部，那么在流体的边界处该标量场不是连续的，因而也不是可微的。保证流体边界处连续可微对于模拟高质量的流体来说非常重要，这是因为流体表面张力或者计算法线向量的计算都需要在流体表面做一些微分算子。
+
+&emsp;&emsp;目前最为主流的方法就是采用隐式表面也就是符号距离场来表示流体的边界。隐式表面具有许多非常良好的性质。给定一个隐式表面的符号距离场函数$\phi(x)$，那么我们可以通过符号来判断一个区域是处于流体内部还是外部，隐式表面被定义在$\phi(x)=0$的零等值面上（如图1中的虚线）。$\phi(x)$的梯度满足如下方程（程函方程）：
+$$
+|\nabla \phi(x)|= 1\tag {1}
+$$
+
+<div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.27/blog/FreeSurfaceFlow/1.png" width="60%">
 <center> 图1 符号距离场 </center>
 
 
@@ -356,7 +364,7 @@ sign=\frac{\phi}{\sqrt{\phi^2+h^2}} \tag {9}</script><figure class="highlight c+
 <p>&emsp;&emsp;这种迭代的方法非常有意思，在一层一层的迭代中，距离场的函数逐渐地被恢复原样、不再扭曲。符号距离场的这个恢复过程被称为重初始化（reinitialization）。在每一帧的对流之后，我们都要调用这个过程来复原真正的符号距离场，重初始化的范围我们取当前的CFL距离，因为超出CFL距离的重初始化没有意义。</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> LevelSetLiquidSolver3::onEndAdvanceTimeStep(<span class="keyword">double</span> timeIntervalInSeconds)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">double</span> currentCfl = cfl(timeIntervalInSeconds);</span><br><span class="line"></span><br><span class="line">	Timer timer;</span><br><span class="line">	reinitialize(currentCfl);</span><br><span class="line">	<span class="built_in">std</span>::<span class="built_in">cout</span> &lt;&lt; <span class="string">"reinitializing level set field took "</span> &lt;&lt; timer.durationInSeconds() &lt;&lt; <span class="string">" seconds\n"</span>;</span><br><span class="line"></span><br><span class="line">	......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p>$[1]$ Kim, D. (2017). <em>Fluid engine development</em>. Boca Raton: Taylor &amp; Francis, a CRC Press, Taylor &amp; Francis Group.</p>
-
+</div>
         </div>
         
           
@@ -367,10 +375,10 @@ sign=\frac{\phi}{\sqrt{\phi^2+h^2}} \tag {9}</script><figure class="highlight c+
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-22T22:01:37+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-27T20:46:37+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年9月22日</p>
+    <p>最后更新于 2019年9月27日</p>
   </a>
 </div>
 
@@ -600,7 +608,7 @@ sign=\frac{\phi}{\sqrt{\phi^2+h^2}} \tag {9}</script><figure class="highlight c+
 </header>
 
     <div class="content material">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、流体表面的定义"><span class="toc-text">一、流体表面的定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、流体的水平集对流"><span class="toc-text">二、流体的水平集对流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、流体水平集的扭曲矫正"><span class="toc-text">三、流体水平集的扭曲矫正</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#二、流体的水平集对流"><span class="toc-text">二、流体的水平集对流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、流体水平集的扭曲矫正"><span class="toc-text">三、流体水平集的扭曲矫正</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
     </div>
   </section>
 
