@@ -75,8 +75,14 @@
           
   					
   						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+								</a>
+							</li>
+      			
+  						<li>
 								<a class="nav flat-box" href="/" id="home">
-									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
 								</a>
 							</li>
       			
@@ -95,12 +101,6 @@
   						<li>
 								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
 									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
-								</a>
-							</li>
-      			
-  						<li>
-								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
-									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
 								</a>
 							</li>
       			
@@ -142,8 +142,14 @@
         
           
             <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+							</a>
+            </li>
+          
+            <li>
 							<a class="nav flat-box" href="/" id="home">
-								<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
 							</a>
             </li>
           
@@ -162,12 +168,6 @@
             <li>
 							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
 								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
-							</a>
-            </li>
-          
-            <li>
-							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
-								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
 							</a>
             </li>
           
@@ -213,7 +213,7 @@
           
             
   <div class="new-meta-item author">
-    <a href="http://yoursite.com" rel="nofollow">
+    <a href="https://yangwc.com/about" rel="nofollow">
       
         <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
       
@@ -351,7 +351,7 @@ z=cos(\theta)sin(\phi)  \tag {3}</script><p>&emsp;&emsp;其中$\theta$的取值�
 \int_{\Omega}k_d\frac{c}{\pi}L_i(p,\omega_i)n\cdot \omega_id\omega_i
 =k_d\frac{c}{\pi}\int_{\Omega}L_i(p,\omega_i)n\cdot \omega_id\omega_i \tag {4}</script><p>&emsp;&emsp;上面的积分公式中，积分变量为$\omega_i$，和$\frac{c}{\pi}$项都与$\omega_i$无关，故可以提出积分外。我们实际上要求积分的被积函数是$L_i(p,\omega_i)n\cdot \omega_i$。假设点$p$在原点，则对于每一个$n$确定的半球方向，积分值仅仅取决于$\omega_i$。因此，我们遍历所有的$n$，然后预先计算其积分值$\int_{\Omega}L_i(p,\omega_i)n\cdot \omega_id\omega_i$到一张cubemap当中，最后渲染时直接用$n$去采样这个cubemap得到预先计算好的积分值。这个就是预计算漫反射积分的思路。</p>
 <p>&emsp;&emsp;$n$就是给定法线向量，它的取值范围就是所有方向，相当于一个球心在原点的单位球体上的所有点。为了遍历所有的$n$，我们送入一个立方体进行预计算的渲染，不需要球体，因为立方体的顶点归一化normalize之后也就是对应的球面上的点。然后在片元着色器根据这个$n$进行半球方向的积分，最后存储到cubemap当中。同样的，我们需要绘制6次，每次绘制保存到cubemap的六个面中的一面。</p>
-<p>&emsp;&emsp;然后就是关于公式$(4)$当中的积分数值计算。首先需要注意的是公式$(4)$当中的积分变量$\omega_i$是立体角，为了方便计算，我们需要把他转成以天顶角$\theta$和方位角$\phi$为变量的表示形式。前面在<a href="https://yangwc.com/2019/05/23/RayTracer-Advance/" target="_blank" rel="noopener">光线追踪器Ray Tracer：进阶篇</a>已经提到过微分立体角$d\omega_i$如何转成用$d\theta$和$d\phi$表示，即$d\omega_i=sin\theta d\theta d\phi$。因此，公式$(4)$中的积分项转成如下的二重积分：</p>
+<p>&emsp;&emsp;然后就是关于公式$(4)$当中的积分数值计算。首先需要注意的是公式$(4)$当中的积分变量$\omega_i$是立体角，为了方便计算，我们需要把他转成以天顶角$\theta$和方位角$\phi$为变量的表示形式。前面在<a href="https://yangwc.com/2019/05/23/RayTracer-Advance/">光线追踪器Ray Tracer：进阶篇</a>已经提到过微分立体角$d\omega_i$如何转成用$d\theta$和$d\phi$表示，即$d\omega_i=sin\theta d\theta d\phi$。因此，公式$(4)$中的积分项转成如下的二重积分：</p>
 <script type="math/tex; mode=display">
 k_d\frac{c}{\pi}\int_{\Omega}L_i(p,\omega_i)n\cdot \omega_id\omega_i
 =
@@ -390,7 +390,7 @@ sin\theta d\theta d\phi \tag{6}</script><p>&emsp;&emsp;对于公式$(6)$中的�
 <center> 图5 不同粗糙度下的反射波瓣 </center>
 
 
-<p>&emsp;&emsp;因此，当我们进行积分采样时，我们没有必要再在半球方向做一个均匀的采样，因为超出反射波瓣的采样是无效的。我们应该偏向反射波瓣采样，这里就涉及到了一个重要性采样的问题，重要性采样的内容在前面的<a href="https://yangwc.com/2019/05/23/RayTracer-Advance/" target="_blank" rel="noopener">光线追踪器Ray Tracer：进阶篇</a>已经详细地展开过，这里就不再赘述。采用了重要性采样方法，我们求解积分方程的数值方法不再是黎曼积分法，而是蒙特卡洛积分法，蒙特卡洛积分同样在光线追踪渲染器中提及过。</p>
+<p>&emsp;&emsp;因此，当我们进行积分采样时，我们没有必要再在半球方向做一个均匀的采样，因为超出反射波瓣的采样是无效的。我们应该偏向反射波瓣采样，这里就涉及到了一个重要性采样的问题，重要性采样的内容在前面的<a href="https://yangwc.com/2019/05/23/RayTracer-Advance/">光线追踪器Ray Tracer：进阶篇</a>已经详细地展开过，这里就不再赘述。采用了重要性采样方法，我们求解积分方程的数值方法不再是黎曼积分法，而是蒙特卡洛积分法，蒙特卡洛积分同样在光线追踪渲染器中提及过。</p>
 <p>&emsp;&emsp;为了加速蒙特卡洛积分方法的收敛速度，Epic Games公司提出使用超均匀分布序列（Low-discrepancy Sequence）——Hammersley序列。相对于普通的伪随机数，Hammersley序列的随机数分布更加均匀，如下图6所示，将其应用到蒙特卡洛采样能够提升收敛速度。</p>
 <p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.20/blog/ImageBasedLighting/6.png" width="80%"></div></p>
 <center> 图6 伪随机数vs超均匀分布随机数 </center>
@@ -513,7 +513,7 @@ Important\ \ sampling=
   <div class="-mob-share-list share-body">
     
       
-        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/07/21/ImageBasedLighting/&title=实时渲染Real-time Rendering：Image Based Lighting | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本文在前一篇PBR渲染器的基础上，进一步深入理解并实现了Image Based Lighting的全局光照。Image Based Lighting预先烘培辐照度贴图、构建BRDF积分查找表，然后在实时渲染中直接查询查找表快速计算渲染方程，实现的效果高效且真实。这种技术已经集成在虚幻4引擎中。
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/about/2019/07/21/ImageBasedLighting/&title=实时渲染Real-time Rendering：Image Based Lighting | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本文在前一篇PBR渲染器的基础上，进一步深入理解并实现了Image Based Lighting的全局光照。Image Based Lighting预先烘培辐照度贴图、构建BRDF积分查找表，然后在实时渲染中直接查询查找表快速计算渲染方程，实现的效果高效且真实。这种技术已经集成在虚幻4引擎中。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
@@ -522,7 +522,7 @@ Important\ \ sampling=
       
     
       
-        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/07/21/ImageBasedLighting/&title=实时渲染Real-time Rendering：Image Based Lighting | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本文在前一篇PBR渲染器的基础上，进一步深入理解并实现了Image Based Lighting的全局光照。Image Based Lighting预先烘培辐照度贴图、构建BRDF积分查找表，然后在实时渲染中直接查询查找表快速计算渲染方程，实现的效果高效且真实。这种技术已经集成在虚幻4引擎中。
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/about/2019/07/21/ImageBasedLighting/&title=实时渲染Real-time Rendering：Image Based Lighting | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本文在前一篇PBR渲染器的基础上，进一步深入理解并实现了Image Based Lighting的全局光照。Image Based Lighting预先烘培辐照度贴图、构建BRDF积分查找表，然后在实时渲染中直接查询查找表快速计算渲染方程，实现的效果高效且真实。这种技术已经集成在虚幻4引擎中。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
@@ -531,7 +531,7 @@ Important\ \ sampling=
       
     
       
-        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/07/21/ImageBasedLighting/&title=实时渲染Real-time Rendering：Image Based Lighting | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本文在前一篇PBR渲染器的基础上，进一步深入理解并实现了Image Based Lighting的全局光照。Image Based Lighting预先烘培辐照度贴图、构建BRDF积分查找表，然后在实时渲染中直接查询查找表快速计算渲染方程，实现的效果高效且真实。这种技术已经集成在虚幻4引擎中。
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/about/2019/07/21/ImageBasedLighting/&title=实时渲染Real-time Rendering：Image Based Lighting | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本文在前一篇PBR渲染器的基础上，进一步深入理解并实现了Image Based Lighting的全局光照。Image Based Lighting预先烘培辐照度贴图、构建BRDF积分查找表，然后在实时渲染中直接查询查找表快速计算渲染方程，实现的效果高效且真实。这种技术已经集成在虚幻4引擎中。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
@@ -782,6 +782,13 @@ Important\ \ sampling=
   <div class="content material">
     <ul class="grid navgation">
       
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
         <li><a class="flat-box" title="/" href="/" id="home">
           
             <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
@@ -794,13 +801,6 @@ Important\ \ sampling=
             <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
           
           文章归档
-        </a></li>
-      
-        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
-          
-            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
-          
-          关于博主
         </a></li>
       
     </ul>

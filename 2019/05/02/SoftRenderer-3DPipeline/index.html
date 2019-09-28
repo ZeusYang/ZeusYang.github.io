@@ -75,8 +75,14 @@
           
   					
   						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+								</a>
+							</li>
+      			
+  						<li>
 								<a class="nav flat-box" href="/" id="home">
-									<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
 								</a>
 							</li>
       			
@@ -95,12 +101,6 @@
   						<li>
 								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
 									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
-								</a>
-							</li>
-      			
-  						<li>
-								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
-									<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
 								</a>
 							</li>
       			
@@ -142,8 +142,14 @@
         
           
             <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
+							</a>
+            </li>
+          
+            <li>
 							<a class="nav flat-box" href="/" id="home">
-								<i class="fas fa-grin fa-fw"></i>&nbsp;主页
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
 							</a>
             </li>
           
@@ -162,12 +168,6 @@
             <li>
 							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
 								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
-							</a>
-            </li>
-          
-            <li>
-							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
-								<i class="fas fa-info-circle fa-fw"></i>&nbsp;关于博主
 							</a>
             </li>
           
@@ -213,7 +213,7 @@
           
             
   <div class="new-meta-item author">
-    <a href="http://yoursite.com" rel="nofollow">
+    <a href="https://yangwc.com/about" rel="nofollow">
       
         <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
       
@@ -306,7 +306,7 @@
 </li>
 </ol>
 </blockquote>
-<p>&emsp;&emsp;通过以上的几个步骤，三维的物体坐标最终变换到了屏幕的坐标上，其中视图矩阵和投影矩阵的构建较为复杂一点，前面我的博文<a href="https://yangwc.com/2019/05/01/SoftRenderer-Math/" target="_blank" rel="noopener">软渲染器Soft Renderer：3D数学篇</a>已经推导过这两个矩阵，这里就不再赘述了。若想查看更多关于坐标系统的内容，请查看<a href="https://learnopengl-cn.github.io/" target="_blank" rel="noopener">LearnOpenGL CN</a>的这篇文章：<a href="[https://learnopengl-cn.github.io/01%20Getting%20started/08%20Coordinate%20Systems/#_1](https://learnopengl-cn.github.io/01 Getting started/08 Coordinate Systems/#_1">坐标系统</a>)。坐标变换是一般发生在顶点着色器以及顶点着色器输出到光栅化这一阶段，视口变换在顶点着色器输出之后，不在着色器中进行（视口变换已经在前面的光栅化篇提到过了）。所以为了实现坐标变换，我们的着色器要存储$model$、$view$、$project$这三个矩阵，在$SimpleShader$中添加相关的成员变量及方法：</p>
+<p>&emsp;&emsp;通过以上的几个步骤，三维的物体坐标最终变换到了屏幕的坐标上，其中视图矩阵和投影矩阵的构建较为复杂一点，前面我的博文<a href="https://yangwc.com/2019/05/01/SoftRenderer-Math/">软渲染器Soft Renderer：3D数学篇</a>已经推导过这两个矩阵，这里就不再赘述了。若想查看更多关于坐标系统的内容，请查看<a href="https://learnopengl-cn.github.io/" target="_blank" rel="noopener">LearnOpenGL CN</a>的这篇文章：<a href="[https://learnopengl-cn.github.io/01%20Getting%20started/08%20Coordinate%20Systems/#_1](https://learnopengl-cn.github.io/01 Getting started/08 Coordinate Systems/#_1">坐标系统</a>)。坐标变换是一般发生在顶点着色器以及顶点着色器输出到光栅化这一阶段，视口变换在顶点着色器输出之后，不在着色器中进行（视口变换已经在前面的光栅化篇提到过了）。所以为了实现坐标变换，我们的着色器要存储$model$、$view$、$project$这三个矩阵，在$SimpleShader$中添加相关的成员变量及方法：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleShader</span> :</span> <span class="keyword">public</span> BaseShader</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    Matrix4x4 m_modelMatrix;</span><br><span class="line">    Matrix4x4 m_viewMatrix;</span><br><span class="line">    Matrix4x4 m_projectMatrix;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ......</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setModelMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;world)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setViewMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;view)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">setProjectMatrix</span><span class="params">(<span class="keyword">const</span> Matrix4x4 &amp;project)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> SimpleShader::setModelMatrix(<span class="keyword">const</span> Matrix4x4 &amp;world)</span><br><span class="line">&#123;</span><br><span class="line">    m_modelMatrix = world;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> SimpleShader::setViewMatrix(<span class="keyword">const</span> Matrix4x4 &amp;view)</span><br><span class="line">&#123;</span><br><span class="line">    m_viewMatrix = view;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> SimpleShader::setProjectMatrix(<span class="keyword">const</span> Matrix4x4 &amp;project)</span><br><span class="line">&#123;</span><br><span class="line">    m_projectMatrix = project;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>&emsp;&emsp;这样外部要渲染时，应该向着色器输入这三个矩阵。然后在我们的顶点着色器中填入相关的逻辑：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">VertexOut SimpleShader::vertexShader(<span class="keyword">const</span> Vertex &amp;in)</span><br><span class="line">&#123;</span><br><span class="line">    VertexOut result;</span><br><span class="line">    result.posTrans = m_modelMatrix * in.position;</span><br><span class="line">    result.posH = m_projectMatrix * m_viewMatrix * result.posTrans;</span><br><span class="line">    result.color = in.color;</span><br><span class="line">    result.normal = in.normal;</span><br><span class="line">    result.texcoord = in.texcoord;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -322,7 +322,7 @@
 <h2 id="2、深度测试"><a href="#2、深度测试" class="headerlink" title="2、深度测试"></a>2、深度测试</h2><p>&emsp;&emsp;为了获取正确的三维渲染结果，我们采用一种<strong>深度缓冲</strong>的技术。深度缓冲存储深度信息，它的分辨率应该与颜色缓冲一致，深度值存储在每个片段里面（作为片段的<strong>z</strong>值），当片段想要输出它的颜色时，我们将它的深度值和z缓冲进行比较，如果当前的片段在其它片段之后，它将会被丢弃，否则将会覆盖。这个过程称为<strong>深度测试</strong>。在OpenGL和DirectX这些渲染API中，深度缓冲会自动执行而无需用户操作。在我们的软渲染器中，我们自己实现一个这样的深度测试，算法原理很简单，但是效果非常不错！</p>
 <p>&emsp;&emsp;深度缓冲通常和颜色缓冲一起，作为帧缓冲的附件，我们在帧缓冲类中增加深度缓冲相关的变量、方法：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FrameBuffer</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    ......</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; m_depthBuffer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">clearColorAndDepthBuffer</span><span class="params">(<span class="keyword">const</span> Vector4D &amp;color)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">double</span> <span class="title">getDepth</span><span class="params">(<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;x, <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;y)</span><span class="keyword">const</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">drawDepth</span><span class="params">(<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;x, <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;y, <span class="keyword">const</span> <span class="keyword">double</span> &amp;value)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> FrameBuffer::clearColorAndDepthBuffer(<span class="keyword">const</span> Vector4D &amp;color)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// fill the color buffer and depth buffer.</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> red = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.x);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> green = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.y);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> blue = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.z);</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> alpha = <span class="keyword">static_cast</span>&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt;(<span class="number">255</span>*color.w);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">unsigned</span> <span class="keyword">int</span> row = <span class="number">0</span>;row &lt; m_height;++ row)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">unsigned</span> <span class="keyword">int</span> col = <span class="number">0</span>;col &lt; m_width;++ col)</span><br><span class="line">        &#123;</span><br><span class="line">            m_depthBuffer[row*m_width+col] = <span class="number">1.0f</span>;</span><br><span class="line">            ......</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">double</span> FrameBuffer::getDepth(<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;x, <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;y) <span class="keyword">const</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(x &lt; <span class="number">0</span> || x &gt;= m_width || y &lt; <span class="number">0</span> || y &gt;= m_height)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.0f</span>;</span><br><span class="line">    <span class="keyword">return</span> m_depthBuffer[y*m_width+x];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> FrameBuffer::drawDepth(<span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;x, <span class="keyword">const</span> <span class="keyword">unsigned</span> <span class="keyword">int</span> &amp;y, <span class="keyword">const</span> <span class="keyword">double</span> &amp;value)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(x &lt; <span class="number">0</span> || x &gt;= m_width || y &lt; <span class="number">0</span> || y &gt;= m_height)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> index = y*m_width + x;</span><br><span class="line">    m_depthBuffer[index] = value;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>&emsp;&emsp;然后我们对于每一个片元，我们获取深度缓冲中相应的数值并进行比较。在这之前，我们还要简单回顾一下在透视投影矩阵中深度值的非线性映射，在前面的<a href="https://yangwc.com/2019/05/01/SoftRenderer-Math/" target="_blank" rel="noopener">数学篇</a>中我们知道透视投影矩阵有如下形式：</p>
+<p>&emsp;&emsp;然后我们对于每一个片元，我们获取深度缓冲中相应的数值并进行比较。在这之前，我们还要简单回顾一下在透视投影矩阵中深度值的非线性映射，在前面的<a href="https://yangwc.com/2019/05/01/SoftRenderer-Math/">数学篇</a>中我们知道透视投影矩阵有如下形式：</p>
 <script type="math/tex; mode=display">
 M_{projection}=
 \left(
@@ -457,7 +457,7 @@ As+B=-\frac{x'z_e}{N}\ \to\ A\frac{s}{z_e}+B\frac{1}{z_e}=-\frac{x'}{N} \tag {6}
   <div class="-mob-share-list share-body">
     
       
-        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=http://yoursite.com/2019/05/02/SoftRenderer-3DPipeline/&title=软渲染器Soft Renderer：进击三维篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。注意：初学者慎入
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/about/2019/05/02/SoftRenderer-3DPipeline/&title=软渲染器Soft Renderer：进击三维篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。注意：初学者慎入
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
@@ -466,7 +466,7 @@ As+B=-\frac{x'z_e}{N}\ \to\ A\frac{s}{z_e}+B\frac{1}{z_e}=-\frac{x'}{N} \tag {6}
       
     
       
-        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://yoursite.com/2019/05/02/SoftRenderer-3DPipeline/&title=软渲染器Soft Renderer：进击三维篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。注意：初学者慎入
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/about/2019/05/02/SoftRenderer-3DPipeline/&title=软渲染器Soft Renderer：进击三维篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。注意：初学者慎入
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
@@ -475,7 +475,7 @@ As+B=-\frac{x'z_e}{N}\ \to\ A\frac{s}{z_e}+B\frac{1}{z_e}=-\frac{x'}{N} \tag {6}
       
     
       
-        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=http://yoursite.com/2019/05/02/SoftRenderer-3DPipeline/&title=软渲染器Soft Renderer：进击三维篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。注意：初学者慎入
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/about/2019/05/02/SoftRenderer-3DPipeline/&title=软渲染器Soft Renderer：进击三维篇 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=有了自己实现好的的3D数学库和一个基本的光栅化渲染框架，就可以开始向这个渲染框架填充内容了。本章内容主要关于3维渲染管线的实现、深度测试、背面剔除、几何裁剪、透视纹理映射，这些内容早已被渲染API集成。学习和实现这些算法，是为了彻底了解三维物体的整个渲染流程。注意：初学者慎入
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
@@ -726,6 +726,13 @@ As+B=-\frac{x'z_e}{N}\ \to\ A\frac{s}{z_e}+B\frac{1}{z_e}=-\frac{x'}{N} \tag {6}
   <div class="content material">
     <ul class="grid navgation">
       
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
         <li><a class="flat-box" title="/" href="/" id="home">
           
             <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
@@ -738,13 +745,6 @@ As+B=-\frac{x'z_e}{N}\ \to\ A\frac{s}{z_e}+B\frac{1}{z_e}=-\frac{x'}{N} \tag {6}
             <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
           
           文章归档
-        </a></li>
-      
-        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
-          
-            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
-          
-          关于博主
         </a></li>
       
     </ul>
