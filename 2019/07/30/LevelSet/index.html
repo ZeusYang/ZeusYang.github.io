@@ -290,17 +290,43 @@
 <li>参考资料</li>
 </ul>
 <h2 id><a href="#" class="headerlink" title=" "></a> </h2><center><font size="6">水平集（Level Set）</font></center>
-&emsp;&emsp;在流体模拟中，我们需要处理流体与固体边界的交互作用。这对于流体模拟来说至关重要，因为流体通常是作用到固体以及其他边界上才会体现流体的特性，让人看起来是流体。这就涉及到两个问题：
 
-&emsp;&emsp;1、给定一个点（例如用半拉格朗日后向追踪得到的点），如何判断它是否在固体边界内？
 
-&emsp;&emsp;2、如何计算给定一点到几何体表面上的最近的点？
-
-&emsp;&emsp;上面的问题在流体模拟中非常常见，在基于欧拉网格的流体模拟中，我们常用的是水平集的方法。我们将几何体表示成一个隐式的表面，给定关于这个几何体的连续标量函数$\phi(x,y,z)$，我们定义该几何体构成的空间如下：
-
-&emsp;&emsp;1、当$\phi(x,y,z)>0$时，点$x$在几何体外部，此时满足该条件的$x$的点集构成几何体的外部空间；
-
-&emsp;&emsp;2、当$\phi(x,y,z) <0$时，点$x$在几何体内部，此时满足该条件的$x$的点集构成几何体的内部空间； &emsp;&emsp;3、当$\phi(x,y,z)="0$时，点$x$在几何体的表面上，此时的$x$的点集构成了几何体的表面区域。" &emsp;&emsp;可以看到，我们采用了一个连续的标量函数$\phi(x,y,z)$来隐式地表示一个几何体，几何体的表面就是函数$\phi(x,y,z)$取值为$0$的所有点集，在三维的情况下这个点集构成了关于$\phi(x,y,z)$的一个等高面（或者说等值面），在这个等高面上$\phi(x,y,z)$取值均为$0$，这就是“水平集”一词的由来，几何体的表面就是$\phi(x,y,z)$的$0$水平集。事实上，我们要寻找的这个连续标量函数$\phi(x,y,z)$就是符号距离场（signed distance field，简称sdf）。 ## 一、符号距离场 &emsp;&emsp;任意给定一个要隐式表达的点的闭集$s$，关于这个点集$s$的距离场函数为： $$ distance_s(\vec x)="min_{\vec" p\in s}||\vec x-\vec p|| \tag {1} &emsp;&emsp;该距离场函数给出了$\vec x$到点集$s$的最近距离。若点集$s$将三维空间划分成了良定义的外部和内部（例如一个封闭的三角形网格模拟），那么其符号距离场函数就定义为： \phi(\vec \begin{matrix} +distance_s(\vec x), x\ \ is\ outside.\\ -distance_s(\vec inside. \end{matrix} {2} &emsp;&emsp;符号距离场具有需要非常有用的性质。首先是符号距离场的梯度，根据矢量微积分，梯度指向函数值变换最快的方向，在这里显然沿着法线方向距离场函数值的变换最快，因而表面上的法线向量就等于表面上的符号距离场函数的梯度$\nabla x)$。在几何体的外部，$-\nabla x)$指向$\vec x$到几何体表面上的最近点$\vec p$；在几何体内部，$\nabla p$。 &emsp;&emsp;以外部的点$\vec x$为例，记$\vec p$为点$\vec x$到几何体表面上的最近的点，$\vec c$为点$\vec x$到最近点$\vec p$的单位方向向量： \vec c="\frac{\vec" p-\vec x}{||\vec x||} {3} &emsp;&emsp;如果我们将点$\vec x$沿着$\vec c$方向移动非常小的距离$\epsilon$，即$\vec x'="\vec" x+ \epsilon c$，那么点$\vec x'$到几何体表面上的最近点依然是$\vec p$。即若沿着$\vec c$方向移动$\vec x$点，其到物体表面上的最近点$\vec p$保持不变。挪动得到的新的点$\vec x'$的符号距离场函数为$\phi(\vec x')="\phi(x)-\epsilon$，从而我们可以得出符号距离场关于$\vec" c$方向向量上的方向导数为： \frac{\partial x)}{\partial c}="lim_{\epsilon\to" 0}\frac{\phi(\vec x+\epsilon c)-\phi(\vec x)}{\epsilon}\\="lim_{\epsilon\to" x)-\epsilon-\phi(\vec 0}\frac{-\epsilon}{\epsilon}="-1" {4} &emsp;&emsp;根据上面的推导，我们知道$\phi(\vec x)$沿着梯度方向的变化速率为$1$，从而可知梯度向量长度为$1$，这意味着sdf的梯度实际上是一个单位向量，因而表面上的单位法线就是等于sdf函数的梯度向量： ||\nabla\phi||="1" {5} &emsp;&emsp;除此之外，上面的公式$(5)$是一个非线性偏微分方程——程函方程（eikonal equation）。根据sdf函数及其梯度，我们可以求得外部的点$\vec x$到几何体表面上的距离最近的点$\vec p$： p="\vec" x-\phi(\vec x)\nabla {6} &emsp;&emsp;一般情况下，符号距离场函数都是光滑的，即梯度$\nabla \phi$和更高阶的导数都存在，但是也存在一些例外的点。一些中轴上的点到几何体表面的最近距离的点可能不唯一，例如球体的圆心到球体表面最近的距离就是半径$r$，但是其最近距离上的点有无穷多个，凹几何体同样存在这种情况。在这些特定的区域，符号距离场函数依然连续，只是存在一些扭曲，但函数不可微，因而梯度以及更高阶的导数不存在。在这些不可微的区域，我们的数值近似方法依旧会给出一个梯度向量，但这个梯度向量远远小于单位向量，甚至接近于$0$。 二、三角形网格的sdf计算 &emsp;&emsp;了解了符号距离场之后，我们现在就把目标转到几何体的符号距离场计算上面。对于一些简单的几何体我们可以轻松地写出其sdf的解析表达式，例如一个球心为$\vec c$、半径为$r$的球体其sdf函数为$\phi_{sphere}(\vec c||-r$，一个以$\vec n$为法线、过点$\vec p$的无限平面其sdf函数为$\phi_{plane}(\vec p)\cdot n$，还有一些简单的锥体、柱体、立方体等等都可以直接写出其sdf表达式。但是通常情况下我们接触的几何体更多的是采用三角形的网格模型来表示，三角形构成的网格模型并没有一个显式的几何函数，因而不可能像简单的几何体那样直接写出sdf的解析函数。 &emsp;&emsp;与直接获取几何体的解析sdf函数不一样，对于三角网格模型，我们将其所开的空间划分成一个欧拉网格，在每一个网格点上采样并存储网格模型的sdf值。然后在后面获取给定点$\vec x$的sdf函数值时，我们根据$\vec x$获取其周围网格点的sdf值，接着做一个插值操作，从而快速地获取$\vec x$对应的sdf函数值。**这就是所谓的水平集方法：对符号距离场函数进行离散采样，并存储到均匀划分的网格中。**显然这是求解了sdf函数的数值表达式，相对于解析表达式，它没有那么精确，但是对于流体模拟来说这些误差还是能够接受的。 &emsp;&emsp;我们首先要计算每个网格点上的符号距离场的值，目前主要有两种算法：第一种从几何角度展开，寻找给定的点到三角网格模型上的最近点并计算最近的距离场；第二种围绕偏微分方程展开，求解sdf的程函方程$||\nabla\phi||="1" $。两种算法都有各自的用途，第一种方法更好理解，结果也更为精确，而第二中方法则适用于非显式表示的几何体。这里我们首先考虑第一种基于几何的方法。 &emsp;&emsp;我们首先来看一个简化了的问题：给定一个有限的点集，计算任一点$\vec x$到这个点集的距离场。由于点集并没有内部和外部的划分概念，因此我们的距离场也无需带上符号。计算的伪代码如下图1所示。 <div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.22/blog/LevelSet/1.png" width="99%">
+<p>&emsp;&emsp;在流体模拟中，我们需要处理流体与固体边界的交互作用。这对于流体模拟来说至关重要，因为流体通常是作用到固体以及其他边界上才会体现流体的特性，让人看起来是流体。这就涉及到两个问题：</p>
+<p>&emsp;&emsp;1、给定一个点（例如用半拉格朗日后向追踪得到的点），如何判断它是否在固体边界内？</p>
+<p>&emsp;&emsp;2、如何计算给定一点到几何体表面上的最近的点？</p>
+<p>&emsp;&emsp;上面的问题在流体模拟中非常常见，在基于欧拉网格的流体模拟中，我们常用的是水平集的方法。我们将几何体表示成一个隐式的表面，给定关于这个几何体的连续标量函数$\phi(x,y,z)$，我们定义该几何体构成的空间如下：</p>
+<p>&emsp;&emsp;1、当$\phi(x,y,z)&gt;0$时，点$x$在几何体外部，此时满足该条件的$x$的点集构成几何体的外部空间；</p>
+<p>&emsp;&emsp;2、当$\phi(x,y,z) &lt;0$时，点$x$在几何体内部，此时满足该条件的$x$的点集构成几何体的内部空间；</p>
+<p>&emsp;&emsp;3、当$\phi(x,y,z)=0$时，点$x$在几何体的表面上，此时的$x$的点集构成了几何体的表面区域。</p>
+<p>&emsp;&emsp;可以看到，我们采用了一个连续的标量函数$\phi(x,y,z)$来隐式地表示一个几何体，几何体的表面就是函数$\phi(x,y,z)$取值为$0$的所有点集，在三维的情况下这个点集构成了关于$\phi(x,y,z)$的一个等高面（或者说等值面），在这个等高面上$\phi(x,y,z)$取值均为$0$，这就是“水平集”一词的由来，几何体的表面就是$\phi(x,y,z)$的$0$水平集。事实上，我们要寻找的这个连续标量函数$\phi(x,y,z)$就是符号距离场（Signed Distance Field，简称SDF）。</p>
+<h2 id="一、符号距离场"><a href="#一、符号距离场" class="headerlink" title="一、符号距离场"></a>一、符号距离场</h2><p>&emsp;&emsp;任意给定一个要隐式表达的点的闭集$S$，关于这个点集$S$的距离场函数为：</p>
+<script type="math/tex; mode=display">
+distance_S(\vec x)=min_{\vec p\in S}||\vec x-\vec p|| \tag {1}</script><p>&emsp;&emsp;该距离场函数给出了$\vec x$到点集$S$的最近距离。若点集$S$将三维空间划分成了良定义的外部和内部（例如一个封闭的三角形网格模拟），那么其符号距离场函数就定义为：</p>
+<script type="math/tex; mode=display">
+\phi(\vec x)=
+\{
+\begin{matrix}
++distance_S(\vec x), x\ \ is\ \ outside.\\
+-distance_S(\vec x), x\ \ is\ \ inside. 
+\end{matrix} \tag {2}</script><p>&emsp;&emsp;符号距离场具有需要非常有用的性质。首先是符号距离场的梯度，根据矢量微积分，梯度指向函数值变换最快的方向，在这里显然沿着法线方向距离场函数值的变换最快，因而表面上的法线向量就等于表面上的符号距离场函数的梯度$\nabla \phi(\vec x)$。在几何体的外部，$-\nabla \phi(\vec x)$指向$\vec x$到几何体表面上的最近点$\vec p$；在几何体内部，$\nabla \phi(\vec x)$指向$\vec x$到几何体表面上的最近点$\vec p$。</p>
+<p>&emsp;&emsp;以外部的点$\vec x$为例，记$\vec p$为点$\vec x$到几何体表面上的最近的点，$\vec c$为点$\vec x$到最近点$\vec p$的单位方向向量：</p>
+<script type="math/tex; mode=display">
+\vec c = \frac{\vec p-\vec x}{||\vec p-\vec x||} \tag {3}</script><p>&emsp;&emsp;如果我们将点$\vec x$沿着$\vec c$方向移动非常小的距离$\epsilon$，即$\vec x’=\vec x+ \epsilon \vec c$，那么点$\vec x’$到几何体表面上的最近点依然是$\vec p$。即若沿着$\vec c$方向移动$\vec x$点，其到物体表面上的最近点$\vec p$保持不变。挪动得到的新的点$\vec x’$的符号距离场函数为$\phi(\vec x’)=\phi(x)-\epsilon$，从而我们可以得出符号距离场关于$\vec c$方向向量上的方向导数为：</p>
+<script type="math/tex; mode=display">
+\frac{\partial \phi(\vec x)}{\partial \vec c}
+=lim_{\epsilon\to 0}\frac{\phi(\vec x+\epsilon \vec c)-\phi(\vec x)}{\epsilon}\\
+=lim_{\epsilon\to 0}\frac{\phi(\vec x)-\epsilon-\phi(\vec x)}{\epsilon}\\
+=lim_{\epsilon\to 0}\frac{-\epsilon}{\epsilon}=-1 \tag {4}</script><p>&emsp;&emsp;根据上面的推导，我们知道$\phi(\vec x)$沿着梯度方向的变化速率为$1$，从而可知梯度向量长度为$1$，这意味着SDF的梯度实际上是一个单位向量，因而表面上的单位法线就是等于SDF函数的梯度向量：</p>
+<script type="math/tex; mode=display">
+||\nabla\phi|| = 1 \tag {5}</script><p>&emsp;&emsp;除此之外，上面的公式$(5)$是一个非线性偏微分方程——程函方程（Eikonal equation）。根据SDF函数及其梯度，我们可以求得外部的点$\vec x$到几何体表面上的距离最近的点$\vec p$：</p>
+<script type="math/tex; mode=display">
+\vec p=\vec x-\phi(\vec x)\nabla \phi(\vec x) \tag {6}</script><p>&emsp;&emsp;一般情况下，符号距离场函数都是光滑的，即梯度$\nabla \phi$和更高阶的导数都存在，但是也存在一些例外的点。一些中轴上的点到几何体表面的最近距离的点可能不唯一，例如球体的圆心到球体表面最近的距离就是半径$r$，但是其最近距离上的点有无穷多个，凹几何体同样存在这种情况。在这些特定的区域，符号距离场函数依然连续，只是存在一些扭曲，但函数不可微，因而梯度以及更高阶的导数不存在。在这些不可微的区域，我们的数值近似方法依旧会给出一个梯度向量，但这个梯度向量远远小于单位向量，甚至接近于$0$。</p>
+<h2 id="二、三角形网格的SDF计算"><a href="#二、三角形网格的SDF计算" class="headerlink" title="二、三角形网格的SDF计算"></a>二、三角形网格的SDF计算</h2><p>&emsp;&emsp;了解了符号距离场之后，我们现在就把目标转到几何体的符号距离场计算上面。对于一些简单的几何体我们可以轻松地写出其SDF的解析表达式，例如一个球心为$\vec c$、半径为$r$的球体其SDF函数为$\phi_{sphere}(\vec x)=||\vec x-\vec c||-r$，一个以$\vec n$为法线、过点$\vec p$的无限平面其SDF函数为$\phi_{plane}(\vec x)=(\vec x-\vec p)\cdot \vec n$，还有一些简单的锥体、柱体、立方体等等都可以直接写出其SDF表达式。但是通常情况下我们接触的几何体更多的是采用三角形的网格模型来表示，三角形构成的网格模型并没有一个显式的几何函数，因而不可能像简单的几何体那样直接写出SDF的解析函数。</p>
+<p>&emsp;&emsp;与直接获取几何体的解析SDF函数不一样，对于三角网格模型，我们将其所开的空间划分成一个欧拉网格，在每一个网格点上采样并存储网格模型的SDF值。然后在后面获取给定点$\vec x$的SDF函数值时，我们根据$\vec x$获取其周围网格点的SDF值，接着做一个插值操作，从而快速地获取$\vec x$对应的SDF函数值。<strong>这就是所谓的水平集方法：对符号距离场函数进行离散采样，并存储到均匀划分的网格中。</strong>显然这是求解了SDF函数的数值表达式，相对于解析表达式，它没有那么精确，但是对于流体模拟来说这些误差还是能够接受的。</p>
+<p>&emsp;&emsp;我们首先要计算每个网格点上的符号距离场的值，目前主要有两种算法：第一种从几何角度展开，寻找给定的点到三角网格模型上的最近点并计算最近的距离场；第二种围绕偏微分方程展开，求解SDF的程函方程$||\nabla\phi||=1 $。两种算法都有各自的用途，第一种方法更好理解，结果也更为精确，而第二中方法则适用于非显式表示的几何体。这里我们首先考虑第一种基于几何的方法。</p>
+<p>&emsp;&emsp;我们首先来看一个简化了的问题：给定一个有限的点集，计算任一点$\vec x$到这个点集的距离场。由于点集并没有内部和外部的划分概念，因此我们的距离场也无需带上符号。计算的伪代码如下图1所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.22/blog/LevelSet/1.png" width="99%"></div></p>
 <center> 图1 点集的水平集计算伪代码 </center>
 
 
@@ -393,7 +419,7 @@ p=((i+\theta)\Delta x,j\Delta x,k\Delta x) \tag {10}</script><figure class="high
 <h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><p>$[1]$ <a href="https://en.wikipedia.org/wiki/Marching_tetrahedra" target="_blank" rel="noopener">Marching tetrahedra. From Wikipedia, the free encyclopedia</a></p>
 <p>$[2]$ Edelsbrunner H, Mucke E P. Simulation of Simplicity: A Technique to Cope with Degenerate Cases in Geometric Algorithms[J]. Acm Transactions on Graphics, 1990, 9(1):66-104.</p>
 <p>$[3]$ 《Fluid Simulation For Computer Graphics》, Robert Bridson.</p>
-</0$时，点$x$在几何体内部，此时满足该条件的$x$的点集构成几何体的内部空间；>
+
         </div>
         
           
@@ -404,10 +430,10 @@ p=((i+\theta)\Delta x,j\Delta x,k\Delta x) \tag {10}</script><figure class="high
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-23T19:13:49+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-14T19:02:36+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年9月23日</p>
+    <p>最后更新于 2019年10月14日</p>
   </a>
 </div>
 
@@ -656,7 +682,7 @@ p=((i+\theta)\Delta x,j\Delta x,k\Delta x) \tag {10}</script><figure class="high
 </header>
 
     <div class="content material">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#"><span class="toc-text"> </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Marching-Cube重建算法"><span class="toc-text">三、Marching Cube重建算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#"><span class="toc-text"> </span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一、符号距离场"><span class="toc-text">一、符号距离场</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、三角形网格的SDF计算"><span class="toc-text">二、三角形网格的SDF计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、Marching-Cube重建算法"><span class="toc-text">三、Marching Cube重建算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
     </div>
   </section>
 
