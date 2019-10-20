@@ -293,40 +293,23 @@
 <li>参考资料</li>
 </ul>
 <center><font size="6">Image Based Lighting</font></center>
-&emsp;&emsp;在前面一篇基于物理的渲染中我们仅仅考虑了直接光照部分，仅仅考虑直接光照时求解渲染方程非常简单，只需需根据给定的光源直接计算并叠加，而不需要在法线轴向的半球方向做积分。Image Based Lighting（以下简称IBL）翻译过来的意思就是基于图像的光照，这种技术专门计算来自于周围环境的间接光照，周围环境的光影信息存储在一张环境贴图中，这个环境贴图可以是预先生成好的，也可以是运行时动态生成好的。IBL技术使得物体的光照效果与周围的环境更加融合，大大增强沉浸感。
 
 
-
-## 一、渲染方程的求解
-
-&emsp;&emsp;IBL的渲染方程与PBR一样，即特化的渲染方程——反射方程，如下所示：
-$$
-L_o(p,\omega_o)=\int_{\Omega}(k_d\frac{c}{\pi}+\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)})L_i(p,\omega_i)n\cdot \omega_id\omega_i \tag {1}
-$$
-&emsp;&emsp;我们实现基于物理的光照效果的本质就是要计算上面的渲染方程，它是对半球方向$\Omega$的所有$\omega_i$积分。在前面一偏PBR中我们求解这个积分方程非常容易，因为仅考虑直接光照且光源为非面积光源时，上述的被积函数部分是一个狄拉克函数，即除了在光源方向上函数值不为$0$，在半球内的其余定义域该被积函数均为$0$，因此没有必要求半球积分，或者说半球积分的值就等于在光源方向上的被积函数值。但是在IBL中，就没有这么简单了。我们把环境贴图中的每一个像素都当作一个光源，这使得我们必须要求解半球方向的积分，即在整个半球方向采样光照信息。如果我们直接暴力求解渲染方程$(1)$的话，在每一个片元着色器上我们都要计算渲染方程的半球积分，耗费极大的性能，这对于实时性应用来说几乎不可能。
-
-&emsp;&emsp;因此，为了高效地求解渲染积分方程，IBL方法将渲染方程中的积分项预先计算出来并存储到指定的纹理图片上，在后面进行光照计算的时候根据相关的信息索引预先计算好的积分值，从而快速高效地求解积分。这其实就是以空间换时间的思想。为了方便预先计算积分值，我们把公式$(1)$写成如下的形式：
-$$
+<p>&emsp;&emsp;在前面一篇基于物理的渲染中我们仅仅考虑了直接光照部分，仅仅考虑直接光照时求解渲染方程非常简单，只需需根据给定的光源直接计算并叠加，而不需要在法线轴向的半球方向做积分。Image Based Lighting（以下简称IBL）翻译过来的意思就是基于图像的光照，这种技术专门计算来自于周围环境的间接光照，周围环境的光影信息存储在一张环境贴图中，这个环境贴图可以是预先生成好的，也可以是运行时动态生成好的。IBL技术使得物体的光照效果与周围的环境更加融合，大大增强沉浸感。</p>
+<h2 id="一、渲染方程的求解"><a href="#一、渲染方程的求解" class="headerlink" title="一、渲染方程的求解"></a>一、渲染方程的求解</h2><p>&emsp;&emsp;IBL的渲染方程与PBR一样，即特化的渲染方程——反射方程，如下所示：</p>
+<script type="math/tex; mode=display">
+L_o(p,\omega_o)=\int_{\Omega}(k_d\frac{c}{\pi}+\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)})L_i(p,\omega_i)n\cdot \omega_id\omega_i \tag {1}</script><p>&emsp;&emsp;我们实现基于物理的光照效果的本质就是要计算上面的渲染方程，它是对半球方向$\Omega$的所有$\omega_i$积分。在前面一偏PBR中我们求解这个积分方程非常容易，因为仅考虑直接光照且光源为非面积光源时，上述的被积函数部分是一个狄拉克函数，即除了在光源方向上函数值不为$0$，在半球内的其余定义域该被积函数均为$0$，因此没有必要求半球积分，或者说半球积分的值就等于在光源方向上的被积函数值。但是在IBL中，就没有这么简单了。我们把环境贴图中的每一个像素都当作一个光源，这使得我们必须要求解半球方向的积分，即在整个半球方向采样光照信息。如果我们直接暴力求解渲染方程$(1)$的话，在每一个片元着色器上我们都要计算渲染方程的半球积分，耗费极大的性能，这对于实时性应用来说几乎不可能。</p>
+<p>&emsp;&emsp;因此，为了高效地求解渲染积分方程，IBL方法将渲染方程中的积分项预先计算出来并存储到指定的纹理图片上，在后面进行光照计算的时候根据相关的信息索引预先计算好的积分值，从而快速高效地求解积分。这其实就是以空间换时间的思想。为了方便预先计算积分值，我们把公式$(1)$写成如下的形式：</p>
+<script type="math/tex; mode=display">
 L_o(p,\omega_o)
 =\int_{\Omega}(k_d\frac{c}{\pi}+\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)})L_i(p,\omega_i)n\cdot \omega_id\omega_i\\
 =\int_{\Omega}k_d\frac{c}{\pi}L_i(p,\omega_i)n\cdot \omega_id\omega_i
-+\int_{\Omega}(\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)})L_i(p,\omega_i)n\cdot \omega_id\omega_i \tag {2}
-$$
-&emsp;&emsp;上面公式$(2)$的两个项分别对应光照的漫反射部分和镜面反射部分，我们把这两部分分开来，然后分别单独计算漫反射的积分值、镜面反射的积分值，这个其实相当于对立方体环境贴图做一个特殊的卷积操作，计算得到的结果分别存储到各自指定查找表中供后续的渲染使用。这个就是IBL算法的核心思想，接下来我们就围绕这个核心思想展开相应的实现细节。
-
-
-
-## 二、hdr文件转成cubemap
-
-&emsp;&emsp;在实现积分预计算之前我们还有一件事要完成，就是获取周围环境贴图的辐射率值，因为我们把环境贴图的每一个像素都当作一个光源。在进行积分计算时，我们要根据给定的入射方向$\omega_i$去获取该方向上辐射过来的辐射率值。如果环境贴图是一个立方体贴图的话，这很容易实现，因为立方体贴图就是根据三维向量进行索引的。但是在IBL中我们的环境贴图并不是一个普通的环境贴图，普通的环境贴图的像素值在低动态范围（Low Dynamic Range），即每个像素的分量不超过1.0。IBL同样是PBR渲染方法，为了能够捕捉真实的物理光影和细节，我们的环境贴图应该是高动态范围的（High Dynamic Range）。
-
-&emsp;&emsp;目前有一种以.hdr为后缀的图像格式保存了高动态范围的像素值，这种格式的文件采用一种巧妙的方法将超出$0.0$到$1.0$的正确的颜色值保存下来。高动态范围的环境贴图就采用了这种格式保存，stb_image支持.hdr文件加载。[这里](http://www.hdrlabs.com/sibl/archive.html)收集了一些hdr格式的环境贴图，stb_image加载.hdr文件也非常简单，如下所示：
-
++\int_{\Omega}(\frac{DFG}{4(\omega_o\cdot n)(\omega_i\cdot n)})L_i(p,\omega_i)n\cdot \omega_id\omega_i \tag {2}</script><p>&emsp;&emsp;上面公式$(2)$的两个项分别对应光照的漫反射部分和镜面反射部分，我们把这两部分分开来，然后分别单独计算漫反射的积分值、镜面反射的积分值，这个其实相当于对立方体环境贴图做一个特殊的卷积操作，计算得到的结果分别存储到各自指定查找表中供后续的渲染使用。这个就是IBL算法的核心思想，接下来我们就围绕这个核心思想展开相应的实现细节。</p>
+<h2 id="二、hdr文件转成cubemap"><a href="#二、hdr文件转成cubemap" class="headerlink" title="二、hdr文件转成cubemap"></a>二、hdr文件转成cubemap</h2><p>&emsp;&emsp;在实现积分预计算之前我们还有一件事要完成，就是获取周围环境贴图的辐射率值，因为我们把环境贴图的每一个像素都当作一个光源。在进行积分计算时，我们要根据给定的入射方向$\omega_i$去获取该方向上辐射过来的辐射率值。如果环境贴图是一个立方体贴图的话，这很容易实现，因为立方体贴图就是根据三维向量进行索引的。但是在IBL中我们的环境贴图并不是一个普通的环境贴图，普通的环境贴图的像素值在低动态范围（Low Dynamic Range），即每个像素的分量不超过1.0。IBL同样是PBR渲染方法，为了能够捕捉真实的物理光影和细节，我们的环境贴图应该是高动态范围的（High Dynamic Range）。</p>
+<p>&emsp;&emsp;目前有一种以.hdr为后缀的图像格式保存了高动态范围的像素值，这种格式的文件采用一种巧妙的方法将超出$0.0$到$1.0$的正确的颜色值保存下来。高动态范围的环境贴图就采用了这种格式保存，stb_image支持.hdr文件加载。<a href="http://www.hdrlabs.com/sibl/archive.html" target="_blank" rel="noopener">这里</a>收集了一些hdr格式的环境贴图，stb_image加载.hdr文件也非常简单，如下所示：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">float</span> *data = stbi_loadf(path.c_str(), &amp;m_width, &amp;m_height, &amp;m_channel, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
-
-&emsp;&emsp;加载后得到的图片如下图1所示，这是一个二维的图片，类似于广角镜头拍摄得到的画面。.hdr格式保存的不是六张独立的图片，它将6张图片从球面投影到一个二维的平面上，从而构成下面这张略带扭曲的矩形纹理图。为了后续方便获取指定像素的纹理值，我们需要把这张矩形的hdr图转换成立方体贴图。
-
-<div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.20/blog/ImageBasedLighting/1.jpg" width="80%">
+<p>&emsp;&emsp;加载后得到的图片如下图1所示，这是一个二维的图片，类似于广角镜头拍摄得到的画面。.hdr格式保存的不是六张独立的图片，它将6张图片从球面投影到一个二维的平面上，从而构成下面这张略带扭曲的矩形纹理图。为了后续方便获取指定像素的纹理值，我们需要把这张矩形的hdr图转换成立方体贴图。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.20/blog/ImageBasedLighting/1.jpg" width="80%"></div></p>
 <center> 图1 .hdr贴图 </center>
 
 
@@ -479,7 +462,7 @@ Important\ \ sampling=
 <p>$[2]$ <a href="https://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf" target="_blank" rel="noopener">Real Shading in Unreal Engine 4, by Brian Karis, Epic Games</a></p>
 <p>$[3]$ <a href="https://learnopengl.com/PBR/IBL/Diffuse-irradiance" target="_blank" rel="noopener">https://learnopengl.com/PBR/IBL/Diffuse-irradiance</a></p>
 <p>$[4]$ <a href="https://learnopengl.com/PBR/IBL/Specular-IBL" target="_blank" rel="noopener">https://learnopengl.com/PBR/IBL/Specular-IBL</a></p>
-</div>
+
         </div>
         
           
@@ -490,10 +473,10 @@ Important\ \ sampling=
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-09-27T21:05:02+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-20T17:05:23+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年9月27日</p>
+    <p>最后更新于 2019年10月20日</p>
   </a>
 </div>
 
@@ -742,7 +725,7 @@ Important\ \ sampling=
 </header>
 
     <div class="content material">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#三、预计算漫反射积分"><span class="toc-text">三、预计算漫反射积分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、预计算镜面反射积分"><span class="toc-text">四、预计算镜面反射积分</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Pre-Filtered-Environment-Map"><span class="toc-text">1、Pre-Filtered Environment Map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、Pre-computing-the-BRDF"><span class="toc-text">2、Pre-computing the BRDF</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、计算渲染方程"><span class="toc-text">五、计算渲染方程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#六、实现效果"><span class="toc-text">六、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、渲染方程的求解"><span class="toc-text">一、渲染方程的求解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、hdr文件转成cubemap"><span class="toc-text">二、hdr文件转成cubemap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、预计算漫反射积分"><span class="toc-text">三、预计算漫反射积分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、预计算镜面反射积分"><span class="toc-text">四、预计算镜面反射积分</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Pre-Filtered-Environment-Map"><span class="toc-text">1、Pre-Filtered Environment Map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、Pre-computing-the-BRDF"><span class="toc-text">2、Pre-computing the BRDF</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、计算渲染方程"><span class="toc-text">五、计算渲染方程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#六、实现效果"><span class="toc-text">六、实现效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料："><span class="toc-text">参考资料：</span></a></li></ol>
     </div>
   </section>
 
