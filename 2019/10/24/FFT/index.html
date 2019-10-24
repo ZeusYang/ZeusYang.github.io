@@ -280,7 +280,7 @@
 
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
-          <p>研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客记录一些关于傅里叶变换的内容。</p>
+          <p>研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客整理了一些关于傅里叶变换的内容。</p>
 <p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.28/blog/FFT/1.jpg" width="99%"></div></p>
 <a id="more"></a>
 <ul>
@@ -320,7 +320,7 @@ f(t)=\Sigma_{-\infty}^{+\infty}c_n[cos(\frac{2\pi n}{T}t)+jsin(\frac{2\pi n}{T}t
 <center> 图2 不同振幅、不同频率的波 </center>
 
 
-<p>&emsp;&emsp;&emsp;一个恰当的比喻就是将傅里叶变换比作一个玻璃棱镜。棱镜是可以将光分成不同颜色成分的物理仪器，每个成分的颜色由波长（或频率）决定傅里叶变换可以看作是“数学的棱镜”，将函数基于频率分成不同的成分。当我们考虑光时，主要讨论它的光谱和频率谱线。同样，傅里叶变换使我们能够通过频率成分来分析一个函数。</p>
+<p>&emsp;&emsp;&emsp;一个恰当的比喻就是将傅里叶变换比作一个玻璃棱镜。棱镜是可以将光分成不同颜色成分的物理仪器，每个成分的颜色由波长（或频率）决定。傅里叶变换可以看作是“数学的棱镜”，将函数基于频率分成不同的成分。当我们考虑光时，主要讨论它的光谱和频率谱线。同样，傅里叶变换使我们能够通过频率成分来分析一个函数。</p>
 <h3 id="2、连续变量的傅里叶变换"><a href="#2、连续变量的傅里叶变换" class="headerlink" title="2、连续变量的傅里叶变换"></a>2、连续变量的傅里叶变换</h3><p>&emsp;&emsp;连续变量$t$的连续函数$f(t)$的傅里叶变换由下式定义：</p>
 <script type="math/tex; mode=display">
 F(\mu)=\int_{-\infty}^{+\infty}f(t)e^{-j2\pi \mu t}dt \tag {9}</script><p>&emsp;&emsp;公式$(9)$其实对应于前面的公式$(7)$，即求傅里叶展开中的傅里叶系数，用$F(\mu)$表示，$\mu$也是一个连续变量（对应前面的$n/T$）。用欧拉公式可以把公式$(9)$表示为：</p>
@@ -352,7 +352,7 @@ f(x)=\Sigma_{\mu=0}^{N-1}F(\mu)e^{j2\pi \mu x/N} \tag {13}</script><p>&emsp;&ems
 F(\mu,v)=\frac{1}{MN}\Sigma_{x=0}^{M-1}\Sigma_{y=0}^{N-1}f(x,y)e^{-j2\pi (\mu x/M+vy/N)}\\
 f(x,y)=\Sigma_{\mu=0}^{M-1}\Sigma_{v=0}^{N-1}F(\mu,v)e^{j2\pi(\mu x/M+vy/N)} \tag {15}</script><p>&emsp;&emsp;这里可以发现一个非常有趣的地方，当$\mu = 0,v=0$时，傅里叶变换得到的本质上就是原离散函数的均值：</p>
 <script type="math/tex; mode=display">
-F(0,0)=\frac{1}{MN}\Sigma_{x=0}^{M-1}\Sigma_{y=0}^{N-1}f(x,y) \tag {16}</script><h3 id="4、傅里叶变换的性质"><a href="#4、傅里叶变换的性质" class="headerlink" title="4、傅里叶变换的性质"></a>4、傅里叶变换的性质</h3><p>&emsp;&emsp;傅里叶变换有许多非常有用的性质，这里只列举一些关键的性质。</p>
+F(0,0)=\frac{1}{MN}\Sigma_{x=0}^{M-1}\Sigma_{y=0}^{N-1}f(x,y) \tag {16}</script><h3 id="4、傅里叶变换的性质"><a href="#4、傅里叶变换的性质" class="headerlink" title="4、傅里叶变换的性质"></a>4、傅里叶变换的性质</h3><p>&emsp;&emsp;傅里叶变换有许多非常有用的性质，这里只记录一些关键和重要的性质。</p>
 <ul>
 <li><strong>周期性</strong>：正变换和反变换均有的性质，$F(\mu,v)=F(\mu + M,v)=F(u,v+N)=F(\mu+M,v+N)$，$f(x,y)=f(x+M,y)=f(x,y+N)=f(x+M,y+N)$，可以看到这里$f(x,y)$也是有周期性的。具体到二维的图像处理就是我们将一张图像重复地平铺（像贴地板瓷块一样），所以在$x$和$y$方向上的周期就是图像的宽和高。周期性不难理解，具体证明也不难。</li>
 <li><strong>共轭对称性</strong>：若$f(x,y)$时实函数，则$F(\mu,v)=F’(-\mu,-v)$，$|F(\mu,v)|=|F’(-\mu,-v)|$。注意这里必须要求时$f(x,y)$是实函数，否则将是共轭反对称性。</li>
@@ -439,7 +439,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-24T17:26:39+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-24T19:42:28+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
     <p>最后更新于 2019年10月24日</p>
@@ -462,7 +462,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
   <div class="-mob-share-list share-body">
     
       
-        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/about/2019/10/24/FFT/&title=频域处理Frequency domain processing：傅里叶变换 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客记录一些关于傅里叶变换的内容。
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/about/2019/10/24/FFT/&title=频域处理Frequency domain processing：傅里叶变换 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客整理了一些关于傅里叶变换的内容。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
@@ -471,7 +471,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
       
     
       
-        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/about/2019/10/24/FFT/&title=频域处理Frequency domain processing：傅里叶变换 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客记录一些关于傅里叶变换的内容。
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/about/2019/10/24/FFT/&title=频域处理Frequency domain processing：傅里叶变换 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客整理了一些关于傅里叶变换的内容。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
@@ -480,7 +480,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
       
     
       
-        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/about/2019/10/24/FFT/&title=频域处理Frequency domain processing：傅里叶变换 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客记录一些关于傅里叶变换的内容。
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/about/2019/10/24/FFT/&title=频域处理Frequency domain processing：傅里叶变换 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=研一上学期课程比较繁重，加上在实验室要做的事情也多，所以最近博客都没更新了。最近数图课上到频域变换处理相关章节，其中的傅里叶变换其实在图形学领域也有颇多的应用（例如大规模的海水模拟），遂写下这篇博客整理了一些关于傅里叶变换的内容。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
