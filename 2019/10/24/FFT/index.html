@@ -31,7 +31,7 @@
   
 
   
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/about/style.css">
   
 
   <script>
@@ -65,7 +65,7 @@
 
 	<div class="wrapper">
 		<div class="nav-main container container--flex">
-      <a class="logo flat-box" href="/">
+      <a class="logo flat-box" href="/about/">
         
           YangWC's Blog
         
@@ -75,31 +75,31 @@
           
   					
   						<li>
-								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<a class="nav flat-box" href="/about/about/" rel="nofollow" id="aboutabout">
 									<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
 								</a>
 							</li>
       			
   						<li>
-								<a class="nav flat-box" href="/" id="home">
+								<a class="nav flat-box" href="/about/" id="about">
 									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
 								</a>
 							</li>
       			
   						<li>
-								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<a class="nav flat-box" href="/about/archives/" rel="nofollow" id="aboutarchives">
 									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
 								</a>
 							</li>
       			
   						<li>
-								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<a class="nav flat-box" href="/about/categories/" rel="nofollow" id="aboutcategories">
 									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
 								</a>
 							</li>
       			
   						<li>
-								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<a class="nav flat-box" href="/about/tags/" rel="nofollow" id="abouttags">
 									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
 								</a>
 							</li>
@@ -142,31 +142,31 @@
         
           
             <li>
-							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+							<a class="nav flat-box" href="/about/about/" rel="nofollow" id="aboutabout">
 								<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
 							</a>
             </li>
           
             <li>
-							<a class="nav flat-box" href="/" id="home">
+							<a class="nav flat-box" href="/about/" id="about">
 								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
 							</a>
             </li>
           
             <li>
-							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+							<a class="nav flat-box" href="/about/archives/" rel="nofollow" id="aboutarchives">
 								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
 							</a>
             </li>
           
             <li>
-							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+							<a class="nav flat-box" href="/about/categories/" rel="nofollow" id="aboutcategories">
 								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
 							</a>
             </li>
           
             <li>
-							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+							<a class="nav flat-box" href="/about/tags/" rel="nofollow" id="abouttags">
 								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
 							</a>
             </li>
@@ -198,7 +198,7 @@
         
   
     <h1 class="title">
-      <a href="/2019/10/24/FFT/">
+      <a href="/about/2019/10/24/FFT/">
         频域处理Frequency domain processing：傅里叶变换
       </a>
     </h1>
@@ -238,7 +238,7 @@
             
   
   <div class="new-meta-item category">
-    <a href="/categories/Image-processing/" rel="nofollow">
+    <a href="/about/categories/Image-processing/" rel="nofollow">
       <i class="fas fa-folder-open" aria-hidden="true"></i>
       <p>Computer Graphics&nbsp;/&nbsp;Image processing</p>
     </a>
@@ -418,7 +418,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
 <p>&emsp;&emsp;最后的二维就是在一维的基础上进行：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">ComplexMatrix FFT::fourierTransform2D(<span class="keyword">const</span> ComplexMatrix &amp; target)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="function">ComplexMatrix <span class="title">result</span><span class="params">(target)</span></span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">size_t</span> row = result.getRow();</span><br><span class="line">	<span class="keyword">size_t</span> col = result.getCol();</span><br><span class="line"></span><br><span class="line">	<span class="comment">//! do fft per row.</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; row; ++i)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Complex&gt; data = result.getRowData(i);</span><br><span class="line">		<span class="keyword">auto</span> value = fourierTransform1D(data);</span><br><span class="line">		result.setRowData(i, value);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//! do fft per col.</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; col; ++i)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Complex&gt; data = result.getColData(i);</span><br><span class="line">		<span class="keyword">auto</span> value = fourierTransform1D(data);</span><br><span class="line">		result.setColData(i, value);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	result.multiply(<span class="number">1.0</span> / <span class="built_in">sqrt</span>(row * col));</span><br><span class="line">	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>&emsp;&emsp;傅里叶的正变换和反变换都根据上面的代码实现，只不过反变换需要额外的一些操作，但都不难：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">ComplexMatrix Image::fft2D(<span class="keyword">const</span> ComplexMatrix &amp; target, <span class="keyword">bool</span> flag)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// discrete fourier transform.</span></span><br><span class="line">	<span class="keyword">if</span> (flag)</span><br><span class="line">	&#123;</span><br><span class="line">		ComplexMatrix ret = FFT::fourierTransform2D(target);</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//! inverse discrete fourier transform.</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		ComplexMatrix tmp = target;</span><br><span class="line">		tmp.conjugated();</span><br><span class="line">		ComplexMatrix ret = FFT::fourierTransform2D(tmp);</span><br><span class="line">		<span class="keyword">double</span> factor = <span class="number">1.0</span> / ret.getRow() * ret.getCol();</span><br><span class="line">		ret.multiply(<span class="built_in">sqrt</span>(factor));</span><br><span class="line">		ret.conjugated();</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ComplexMatrix Image::fft2D(<span class="keyword">const</span> ComplexMatrix &amp; target, <span class="keyword">bool</span> flag)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// discrete fourier transform.</span></span><br><span class="line">	<span class="keyword">if</span> (flag)</span><br><span class="line">	&#123;</span><br><span class="line">		ComplexMatrix ret = FFT::fourierTransform2D(target);</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//! inverse discrete fourier transform.</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		ComplexMatrix tmp = target;</span><br><span class="line">		tmp.conjugated();</span><br><span class="line">		ComplexMatrix ret = FFT::fourierTransform2D(tmp);</span><br><span class="line">		ret.conjugated();</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>&emsp;&emsp;最后还需要特别注意的是FFT假定输入的矩阵大小都是$2$的幂次方，但输入的图像并不一定是$2$的幂次方，因此对于不是$2$的幂次方的图像，需要做适当的填充：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">Image Image::expandToPowerOf2(<span class="keyword">const</span> Image &amp; target)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">int</span> width = target.width();</span><br><span class="line">	<span class="keyword">int</span> height = target.height();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> basis = <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">while</span> (basis &lt; width)</span><br><span class="line">		basis *= <span class="number">2</span>;</span><br><span class="line">	width = basis;</span><br><span class="line"></span><br><span class="line">	basis = <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">while</span> (basis &lt; height)</span><br><span class="line">		basis *= <span class="number">2</span>;</span><br><span class="line">	height = basis;</span><br><span class="line"></span><br><span class="line">	Image result;</span><br><span class="line">	result.initialize(width, height, target.channel());</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">size_t</span> row = <span class="number">0</span>; row &lt; height; ++row)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">size_t</span> col = <span class="number">0</span>; col &lt; width; ++col)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (row &lt; target.height() &amp;&amp; col &lt; target.width())</span><br><span class="line">			&#123;</span><br><span class="line">				result.<span class="built_in">set</span>(col, row, target(col, row));</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">else</span></span><br><span class="line">				result.<span class="built_in">set</span>(col, row, Pixel(<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">255</span>));</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>&emsp;&emsp;最后的最后，可能需要将图像的频谱输出，简单计算傅里叶系数矩阵的谱，并做一些适当的<strong>标定</strong>（这个很重要，不然输出的频谱图看不出频率域的特征）。</p>
@@ -439,10 +439,10 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-25T14:43:30+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-30T09:26:46+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2019年10月25日</p>
+    <p>最后更新于 2019年10月30日</p>
   </a>
 </div>
 
@@ -451,7 +451,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Image-processing/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Image processing</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/about/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/about/tags/Image-processing/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Image processing</p></a></div>
 
 
         
@@ -508,7 +508,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
                         <span class="art-item-right" aria-hidden="true">
                             <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
                             <h4>
-                                <a href="/2019/09/22/FreeSurfaceFlow/" rel="prev" title="流体模拟Fluid Simulation：Free-Surface Flow">
+                                <a href="/about/2019/09/22/FreeSurfaceFlow/" rel="prev" title="流体模拟Fluid Simulation：Free-Surface Flow">
                                     
                                         流体模拟Fluid Simulation：Free-Surface Flow
                                     
@@ -517,7 +517,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
                             
                                 
                                 <h6 class="tags">
-                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Fluid-Simulation/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Fluid Simulation</a>
+                                    <a class="tag" href="/about/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/about/tags/Fluid-Simulation/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Fluid Simulation</a>
                                 </h6>
                             
                         </span>
@@ -617,7 +617,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
   <div class="content material">
     
       <div class="avatar">
-        <fancybox><img class="avatar" src="/image/avator.png"></fancybox>
+        <fancybox><img class="avatar" src="/about/image/avator.png"></fancybox>
       </div>
     
     
@@ -712,21 +712,21 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
   <div class="content material">
     <ul class="grid navgation">
       
-        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+        <li><a class="flat-box" title="/about/about/" href="/about/about/" rel="nofollow" id="aboutabout">
           
             <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
           
           关于博主
         </a></li>
       
-        <li><a class="flat-box" title="/" href="/" id="home">
+        <li><a class="flat-box" title="/about/" href="/about/" id="about">
           
             <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
           
           近期文章
         </a></li>
       
-        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+        <li><a class="flat-box" title="/about/archives/" href="/about/archives/" rel="nofollow" id="aboutarchives">
           
             <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
           
@@ -749,7 +749,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
 <header class="material">
   <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
   
-    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <a class="rightBtn" rel="nofollow" href="/about/categories/" title="categories/">
     <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
   
 </header>
@@ -757,27 +757,27 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
     <div class="content material">
       <ul class="entry">
         
-          <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/2D-Rendering/" href="/about/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(21)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Computer-Graphics/" href="/about/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(21)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(9)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Fluid-Simulation/" href="/about/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(9)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Image-processing/" href="/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Image-processing/" href="/about/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/N-body/" href="/about/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Physically-Based-Rendering/" href="/about/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Position-Based-Dynamics/" href="/about/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Ray-Tracer/" href="/about/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(2)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Real-time-Rendering/" href="/about/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Soft-Renderer/" href="/about/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+          <li><a class="flat-box" title="/about/categories/Voxelization/" href="/about/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
         
       </ul>
     </div>
@@ -796,13 +796,13 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
 <header class="material">
   <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
   
-    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <a class="rightBtn" rel="nofollow" href="/about/tags/" title="tags/">
     <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
   
 </header>
 
     <div class="content material">
-      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16px; color: #c9c9c9">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22px; color: #f1f1f1">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 16px; color: #c9c9c9">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 18px; color: #d6d6d6">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 16px; color: #c9c9c9">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 16px; color: #c9c9c9">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 20px; color: #e4e4e4">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+      <a href="/about/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/about/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/about/tags/3D-pipeline/" style="font-size: 16px; color: #c9c9c9">3D pipeline</a> <a href="/about/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/about/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/about/tags/Fluid-Simulation/" style="font-size: 22px; color: #f1f1f1">Fluid Simulation</a> <a href="/about/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/about/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/about/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/about/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/about/tags/Physically-Based-Rendering/" style="font-size: 16px; color: #c9c9c9">Physically Based Rendering</a> <a href="/about/tags/Position-Based-Dynamics/" style="font-size: 18px; color: #d6d6d6">Position Based Dynamics</a> <a href="/about/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/about/tags/Ray-Tracer/" style="font-size: 16px; color: #c9c9c9">Ray Tracer</a> <a href="/about/tags/Real-time-Rendering/" style="font-size: 16px; color: #c9c9c9">Real-time Rendering</a> <a href="/about/tags/Soft-Renderer/" style="font-size: 20px; color: #e4e4e4">Soft Renderer</a> <a href="/about/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
     </div>
   </section>
 
@@ -895,7 +895,7 @@ F(\mu + K)=F_{even}(\mu)-F_{odd}(\mu)W_{2K}^\mu \tag {27}</script><p>&emsp;&emsp
     var AZURE_QUERY_KEY = "";
     var BAIDU_API_ID = "";
     var SEARCH_SERVICE = "hexo" || "hexo";
-    var ROOT = "/"||"/";
+    var ROOT = "/about/"||"/";
     if(!ROOT.endsWith('/'))ROOT += '/';
   </script>
 
