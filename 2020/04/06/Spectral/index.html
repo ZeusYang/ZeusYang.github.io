@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>Physically Based Rendering：光谱与辐射度量 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2020/04/06/Spectral/">
+        Physically Based Rendering：光谱与辐射度量
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="https://yangwc.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2020-04-06</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Ray-Tracer/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Ray Tracer</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>最近捡起了pbrt这本书开始阅读，之前虽然对光线追踪有所得了解，但感觉比较凌乱、不成体系，于是打算深入阅读pbrt，对离线渲染做一个深入的了解。</p>
+<a id="more"></a>
+<p>&emsp;&emsp;以下的内容大部分整理自pbrt第三版的第五章——COLOR AND RADIOMETRY。</p>
+<h2 id="一、Spectral"><a href="#一、Spectral" class="headerlink" title="一、Spectral"></a>一、Spectral</h2><p>&emsp;&emsp;光谱能量分布（Spectral Power Distribution，简称为SPD）描述了光波波长的辐射功率分布情况，通常采用直角坐标系下的分布曲线来表示，横轴表示波长$\lambda$，相应地纵坐标表示单位波长间隔内的辐射功率。在计算机图形学中我们通常只关注人眼可见的光波，因而波长取值范围为$400nm-700nm$。现实世界的物体光谱能量分布可以非常复杂，为了高效、准确地描述物体的SPD，人们着手于寻找SPD的低维映射，即寻找一组基，使得可以通过这组基的系数加权来近似表示光谱能量分布情况。</p>
+<p>&emsp;&emsp;目前关于光谱表示已经有非常多的研究成果，在这里我们重点关注两个常用的光谱表示方法：基于三原色的光谱表示法和基于采样的光谱表示法。基于三原色的光谱表示法我们非常熟悉，它的表示方法是在红、绿、蓝三原色的基础上作系数加权和，这里的三原色充当着“基”的角色。此方法简单、方便、搞笑，但准确度略低。而基于采样的光谱表示法则是直接对物体的光谱能量分布曲线进行离散地采样，由于采样定理的限制，采样数量通常远多于三个，因而性能方面不如三原色法，但在物理上它更为准确。</p>
+<p>&emsp;&emsp;上面提到的两种光谱表示法都可以抽象为基于系数的光谱表示法，具体实现的区别在于“基”的不同和系数数量的不同（即维度的不同）。三原色法有三个系数，表示为一个三维向量。基于采样的光谱表示法的系数数量取决于采样数量，设采样数量为$n$，则它表现为一个$n$维向量。所以创建声明一个<code>CoefficientSpectrum</code>类将基于系数的光谱表示法中的公共函数等实现。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Spectrum Declarations</span></span><br><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> nSpectrumSamples&gt;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CoefficientSpectrum</span> &#123;</span></span><br><span class="line">    <span class="comment">// CoefficientSpectrum Public Methods</span></span><br><span class="line">    <span class="comment">// CoefficientSpectrum Public Data</span></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">    <span class="comment">// CoefficientSpectrum Protected Data</span></span><br><span class="line">    Float c[nSpectrumSamples];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;关于该类的实现主要是算术运算和其他的辅助运算，即加、减、乘、除、相等判断、开方、指数、对数等等，这些运算都是对向量的逐个分量做的运算，例如开放是对向量的每一个分量开发，得到的结果依旧是一个向量。比较简单，不再细说。</p>
+<h3 id="1、基于采样的光谱表示法"><a href="#1、基于采样的光谱表示法" class="headerlink" title="1、基于采样的光谱表示法"></a>1、基于采样的光谱表示法</h3><p>&emsp;&emsp;基于采样的光谱表示法顾名思义，就是直接对SPD曲线进行采样。只考虑人眼最敏感的波长范围，我们对$[400nm,700nm]$波长范围内的光谱能量分布进行离散采样，采样得到的是一个二元组$(\lambda_i,v_i)$，即波长$\lambda_i$对应的辐射功率为$v_i$。在渲染邻域，我们取$60$为采样数量已经足够准确地描述复杂物体的光谱能量分布了，因而基于采样的光谱表示法通常是一个$60$维的向量，采样间隔为$5nm$。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> sampledLambdaStart = <span class="number">400</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> sampledLambdaEnd = <span class="number">700</span>;</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> nSpectralSamples = <span class="number">60</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SampledSpectrum</span> :</span> <span class="keyword">public</span> CoefficientSpectrum&lt;nSpectralSamples&gt; &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// SampledSpectrum Public Methods</span></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// SampledSpectrum Private Data</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里我们是等间距地对波长范围进行采样。基于采样的光谱表示法首先要考虑数据的获取，通常从真实的采样数据转换而来。真实的采样数据不一定是等间距地采样，为此我们进行相应的转换。转换的思想其实很简单，例如我们需要获取$[400nm, 405nm)$对应的辐射功率值，则获取落到这个波长范围内的采样数据，计算平均值。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> SampledSpectrum <span class="title">FromSampled</span><span class="params">(<span class="keyword">const</span> Float *lambda, <span class="keyword">const</span> Float *v,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Sort samples if unordered, use sorted for returned spectrum</span></span><br><span class="line">    <span class="keyword">if</span> (!SpectrumSamplesSorted(lambda, v, n)) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt; slambda(&amp;lambda[<span class="number">0</span>], &amp;lambda[n]);</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt; sv(&amp;v[<span class="number">0</span>], &amp;v[n]);</span><br><span class="line">        SortSpectrumSamples(&amp;slambda[<span class="number">0</span>], &amp;sv[<span class="number">0</span>], n);</span><br><span class="line">        <span class="keyword">return</span> FromSampled(&amp;slambda[<span class="number">0</span>], &amp;sv[<span class="number">0</span>], n);</span><br><span class="line">    &#125;</span><br><span class="line">    SampledSpectrum r;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nSpectralSamples; ++i) &#123;</span><br><span class="line">        <span class="comment">// Compute average value of given SPD over $i$th sample's range</span></span><br><span class="line">        Float lambda0 = Lerp(Float(i) / Float(nSpectralSamples),</span><br><span class="line">                             sampledLambdaStart, sampledLambdaEnd);</span><br><span class="line">        Float lambda1 = Lerp(Float(i + <span class="number">1</span>) / Float(nSpectralSamples),</span><br><span class="line">                             sampledLambdaStart, sampledLambdaEnd);</span><br><span class="line">        r.c[i] = AverageSpectrumSamples(lambda, v, n, lambda0, lambda1);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> r;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;计算平均值的方法也很简单，以下图为例，我们要计算$[500nm,600nm)$对应的辐射功率值，则计算落到这个范围内的样本值与横坐标构成的面积，将所有的面积加起来再除以横轴范围（这里就是$100nm$）即可。这里要注意就是边界处理情况。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/1.png" width="60%"></div></p>
+<h4 id="（1）转换到XYZ表色"><a href="#（1）转换到XYZ表色" class="headerlink" title="（1）转换到XYZ表色"></a>（1）转换到XYZ表色</h4><p>&emsp;&emsp;基于采样的光谱表示法太过耗费空间，人们发现人类视觉系统的特殊性使得仅使用三个浮点数就可以表示人类肉眼感知到的大部分颜色，这就是颜色感知三刺激理论。三刺激理论的三色理论表明，几乎所有的人类可感知的SPD能够仅仅利用三个值$x_{\lambda}$、$y_{\lambda}$和$z_{\lambda}$来表示，这个三个值分别对应着红原色刺激量、绿颜色刺激量和蓝原色刺激量，色的感觉是由于三种原色光刺激的综合结果。</p>
+<p>&emsp;&emsp;给定光谱能量分布函数$S(\lambda)$，三刺激的刺激量通过如下的公式计算：</p>
+<script type="math/tex; mode=display">
+x_{\lambda}=\frac{1}{\int Y(\lambda)d\lambda}\int_\lambda S(\lambda)X(\lambda)d\lambda \tag{1}</script><script type="math/tex; mode=display">
+y_{\lambda}=\frac{1}{\int Y(\lambda)d\lambda}\int_\lambda S(\lambda)Y(\lambda)d\lambda \tag{2}</script><script type="math/tex; mode=display">
+z_{\lambda}=\frac{1}{\int Y(\lambda)d\lambda}\int_\lambda S(\lambda)Z(\lambda)d\lambda \tag{3}</script><p>&emsp;&emsp;其中$X(\lambda)$、$Y(\lambda)$和$Z(\lambda)$是光谱匹配曲线，如下图所示，由CIE（International Commission on illumination，CIE是法语名的简称）经过实验得到。这些曲线描述了人类视网膜中的三类视锥细胞对三种原色的刺激响应。值得注意的是，不同的光谱能量分布可能会映射到一个非常相似的三刺激值，也就是说人眼观察到不同光谱能量分布的同色光（metamers）。此外，$XYZ$表色法并不是很适用于光谱计算。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/2.png" width="50%"></div></p>
+<p>&emsp;&emsp;上图中的光谱匹配曲线并没有解析的数学表达式，而是同样地通过离散采样记录保存，这里的采样间隔为$1nm$，因而采样数量为$471$。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> nCIESamples = <span class="number">471</span>;</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float CIE_X[nCIESamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float CIE_Y[nCIESamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float CIE_Z[nCIESamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float CIE_lambda[nCIESamples];</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这些采样的匹配曲线同样可以看成是具体的SPD，用这些采样值初始化，得到$XYZ$匹配曲线对应的SPD，用以后续的颜色表示方法的转换。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nSpectralSamples; ++i) &#123;</span><br><span class="line">    Float wl0 = Lerp(Float(i) / Float(nSpectralSamples), sampledLambdaStart,</span><br><span class="line">                     sampledLambdaEnd);</span><br><span class="line">    Float wl1 = Lerp(Float(i + <span class="number">1</span>) / Float(nSpectralSamples), sampledLambdaStart,</span><br><span class="line">                     sampledLambdaEnd);</span><br><span class="line">    X.c[i] = AverageSpectrumSamples(CIE_lambda, CIE_X, nCIESamples, wl0, wl1);</span><br><span class="line">    Y.c[i] = AverageSpectrumSamples(CIE_lambda, CIE_Y, nCIESamples, wl0, wl1);</span><br><span class="line">    Z.c[i] = AverageSpectrumSamples(CIE_lambda, CIE_Z, nCIESamples, wl0, wl1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后直接套用上面的转换公式即可，将积分转换成黎曼和的形式求解。注意到$\int Y(\lambda)d\lambda$与要转换的SPD无关，所以可以提前求解出来然后直接使用。</p>
+<script type="math/tex; mode=display">
+x_\lambda=\frac{1}{\int Y(\lambda)d\lambda}\frac{\lambda_{end}-\lambda_{start}}{N}\Sigma_{i=0}^{N-1}X_i c_i</script><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> Float CIE_Y_integral = <span class="number">106.856895</span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ToXYZ</span><span class="params">(Float xyz[<span class="number">3</span>])</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        xyz[<span class="number">0</span>] = xyz[<span class="number">1</span>] = xyz[<span class="number">2</span>] = <span class="number">0.f</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nSpectralSamples; ++i) &#123;</span><br><span class="line">            xyz[<span class="number">0</span>] += X.c[i] * c[i];</span><br><span class="line">            xyz[<span class="number">1</span>] += Y.c[i] * c[i];</span><br><span class="line">            xyz[<span class="number">2</span>] += Z.c[i] * c[i];</span><br><span class="line">        &#125;</span><br><span class="line">        Float scale = Float(sampledLambdaEnd - sampledLambdaStart) /</span><br><span class="line">                      Float(CIE_Y_integral * nSpectralSamples);</span><br><span class="line">        xyz[<span class="number">0</span>] *= scale;</span><br><span class="line">        xyz[<span class="number">1</span>] *= scale;</span><br><span class="line">        xyz[<span class="number">2</span>] *= scale;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;$XYZ$表色有个明显的作用就是它的$Y$分量，$Y$分量衡量人眼感知的颜色亮度，因而在某些场合被使用。</p>
+<h4 id="（2）转换到RGB表色"><a href="#（2）转换到RGB表色" class="headerlink" title="（2）转换到RGB表色"></a>（2）转换到RGB表色</h4><p>&emsp;&emsp;上述提到的$XYZ$表色并不与我们熟悉的$RGB$表色划上等号，$XYZ$表色是完全基于人类视觉感知建立的颜色空间，而$RGB$表色则不是。$XYZ$表色系统在$RGB$系统的基础上，选用三个理想的原色来代替实际的三原色，从而将$RGB$表色系统中的光谱三刺激值$r$、$g$和$b$均变为正值。$RGB$表色系统的三原色与显示设备密切相关，在不同的显示设备之间存在差异，因而相同$rgb$在不同设备上的显示效果也存在着一定程度的差异。SPD转换到$RGB$表色并不是直接转换，而是先将其转换到$XYZ$表色，然后再转换到$RGB$表色系统。</p>
+<p>&emsp;&emsp;转换到$RGB$同样需要借助光谱响应曲线$R(\lambda)$、$G(\lambda)$和$B(\lambda)$，这些光谱响应曲线实际就是与显示设备相关的三原色光谱能量分布曲线，不同的显示设备具有不同的响应曲线：</p>
+<script type="math/tex; mode=display">
+r=\int R(\lambda)S(\lambda)d\lambda=\int R(\lambda)(x_\lambda X(\lambda)+y_\lambda Y(\lambda)+z_\lambda Z(\lambda))d\lambda \\
+=x_\lambda \int R(\lambda)X(\lambda)d\lambda+y_\lambda \int R(\lambda)Y(\lambda)d\lambda+z_\lambda\int R(\lambda)Z(\lambda)d\lambda \tag {4}</script><p>&emsp;&emsp;公式$(4)$给出了转换到$r$分量的公式，可以看到最终积分里面的被积公式都是可以提前知道，因此可以提前计算好然后直接使用。其他分量的计算公式类似，只需替换相应的光谱响应曲线即可，从$XYZ$到$RGB$的转换可以写成下面的矩阵向量相乘形式表示：</p>
+<script type="math/tex; mode=display">
+\left[\begin{matrix}
+r \\ g \\ b
+\end{matrix}
+\right]
+=
+\left(
+\begin{matrix}
+\int R(\lambda)X(\lambda)d\lambda & \int R(\lambda)Y(\lambda)d\lambda & \int R(\lambda)Z(\lambda)d\lambda\\
+\int G(\lambda)X(\lambda)d\lambda & \int G(\lambda)Y(\lambda)d\lambda & \int G(\lambda)Z(\lambda)d\lambda\\
+\int B(\lambda)X(\lambda)d\lambda & \int B(\lambda)Y(\lambda)d\lambda & \int B(\lambda)Z(\lambda)d\lambda
+\end{matrix}
+\right)
+\left[
+\begin{matrix}
+x_\lambda \\ y_\lambda \\ z_\lambda 
+\end{matrix}
+\right] \tag {5}</script><p>&emsp;&emsp;矩阵内的积分值都可以提前计算好，省去极大的转换开销。这里实现了转换到高清电视的$RGB$表色系统：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">XYZToRGB</span><span class="params">(<span class="keyword">const</span> Float xyz[<span class="number">3</span>], Float rgb[<span class="number">3</span>])</span> </span>&#123;</span><br><span class="line">    rgb[<span class="number">0</span>] = <span class="number">3.240479f</span> * xyz[<span class="number">0</span>] - <span class="number">1.537150f</span> * xyz[<span class="number">1</span>] - <span class="number">0.498535f</span> * xyz[<span class="number">2</span>];</span><br><span class="line">    rgb[<span class="number">1</span>] = <span class="number">-0.969256f</span> * xyz[<span class="number">0</span>] + <span class="number">1.875991f</span> * xyz[<span class="number">1</span>] + <span class="number">0.041556f</span> * xyz[<span class="number">2</span>];</span><br><span class="line">    rgb[<span class="number">2</span>] = <span class="number">0.055648f</span> * xyz[<span class="number">0</span>] - <span class="number">0.204043f</span> * xyz[<span class="number">1</span>] + <span class="number">1.057311f</span> * xyz[<span class="number">2</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;相应的从$RGB$转换到$XYZ$则直接使用上述矩阵的逆矩阵即可：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">RGBToXYZ</span><span class="params">(<span class="keyword">const</span> Float rgb[<span class="number">3</span>], Float xyz[<span class="number">3</span>])</span> </span>&#123;</span><br><span class="line">    xyz[<span class="number">0</span>] = <span class="number">0.412453f</span> * rgb[<span class="number">0</span>] + <span class="number">0.357580f</span> * rgb[<span class="number">1</span>] + <span class="number">0.180423f</span> * rgb[<span class="number">2</span>];</span><br><span class="line">    xyz[<span class="number">1</span>] = <span class="number">0.212671f</span> * rgb[<span class="number">0</span>] + <span class="number">0.715160f</span> * rgb[<span class="number">1</span>] + <span class="number">0.072169f</span> * rgb[<span class="number">2</span>];</span><br><span class="line">    xyz[<span class="number">2</span>] = <span class="number">0.019334f</span> * rgb[<span class="number">0</span>] + <span class="number">0.119193f</span> * rgb[<span class="number">1</span>] + <span class="number">0.950227f</span> * rgb[<span class="number">2</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;因此，从SPD转换到$RGB$表色，首先转换到$XYZ$表色，最后转换到$RGB$表色系统：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ToRGB</span><span class="params">(Float rgb[<span class="number">3</span>])</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        Float xyz[<span class="number">3</span>];</span><br><span class="line">        ToXYZ(xyz);</span><br><span class="line">        XYZToRGB(xyz, rgb);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、基于三原色的光谱表示法"><a href="#2、基于三原色的光谱表示法" class="headerlink" title="2、基于三原色的光谱表示法"></a>2、基于三原色的光谱表示法</h3><p>&emsp;&emsp;这里说的光谱表示法就是我们最为熟悉、最为常用的$RGB$表色系统，三原色分别是红、绿、蓝，$RGB$向量本质上是这三种原色的叠加权重。$RGB$表色系统比较简单，诸多细节不再赘述。这里提一下从$SPD$转换到$RGB$，就是先转换到$XYZ$，然后再转换到$RGB$：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> RGBSpectrum <span class="title">FromSampled</span><span class="params">(<span class="keyword">const</span> Float *lambda, <span class="keyword">const</span> Float *v, <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Sort samples if unordered, use sorted for returned spectrum</span></span><br><span class="line">    <span class="keyword">if</span> (!SpectrumSamplesSorted(lambda, v, n)) &#123;</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt; slambda(&amp;lambda[<span class="number">0</span>], &amp;lambda[n]);</span><br><span class="line">        <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt; sv(&amp;v[<span class="number">0</span>], &amp;v[n]);</span><br><span class="line">        SortSpectrumSamples(&amp;slambda[<span class="number">0</span>], &amp;sv[<span class="number">0</span>], n);</span><br><span class="line">        <span class="keyword">return</span> FromSampled(&amp;slambda[<span class="number">0</span>], &amp;sv[<span class="number">0</span>], n);</span><br><span class="line">    &#125;</span><br><span class="line">    Float xyz[<span class="number">3</span>] = &#123;<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>&#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nCIESamples; ++i) &#123;</span><br><span class="line">        Float val = InterpolateSpectrumSamples(lambda, v, n, CIE_lambda[i]);</span><br><span class="line">        xyz[<span class="number">0</span>] += val * CIE_X[i];</span><br><span class="line">        xyz[<span class="number">1</span>] += val * CIE_Y[i];</span><br><span class="line">        xyz[<span class="number">2</span>] += val * CIE_Z[i];</span><br><span class="line">    &#125;</span><br><span class="line">    Float scale = Float(CIE_lambda[nCIESamples - <span class="number">1</span>] - CIE_lambda[<span class="number">0</span>]) /</span><br><span class="line">                  Float(CIE_Y_integral * nCIESamples);</span><br><span class="line">    xyz[<span class="number">0</span>] *= scale;</span><br><span class="line">    xyz[<span class="number">1</span>] *= scale;</span><br><span class="line">    xyz[<span class="number">2</span>] *= scale;</span><br><span class="line">    <span class="keyword">return</span> FromXYZ(xyz);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="（1）转换到SPD"><a href="#（1）转换到SPD" class="headerlink" title="（1）转换到SPD"></a>（1）转换到SPD</h4><p>&emsp;&emsp;既然能够将$SPD$转换到$RGB$，人们也希望能够实现从$RGB$转换到$SPD$，但这并非那么容易。前面我们提到了不同能量分布的同色光，即不同能量分布的$SPD$转换到相近甚至相同的$RGB$，这通常是一个多对一的映射关系。所以一个$RGB$对应着无穷多个$SPD$。为此设定了几个标准用于转换：</p>
+<ul>
+<li>如果$RGB$的全部系数均是相同的值，则转换得到的$SPD$应该是一个常量；</li>
+<li>转换得到的SPD应该尽可能地光滑，因为真实世界大多数物体都具有相对光滑的$SPD$。</li>
+</ul>
+<p>&emsp;&emsp;一种想法是直接根据$RGB$系数对光谱响应曲线$R(\lambda)$、$G(\lambda)$和$B(\lambda)$加权叠加得到相应的$SPD$，但得到的$SPD$往往不是很光滑，因此通常并不这么做。关于这方面的内容pbrt讲述得不是很清楚，大概的做法就是为红、绿、蓝以及三原色的混合色（白、青、黄、紫红）各自计算单独的光滑SPD（可以提前计算并保存好），然后再加权混合得到。这些原色及混合色的SPD本身还可以分成反射颜色和照明颜色，这是因为照明光谱和反射光谱存在着差异。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> nRGB2SpectSamples = <span class="number">32</span>;</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGB2SpectLambda[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBRefl2SpectWhite[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBRefl2SpectCyan[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBRefl2SpectMagenta[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBRefl2SpectYellow[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBRefl2SpectRed[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBRefl2SpectGreen[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBRefl2SpectBlue[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBIllum2SpectWhite[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBIllum2SpectCyan[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBIllum2SpectMagenta[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBIllum2SpectYellow[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBIllum2SpectRed[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBIllum2SpectGreen[nRGB2SpectSamples];</span><br><span class="line"><span class="keyword">extern</span> <span class="keyword">const</span> Float RGBIllum2SpectBlue[nRGB2SpectSamples];</span><br><span class="line"></span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"></span><br><span class="line">SampledSpectrum SampledSpectrum::FromRGB(<span class="keyword">const</span> Float rgb[<span class="number">3</span>],</span><br><span class="line">                                         SpectrumType type) &#123;</span><br><span class="line">    SampledSpectrum r;</span><br><span class="line">    <span class="keyword">if</span> (type == SpectrumType::Reflectance) &#123;</span><br><span class="line">        <span class="comment">// Convert reflectance spectrum to RGB</span></span><br><span class="line">        <span class="keyword">if</span> (rgb[<span class="number">0</span>] &lt;= rgb[<span class="number">1</span>] &amp;&amp; rgb[<span class="number">0</span>] &lt;= rgb[<span class="number">2</span>]) &#123;</span><br><span class="line">            <span class="comment">// Compute reflectance _SampledSpectrum_ with _rgb[0]_ as minimum</span></span><br><span class="line">            r += rgb[<span class="number">0</span>] * rgbRefl2SpectWhite;</span><br><span class="line">            <span class="keyword">if</span> (rgb[<span class="number">1</span>] &lt;= rgb[<span class="number">2</span>]) &#123;</span><br><span class="line">                r += (rgb[<span class="number">1</span>] - rgb[<span class="number">0</span>]) * rgbRefl2SpectCyan;</span><br><span class="line">                r += (rgb[<span class="number">2</span>] - rgb[<span class="number">1</span>]) * rgbRefl2SpectBlue;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                r += (rgb[<span class="number">2</span>] - rgb[<span class="number">0</span>]) * rgbRefl2SpectCyan;</span><br><span class="line">                r += (rgb[<span class="number">1</span>] - rgb[<span class="number">2</span>]) * rgbRefl2SpectGreen;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (rgb[<span class="number">1</span>] &lt;= rgb[<span class="number">0</span>] &amp;&amp; rgb[<span class="number">1</span>] &lt;= rgb[<span class="number">2</span>]) &#123;</span><br><span class="line">            <span class="comment">// Compute reflectance _SampledSpectrum_ with _rgb[1]_ as minimum</span></span><br><span class="line">            r += rgb[<span class="number">1</span>] * rgbRefl2SpectWhite;</span><br><span class="line">            <span class="keyword">if</span> (rgb[<span class="number">0</span>] &lt;= rgb[<span class="number">2</span>]) &#123;</span><br><span class="line">                r += (rgb[<span class="number">0</span>] - rgb[<span class="number">1</span>]) * rgbRefl2SpectMagenta;</span><br><span class="line">                r += (rgb[<span class="number">2</span>] - rgb[<span class="number">0</span>]) * rgbRefl2SpectBlue;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                r += (rgb[<span class="number">2</span>] - rgb[<span class="number">1</span>]) * rgbRefl2SpectMagenta;</span><br><span class="line">                r += (rgb[<span class="number">0</span>] - rgb[<span class="number">2</span>]) * rgbRefl2SpectRed;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// Compute reflectance _SampledSpectrum_ with _rgb[2]_ as minimum</span></span><br><span class="line">            r += rgb[<span class="number">2</span>] * rgbRefl2SpectWhite;</span><br><span class="line">            <span class="keyword">if</span> (rgb[<span class="number">0</span>] &lt;= rgb[<span class="number">1</span>]) &#123;</span><br><span class="line">                r += (rgb[<span class="number">0</span>] - rgb[<span class="number">2</span>]) * rgbRefl2SpectYellow;</span><br><span class="line">                r += (rgb[<span class="number">1</span>] - rgb[<span class="number">0</span>]) * rgbRefl2SpectGreen;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                r += (rgb[<span class="number">1</span>] - rgb[<span class="number">2</span>]) * rgbRefl2SpectYellow;</span><br><span class="line">                r += (rgb[<span class="number">0</span>] - rgb[<span class="number">1</span>]) * rgbRefl2SpectRed;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        r *= <span class="number">.94</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// Convert illuminant spectrum to RGB</span></span><br><span class="line">        <span class="comment">// ....</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> r.Clamp();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="二、Radiometry"><a href="#二、Radiometry" class="headerlink" title="二、Radiometry"></a>二、Radiometry</h2><p>&emsp;&emsp;辐射度量学（Radiometry）是研究光线传播、反射等光学属性的数学工具，通过它人们构建了图形学中最为重要的渲染方程。辐射度量学是基于辐射测量原理的学科，它本质上属于几何光学的范畴（对应的是波动光学）。使用几何光学模型描述光线散射行为通常有如下的前提假设：</p>
+<ul>
+<li>线性：光学系统中两个效果的组合等价于各自单独效果的叠加；</li>
+<li>能量守恒：顾名思义，不解释；</li>
+<li>无偏振：忽略电磁场的偏振效果，因此光的唯一相关属性就是波长分布；</li>
+<li>不考虑荧光和磷光：不同波长的光波之间互不相干；</li>
+<li>状态稳定：光在传播的过程中已经达到平衡状态，其辐射率分布不会随着时间发生变化。</li>
+</ul>
+<p>&emsp;&emsp;几何光学模型不能用于描述光的衍射和干涉，因此无力对此类的物理现象进行建模，相应地也就无法物理准确地实现此类现象。在图形渲染领域，用到的辐射度量学物理量主要有四个，分别是辐射通量（flux）、辐照度（irradiance）、辐射强度（intensity）和辐射率（radiance）。需要注意的是，这些辐射物理量通常是波长相关的。</p>
+<h3 id="1、辐射能量（Energy）"><a href="#1、辐射能量（Energy）" class="headerlink" title="1、辐射能量（Energy）"></a>1、辐射能量（Energy）</h3><p>&emsp;&emsp;首先从辐射能量（通常用$Q$表示）开始说起，辐射能量的单位就是焦耳（joules，简称J）。能量的定义初中物理就已经学过。光源向外辐射光子，这些光子有各自的波长取值并携带一定的能量。所有的基础辐射物理量都在用不同的方式描述辐射出来的光子。</p>
+<h3 id="2、辐射通量（Flux）"><a href="#2、辐射通量（Flux）" class="headerlink" title="2、辐射通量（Flux）"></a>2、辐射通量（Flux）</h3><p>&emsp;&emsp;辐射能量描述的仅仅是某一时间段内辐射出来的总能量，我们并不关心。我们更关注的是单位时间的辐射能量，也就是功率（Power），在这里我们也称之为辐射通量（通常用$\Phi$标记），单位为瓦特（watt，简称w），其数学定义为：</p>
+<script type="math/tex; mode=display">
+\Phi=lim_{\Delta t \to 0}\frac{\Delta Q}{\Delta t} = \frac{dQ}{dt} \tag {6}</script><p>&emsp;&emsp;对于一个发光体，我们更倾向于使用功率也就是通量来描述它的发光亮度。例如$10W$的灯泡亮度明显不如$30W$的灯泡，这里就是用辐射通量来衡量。</p>
+<h3 id="3、辐照度（Irradiance）"><a href="#3、辐照度（Irradiance）" class="headerlink" title="3、辐照度（Irradiance）"></a>3、辐照度（Irradiance）</h3><p>&emsp;&emsp;有了辐射通量之后，我们还需要描述在物体单位面积上的辐射通量，这是因为有时我们仅仅关注某一个固定区域的辐射行为。由此衍生了辐照度的定义，即单位面积上的辐射通量，符号记为$E$：</p>
+<script type="math/tex; mode=display">
+E(p)=lim_{\Delta A\to 0}\frac{\Delta \Phi(p)}{\Delta A}=\frac{d\Phi(p)}{dA} \tag {7}</script><p>&emsp;&emsp;辐照度可以分成两类，分别是入射辐照度和出射辐照度，两者分别对应着入和出。入射辐照度，顾名思义就是对于一个给定区域，单位时间接收到的辐射能量；而出射辐照度就是在辐射体上的一个给定区域，单位时间辐射出去的能量。引入辐照度的概念对光照计算有非常重要的意义，以下图为例，设光源辐射通量为$\phi$，光源向四周均匀地辐射能量，因此辐射到给定半径$r$的圆上的辐照度为$E=\frac{\Phi}{4\pi r^2}$。从这个辐照度公式可以看出，半径越大则辐照度越低，这是因为光源的辐射通量是固定的，接收面积越大则平摊到单位面积上的能量越少。这个正好解释了点光源的衰减公式是距离平方的反比。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/3.png" width="60%"></div></p>
+<p>&emsp;&emsp;此外，辐照度公式也解释了渲染方程中的Lambert定律（或者说余弦定律），Lambert定律指出，一定数量的光能到达物体表面的比例正比于入射方向与表面法线夹角的余弦值。这是因为辐照度的定义中的面积是必须与入射方向垂直，当表面与入射方向垂直时，入射辐照度就为$\frac{\Phi}{A}$。而当表面与入射方向不垂直的时候，就需要将表面投影到与入射方向垂直$Acos\theta$，此时辐照度为$\frac{\Phi}{Acos\theta}$。辐照度是方向无关的，可以理解成所有方向作用的结果，即从所有方向入射和向所有方向出射。</p>
+<h3 id="4、辐射强度（Intensity）"><a href="#4、辐射强度（Intensity）" class="headerlink" title="4、辐射强度（Intensity）"></a>4、辐射强度（Intensity）</h3><p>&emsp;&emsp;在三维空间中，我们通常采用立体角来表示一定范围的方向。立体角（单位为立体弧度，简称sr）就是二维弧度角的三维推广，这里不再赘述。为什么用立体角而不是直接用方向向量？这是因为三维空间的方向有无穷多个，用立体角更加方便。辐照度衡量单位面积上的辐射通量，而相应地，辐射强度就是衡量单位立体角上的辐射通量，通常标记为$I$：</p>
+<script type="math/tex; mode=display">
+I=lim_{\Delta \omega\to 0}\frac{\Delta \phi}{\Delta \omega}=\frac{d\Phi}{d\omega} \tag {8}</script><p>&emsp;&emsp;从物理意义上理解，就是在单位方向上的辐射功率。对于一个向外均匀辐射的点光源，其辐射强度是$I=\frac{\Phi}{4\pi}$。辐射强度是方向相关的，我们通常设定的点光源的辐射能量实际上是辐射强度而不是辐射通量。</p>
+<h3 id="5、辐射率（Radiance）"><a href="#5、辐射率（Radiance）" class="headerlink" title="5、辐射率（Radiance）"></a>5、辐射率（Radiance）</h3><p>&emsp;&emsp;辐照度和辐射强度分别衡量了在面积、在方向上的辐射通量分布情况，但我们需要一个物理量即衡量辐射通量在面积上的分布情况又衡量在方向上的分布情况，这就是辐射率。辐射率就是单位面积、单位立体角上的辐射通量，标记为$L$，其定义为：</p>
+<script type="math/tex; mode=display">
+L=\frac{d\phi}{d\omega dA} \tag {9}</script><p>&emsp;&emsp;注意这里的$dA$是投影面积。根据入射和出射两个不同的方向，辐射率可以分别地被解读为入射辐射率和出射辐射率。解读为入射辐射率时，它可以被理解成指定在入射方向（这里说的方向通常时立体角）上的辐照度：</p>
+<script type="math/tex; mode=display">
+L=\frac{d\phi}{d\omega dA}=\frac{dE}{d\omega} \tag {19}</script><p>&emsp;&emsp;如下图所示，这时$\omega$是光线入射方向，我们在入射辐照度的基础上限定了方向，可以理解为仅仅在$\omega$这个方向入射进来的辐照度，标记为$L_i(p,\omega)$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/4.png" width="60%"></div></p>
+<p>&emsp;&emsp;被解读为出射辐射率的时候，可以理解成向指定的出射方向上的出射辐照度，标记为$L_o(p,\omega)$,此时$\omega$是光线的出射方向。我们计算渲染方程时，本质上就是在计算着色点在观察方向上的出射辐射率。</p>
+<h2 id="三、辐射积分形式的转换"><a href="#三、辐射积分形式的转换" class="headerlink" title="三、辐射积分形式的转换"></a>三、辐射积分形式的转换</h2><p>&emsp;&emsp;渲染方程本质上就是围绕着相关的辐射物理量做积分计算，因而其积分形式根据积分变量的不同有着不同的形式，但本质上都是一样。下面以计算辐照度的积分方程为例（注意，这并不是渲染方程）：</p>
+<script type="math/tex; mode=display">
+E(p,n)=\int _{\Omega} L_i(p,\omega)|cos\theta| d\omega \tag {11}</script><p>&emsp;&emsp;计算给定着色点$p$上的辐照度就是对以法线为中心轴的半球方向的入射辐射率进行积分，$\theta$是入射方向与法线方向的夹角。这个积分公式中的积分变量是立体角$\Omega$。给定一个微分立体角$d\omega$，我们能将其转换到球面坐标系下的表示形式（如下图所示）$d\omega=sin\theta d\theta d\phi$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/5.png" width="40%"></div></p>
+<p>&emsp;&emsp;故公式$(11)$对立体角的积分可以转换成对球面坐标$(\theta,\phi)$的双重积分形式：</p>
+<script type="math/tex; mode=display">
+E(p,n)=\int_{0}^{2\pi}\int_0^{\pi/2}L_i(p,\theta,\phi)cos\theta sin\theta d\theta d\phi \tag {12}</script><p>&emsp;&emsp;公式$(11)$和$(12)$本质上是对所有的入射方向积分，但有时对方向积分不是很方便。对所有入射方向的积分等价于对所有辐射入射光的表面积分，因此有时亦转换成对面积微元的积分形式。如下图所示，考虑转换成$dA$的形式。注意到微分立体角的定义，我们有$d\omega=dA cos\theta/r^2$，这里$\theta$是$dA$表面上的法线与$p$点到$dA$向量的夹角，$r$是点$p$到$dA$的直线距离，本质上就是将$dA$投影到垂直方向，然后除以距离的平方。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/6.png" width="40%"></div></p>
+<script type="math/tex; mode=display">
+E(p,n)=\int_A L_i cos\theta_i\frac{cos\theta_o dA}{r^2} \tag {13}</script><h2 id="四、表面散射与次表面散射"><a href="#四、表面散射与次表面散射" class="headerlink" title="四、表面散射与次表面散射"></a>四、表面散射与次表面散射</h2><p>&emsp;&emsp;当一束光照射到物体表面时，会产生一系列的光线散射行为。在图形渲染领域，我们从两个主要的方面来对光线散射进行建模：散射光线的光谱分布和散射光线的方向分布。散射光线的光谱分布描述了散射光的光谱能量分布的变化，例如一道白光打到橘子上面，则白光中的蓝色光波大部分被吸收，而红色和绿色光波大部分被反射，从而反射出橘红色的外观。散射光线的方向分布描述了散射的光线在空间中的方向分布性，给定一个方向，它评估朝向这个方向散射的光线比例。这里说的散射主要包含反射、折射和次表面散射，其中反射和折射可以统称为散射，而次表面散射要复杂得多。</p>
+<p>&emsp;&emsp;针对光线的散射和次表面散射，目前主要两类数学函数对此进行描述：BSDF和BSSRDF。BSDF描述了物体表面的散射特性，仅考虑光线的反射与折射，忽略次表面散射。对于那些次表面散射效果不明显的物体来说是个非常明显的优化。而BSSRDF是一个更为通用的光线散射模型，它包含了BSDF，除此之外还考虑次表面散射的复杂效果。</p>
+<h3 id="1、BSDF函数"><a href="#1、BSDF函数" class="headerlink" title="1、BSDF函数"></a>1、BSDF函数</h3><p>&emsp;&emsp;BSDF的全称是Bidirectional Scattering Distribution Function，即双向散射分布函数。根据反射和折射的不同，BSDF又可以分为BRDF和BTDF。BRDF全称为Bidirectional Reflectance Distribution Function，即双向反射分布函数，BRDF在图形渲染领域用的最多，它描述了反射光线占据入射光线的比例。在着色点$p$上，给定入射方向$\omega_i$及入射辐射率$L_i(p,\omega_i)$，我们要计算在观察方向$\omega_o$上的出射辐射率。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/7.png" width="50%"></div></p>
+<p>&emsp;&emsp;首先可以计算$p$上的微分辐照度：</p>
+<script type="math/tex; mode=display">
+dE(p,\omega_i)=L_i(p,\omega_i)cos\theta_id\omega_i</script><p>&emsp;&emsp;几何光学的线性前提指出，反射的微分辐射率应该正比于此微分辐照度：</p>
+<script type="math/tex; mode=display">
+dL_o(p,\omega_o)∝ dE(p,\omega_i)</script><p>&emsp;&emsp;事实上，这个正比关系的比例就是BRDF的定义，即反射辐射率占据入射辐照度的比例，通常记为$f_r(p,\omega_o,\omega_i)$：</p>
+<script type="math/tex; mode=display">
+f_r(p,\omega_o,\omega_i)=\frac{dL_o(p,\omega_o)}{dE(p,\omega_i)} \tag {14}</script><p>&emsp;&emsp;一个基于物理的BRDF应该具有如下两个重要的属性：</p>
+<ul>
+<li>互逆性：即$f_r(p,\omega_i,\omega_o)=f_r(p,\omega_o,\omega_i)$；</li>
+<li>能量守恒：反射的总能量应该不能超过入射的总能量，即要求（$H^2(n)$是半球方向）：</li>
+</ul>
+<script type="math/tex; mode=display">
+\int_{H^2(n)} f_r(p,\omega_o,\omega_i) cos\theta_i d\omega_i \leq 1</script><p>&emsp;&emsp;而BTDF全称为Bidirectional Transmittance Distribution Function，即双向透射分布函数。它的定义与BRDF类似，只不过描述的是光线透射（折射）占据入射能量的比例，通常记为$f_t(p,\omega_o,\omega_i)$。将$f_r(p,\omega_o,\omega_i)$和$f_t(p,\omega_o,\omega_i)$综合起来就是BSDF，记为$f(p,\omega_o,\omega_i)$。有了光线的散射比例值，我们就可以计算光线散射辐射率：</p>
+<script type="math/tex; mode=display">
+dL_o(p,\omega_o)=f(p,\omega_o,\omega_i)L_i(p,\omega_i)|cos\theta_i|d\omega_i \tag {15}</script><p>&emsp;&emsp;上述公式不难理解，就是在入射辐照度的基础上再乘以比例系数BSDF，得到散射的辐射率。上面公式中我们取$cos\theta_i$的绝对值，这是因为法线向量不一定与散射方向在表面的同一侧上（例如折射的时候）。综合考虑反射与透射，对着色点上的整个球体方向的出射辐射率进行积分，就可以得到最终的出射辐射率：</p>
+<script type="math/tex; mode=display">
+L_o(p,\omega_o)=\int_{S^2}f(p,\omega_o,\omega_i)L_i(p,\omega_i)|cos\theta_i|d\omega_i \tag {16}</script><p>&emsp;&emsp;上述的公式就是渲染领域的最基础、最重要的方程——散射方程，它的积分定义域是整个球体方向（而非半球，因为这里综合考虑了透射）。当散射方程$(16)$仅仅考虑表面上的半球方向$H(n^2)$时，也就是仅考虑反射时，它就变成了反射方程。</p>
+<h3 id="2、BSSRDF函数"><a href="#2、BSSRDF函数" class="headerlink" title="2、BSSRDF函数"></a>2、BSSRDF函数</h3><p>&emsp;&emsp;可以看到BSDF函数仅考虑一个点，这个点就是着色点$p$，光线的入射、折射和反射都是直接在$p$上进行。但真实物理世界还有一个更为复杂的现象——次表面散射，简单来说就是光线从一个表面的点上进入，经过内部的散射，最终从另外一个点射出（如下图所示）。BSSRDF全称为Bidirectional Scattering Surface Reflectance Distribution Function，即双向散射表面反射分布函数，它的输入参数有四个，分别是入射方向$\omega_i$、入射点$p_i$、出射方向$\omega_o$和出射点$p_o$，通常记为$S(p_o,\omega_o,p_i,\omega_i)$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.32/blog/Spectral/8.png" width="50%"></div></p>
+<p>&emsp;&emsp;BSSRDF定义为点出射到$p_o$的$\omega_o$方向上的微分辐射率占从$\omega_i$入射到$p_i$点的微分辐射通量的比值：</p>
+<script type="math/tex; mode=display">
+S(p_o,\omega_o,p_i,\omega_i)=\frac{dL_o(p_o,\omega_o)}{d\Phi(p_i,\omega_i)} \tag {17}</script><p>&emsp;&emsp;由此可得到BSSRDF对应的渲染方程，这个渲染方程出了考虑整个半球方向，还要考虑物体的整个表面，因而是关于半球方向和表面区域的四重积分，多了两重对物体表面的积分：</p>
+<script type="math/tex; mode=display">
+L_o(p_o,\omega_o)=\int_A \int_{H^2(n)}S(p_o,\omega_o,p_i,\omega_i)L_i(p_i,\omega_i)|cos\theta_i|d\omega_i dA \tag {18}</script><p>&emsp;&emsp;上述给出了物理准确的通用的渲染方程，但四重积分真的难顶。注意到随着$p_i$和$p_o$的距离增大，$S$的取值逐渐减小，因此这是一个可行优化方向。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>$[1]$ M, Jakob W, Humphreys G. Physically based rendering: From theory to implementation[M]. Morgan Kaufmann, 2016.</p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-04-06T15:19:58+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2020年4月6日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Ray-Tracer/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Ray Tracer</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2020/04/06/Spectral/&title=Physically Based Rendering：光谱与辐射度量 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=最近捡起了pbrt这本书开始阅读，之前虽然对光线追踪有所得了解，但感觉比较凌乱、不成体系，于是打算深入阅读pbrt，对离线渲染做一个深入的了解。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2020/04/06/Spectral/&title=Physically Based Rendering：光谱与辐射度量 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=最近捡起了pbrt这本书开始阅读，之前虽然对光线追踪有所得了解，但感觉比较凌乱、不成体系，于是打算深入阅读pbrt，对离线渲染做一个深入的了解。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2020/04/06/Spectral/&title=Physically Based Rendering：光谱与辐射度量 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=最近捡起了pbrt这本书开始阅读，之前虽然对光线追踪有所得了解，但感觉比较凌乱、不成体系，于是打算深入阅读pbrt，对离线渲染做一个深入的了解。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2020/01/10/Octree/" rel="prev" title="空间管理Space management：四叉树 &amp; 八叉树">
+                                    
+                                        空间管理Space management：四叉树 &amp; 八叉树
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: 'Physically Based Rendering：光谱与辐射度量',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.png"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、Spectral"><span class="toc-text">一、Spectral</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、基于采样的光谱表示法"><span class="toc-text">1、基于采样的光谱表示法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#（1）转换到XYZ表色"><span class="toc-text">（1）转换到XYZ表色</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#（2）转换到RGB表色"><span class="toc-text">（2）转换到RGB表色</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、基于三原色的光谱表示法"><span class="toc-text">2、基于三原色的光谱表示法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#（1）转换到SPD"><span class="toc-text">（1）转换到SPD</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、Radiometry"><span class="toc-text">二、Radiometry</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、辐射能量（Energy）"><span class="toc-text">1、辐射能量（Energy）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、辐射通量（Flux）"><span class="toc-text">2、辐射通量（Flux）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、辐照度（Irradiance）"><span class="toc-text">3、辐照度（Irradiance）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、辐射强度（Intensity）"><span class="toc-text">4、辐射强度（Intensity）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、辐射率（Radiance）"><span class="toc-text">5、辐射率（Radiance）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、辐射积分形式的转换"><span class="toc-text">三、辐射积分形式的转换</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、表面散射与次表面散射"><span class="toc-text">四、表面散射与次表面散射</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、BSDF函数"><span class="toc-text">1、BSDF函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、BSSRDF函数"><span class="toc-text">2、BSSRDF函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错或者乱码，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(24)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Image-processing/" href="/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16px; color: #c9c9c9">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22px; color: #f1f1f1">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 16px; color: #c9c9c9">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 18px; color: #d6d6d6">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 20px; color: #e4e4e4">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 16px; color: #c9c9c9">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 20px; color: #e4e4e4">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
