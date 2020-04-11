@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>Physically Based Rendering：采样和重建（二） | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2020/04/11/Sampling2/">
+        Physically Based Rendering：采样和重建（二）
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="https://yangwc.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2020-04-11</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Ray-Tracer/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Ray Tracer</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>本篇承接上一篇《采样和重建（一）》，主要包含了分层抖动采样、Halton采样、(0,2)序列采样、最大最短距离采样和Sobol’采样方面的内容。</p>
+<a id="more"></a>
+<p>&emsp;&emsp;以下的内容大部分整理自pbrt第三版的第七章——SAMPLING AND RECONSTRUCTION。</p>
+<h2 id="四、分层抖动采样"><a href="#四、分层抖动采样" class="headerlink" title="四、分层抖动采样"></a>四、分层抖动采样</h2><p>&emsp;&emsp;分层抖动采样就是在分层采样的基础上做随机抖动。分层采样（Stratified Sampling）本质上就是一维均匀采样的高维扩展，也就是高维的均匀采样方法。在此基础上，我们使得采样点做一些单个采样间隔内的随机偏移，从而达到即随机又总体上比较均匀分布的效果。以二维的采样为例，下图从左到右分别展示了随机采样、分层均匀采样、分层抖动采样的采样点分布情况。可以看到随机采样某些地方聚集、某些地方稀疏，分布得极其不理想；均匀采样均匀有规律地分布；在均匀采样的基础上做单个采样间隔内的随机抖动就得到了最右边的效果，相对于单纯的随机采样来说，采样点的分布均匀得多。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/8.png" width="70%"></div></p>
+<p>&emsp;&emsp;因此，分层抖动采样本质上就是前面提到的反走样技术中的非均匀采样方法，它尝试把走样的现象转换成噪声。对采样空间$[0,1)^n$的每一维做均匀的划分（即分层），每一维的一个划分相互组合得到采样空间中的均匀子空间（上图中就是一个小格子），这些子空间互不重叠，在每个这样的子空间做随机采样，从而完成整个分层抖动采样的过程，这就是分层抖动采样的大致思想。</p>
+<p>&emsp;&emsp;然后，理想的分层抖动采样很容易陷入<strong>维数灾难</strong>（curse of dimensionality）的窘况。以五维采样空间为例（采样向量就是个五维向量），如果对每一维划分四层，则总共产生的子空间有$4^5=1024$，即我们要做$1024$次的采样。所以理想的分层抖动采样对于高维的采样空间不是很友好，因为维数越高，则划分的子空间数量呈指数增长。为此，人们想出了一种方法来解决这个问题，这种方法就是用一维和二维的分层抖动采样组合成高维的采样点。例如五维的采样空间，可以拆分成两维的采样、一维的采样和两维的采样。以摄像机需要的五个采样值$(x,y,t,u,v)$为例，如下图所示，我们分别在两维空间对$(x,y)$和$(u,v)$做分层抖动采样，在一维空间对$t$做分层抖动采样，分别得到四个低维的采样点，然后再将这些低维的采样点随机串起来得到一个五维的采样向量，例如$(x_2,y_2,t_1,u_1,v_1)$。注意这里的随机串联很重要。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/7.png" width="60%"></div></p>
+<p>&emsp;&emsp;随机串联的方法就是对每个低维的采样点做打乱顺序的洗牌过程，然后再逐个串起来即可。声明一个<code>StratifiedSampler</code>的采样器类如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// StratifiedSampler Declarations</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">StratifiedSampler</span> :</span> <span class="keyword">public</span> PixelSampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// StratifiedSampler Public Methods</span></span><br><span class="line">    StratifiedSampler(<span class="keyword">int</span> xPixelSamples, <span class="keyword">int</span> yPixelSamples, <span class="keyword">bool</span> jitterSamples,</span><br><span class="line">                      <span class="keyword">int</span> nSampledDimensions)</span><br><span class="line">        : PixelSampler(xPixelSamples * yPixelSamples, nSampledDimensions),</span><br><span class="line">          xPixelSamples(xPixelSamples),</span><br><span class="line">          yPixelSamples(yPixelSamples),</span><br><span class="line">          jitterSamples(jitterSamples) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">StartPixel</span><span class="params">(<span class="keyword">const</span> Point2i &amp;)</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// StratifiedSampler Private Data</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> xPixelSamples, yPixelSamples;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">bool</span> jitterSamples;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>jitterSamples</code>用于控制是否要做随机抖动，如果不抖动则就是分层的均匀采样。在<code>StartPixel</code>中一次性生成所有的采样点，<code>StratifiedSample1D</code>生成一个维度的随机抖动采样点，然后使用<code>Shuffle</code>对这些采样点进行随机打乱（这里的洗牌算法使用的是<strong>Knuth-Durstenfeld Shuffle</strong>算法）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> StratifiedSampler::StartPixel(<span class="keyword">const</span> Point2i &amp;p) &#123;</span><br><span class="line">    <span class="comment">// Generate single stratified samples for the pixel</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples1D.size(); ++i) &#123;</span><br><span class="line">        StratifiedSample1D(&amp;samples1D[i][<span class="number">0</span>], xPixelSamples * yPixelSamples, rng,</span><br><span class="line">                           jitterSamples);</span><br><span class="line">        Shuffle(&amp;samples1D[i][<span class="number">0</span>], xPixelSamples * yPixelSamples, <span class="number">1</span>, rng);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate arrays of stratified samples for the pixel</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>StratifiedSample1D</code>的定义如下，二维同理：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Sampling Function Definitions</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">StratifiedSample1D</span><span class="params">(Float *samp, <span class="keyword">int</span> nSamples, RNG &amp;rng, <span class="keyword">bool</span> jitter)</span> </span>&#123;</span><br><span class="line">    Float invNSamples = (Float)<span class="number">1</span> / nSamples;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nSamples; ++i) &#123;</span><br><span class="line">        Float delta = jitter ? rng.UniformFloat() : <span class="number">0.5f</span>;</span><br><span class="line">        samp[i] = <span class="built_in">std</span>::min((i + delta) * invNSamples, OneMinusEpsilon);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;上面仅仅处理了一次只请求一个采样值的数据生成，接下来要处理一次性请求多个采样值的数据生成。例如某个积分器要求一次性获取$64$个二维采样向量，用这$64$个采样点对光源做重要性采样。这时我们要求这$64$个采样点在二维平面$[0,1)^2$上有良好的分布（分成$8\times 8=64$个子空间）。我们姑且称之为一个块，一个块要求的采样值数量不一，取决于使用场合。这个数量有时可能不太好对二维进行划分（例如$7$个）。一种方法就是强制使得数量为两个整数的相乘，例如令$7$变为$9=3\times 3$。</p>
+<p>&emsp;&emsp;但pbrt提出了另一种采样方法解决这个问题，这个采样叫做拉丁超立方采样（Latin hypercube sampling，简称为LHS，亦被称为n-rook采样）。给定任意的待采样数量，它都能生成比较良好分布的采样点。以二维$[0,1)^2$为例，我们要在上面采样$4$个点，则将二维$[0,1)^2$空间划分成$4\times 4$个子空间，然后仅在那些对角线上的子空间中做随机采样，最后再在每一维度上对采样点随机打乱顺序。下图展示了这个过程：</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/9.png" width="60%"></div></p>
+<p>&emsp;&emsp;因此，可以实现<code>LatinHypercube</code>方法如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">LatinHypercube</span><span class="params">(Float *samples, <span class="keyword">int</span> nSamples, <span class="keyword">int</span> nDim, RNG &amp;rng)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Generate LHS samples along diagonal</span></span><br><span class="line">    Float invNSamples = (Float)<span class="number">1</span> / nSamples;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nSamples; ++i)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; nDim; ++j) &#123;</span><br><span class="line">            Float sj = (i + (rng.UniformFloat())) * invNSamples;</span><br><span class="line">            samples[nDim * i + j] = <span class="built_in">std</span>::min(sj, OneMinusEpsilon);</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="comment">// Permute LHS samples in each dimension</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nDim; ++i) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; nSamples; ++j) &#123;</span><br><span class="line">            <span class="keyword">int</span> other = j + rng.UniformUInt32(nSamples - j);</span><br><span class="line">            <span class="built_in">std</span>::swap(samples[nDim * j + i], samples[nDim * other + i]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后，分块获取的采样值生成中，一维的不需要借助于<code>LatinHypercube</code>（但需要按块生成采样，而不是像上面那样一次性生成一个维度的全部采样值），仅二维需要使用<code>LatinHypercube</code>方法。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> StratifiedSampler::StartPixel(<span class="keyword">const</span> Point2i &amp;p) &#123;</span><br><span class="line">    <span class="comment">// Generate single stratified samples for the pixel</span></span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate arrays of stratified samples for the pixel</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples1DArraySizes.size(); ++i)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int64_t</span> j = <span class="number">0</span>; j &lt; samplesPerPixel; ++j) &#123;</span><br><span class="line">            <span class="keyword">int</span> count = samples1DArraySizes[i];</span><br><span class="line">            StratifiedSample1D(&amp;sampleArray1D[i][j * count], count, rng,</span><br><span class="line">                               jitterSamples);</span><br><span class="line">            Shuffle(&amp;sampleArray1D[i][j * count], count, <span class="number">1</span>, rng);</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples2DArraySizes.size(); ++i)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int64_t</span> j = <span class="number">0</span>; j &lt; samplesPerPixel; ++j) &#123;</span><br><span class="line">            <span class="keyword">int</span> count = samples2DArraySizes[i];</span><br><span class="line">            LatinHypercube(&amp;sampleArray2D[i][j * count].x, count, <span class="number">2</span>, rng);</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;分层抖动采样方法产生的采样点分布比较均匀，不会出现过度的聚集现象，也不会有某些采样空间只拥有极少的采样点的情况。但它也有缺点，它仅考虑了整个采样空间的分布均匀情况，而忽略了单个维度上的采样点分布情况，因此有可能出现在某一维度上聚集的极端的情况，如下图所示：</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/10.png" width="20%"></div></p>
+<h2 id="五、Halton采样"><a href="#五、Halton采样" class="headerlink" title="五、Halton采样"></a>五、Halton采样</h2><p>&emsp;&emsp;Halton采样算法基于低差异性的点集合，在确保生成的点集整体上不会太过聚集的同时，又考虑采样点在单个维度上的分布情况。我们将借助Hammersley序列和Halton序列实现Halton采样器。</p>
+<h3 id="1、Hammersley序列和Halton序列"><a href="#1、Hammersley序列和Halton序列" class="headerlink" title="1、Hammersley序列和Halton序列"></a>1、Hammersley序列和Halton序列</h3><p>&emsp;&emsp;Hammersley序列和Halton序列是两个密切相关的低差异性点集。这两个序列的生成都依赖于<strong>逆根</strong>（radical inverse）函数实现，它基于这样的一个事实：给定一个正整数$a$和基数$b$，$a$在基数$b$下的位序列记为$d_m(a)…d_2(a)d_1(a)$，$0\leq d_i(a)\leq b-1$则有：</p>
+<script type="math/tex; mode=display">
+a=\sum_{i=1}^m d_i(a)b^{i-1}</script><p>&emsp;&emsp;逆根函数$\Phi$根据给定的非负整数$a$和基数$b$，通过将$a$在基数$b$下的位序列以小数点为界镜像映射到$[0,1)$的浮点数：</p>
+<script type="math/tex; mode=display">
+\Phi_b(a)=0.d_1(a)d_2(a)...d_m(a)</script><p>&emsp;&emsp;一个最简单的低差异性序列就是van der Corput序列，它是由基数为$2$的逆根函数生成的一维序列$x_a=\Phi_2(a)$，下图展示了这样的一个序列。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/11.png" width="70%"></div></p>
+<p>&emsp;&emsp;在此基础上，我们定义$n$维的Halton序列，为了生成一个$n$维的采样向量，分别使用$n$个互素的素数$(p_1,…,p_n)$，每一维使用其对应一个素数$p_i$作为基数调用逆根函数$\Phi_{p_i}(a)$生成相应的采样值：</p>
+<script type="math/tex; mode=display">
+x_a=(\Phi_2(a),\Phi_3(a),\Phi_5(a),...,\Phi_{p_n}(a))</script><p>&emsp;&emsp;对于一个$n$维的低差异性序列，其差异性值满足$D_N^* (x_a)=O(\frac{(logN)^n}{N})$，逼近最优。设总b_的采样数量为$N$，$b_i$是第$i$个素数，则Hammersley点集被定义为：</p>
+<script type="math/tex; mode=display">
+x_a=(\frac aN,\Phi_{b_1}(a),\Phi_{b_2}(a),...,\Phi_{b_n}(a))</script><p>&emsp;&emsp;给定基数<code>base</code>和非负整数<code>a</code>，可以很容易地用模板函数实现逆根函数如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> base&gt;</span><br><span class="line"><span class="function">PBRT_NOINLINE <span class="keyword">static</span> Float <span class="title">RadicalInverseSpecialized</span><span class="params">(<span class="keyword">uint64_t</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> Float invBase = (Float)<span class="number">1</span> / (Float)base;</span><br><span class="line">    <span class="keyword">uint64_t</span> reversedDigits = <span class="number">0</span>;</span><br><span class="line">    Float invBaseN = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (a) &#123;</span><br><span class="line">        <span class="keyword">uint64_t</span> next = a / base;</span><br><span class="line">        <span class="keyword">uint64_t</span> digit = a - next * base;</span><br><span class="line">        reversedDigits = reversedDigits * base + digit;</span><br><span class="line">        invBaseN *= invBase;</span><br><span class="line">        a = next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::min(reversedDigits * invBaseN, OneMinusEpsilon);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;我们使用自然数中前$1000$个素数（$2,3,5,7,…$）作为基数实例化模板函数，由于二进制的特殊性，这里对基数为$2$的情况做了优化，用<code>ReverseBits64</code>实现了专门用于基数为$2$的逆根函数计算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Low Discrepancy Function Definitions</span></span><br><span class="line"><span class="function">Float <span class="title">RadicalInverse</span><span class="params">(<span class="keyword">int</span> baseIndex, <span class="keyword">uint64_t</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (baseIndex) &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">    <span class="comment">// Compute base-2 radical inverse</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> PBRT_HAVE_HEX_FP_CONSTANTS</span></span><br><span class="line">        <span class="keyword">return</span> ReverseBits64(a) * <span class="number">5.4210108624275222e-20</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">        <span class="keyword">return</span> ReverseBits64(a) * <span class="number">0x1</span>p<span class="number">-64</span>;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> RadicalInverseSpecialized&lt;<span class="number">3</span>&gt;(a);</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        <span class="keyword">return</span> RadicalInverseSpecialized&lt;<span class="number">5</span>&gt;(a);</span><br><span class="line">    <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        <span class="keyword">return</span> RadicalInverseSpecialized&lt;<span class="number">7</span>&gt;(a);</span><br><span class="line">    ......</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这样调用<code>RadicalInverse</code>就可以很方便地生成Hammersley序列和Halton序列。Hammersley序列和Halton序列的一个缺点就是随着基数$b$的增大，生成的采样点逐渐变得有规律起来，如下图左边所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/12.png" width="60%"></div></p>
+<p>&emsp;&emsp;为此，我们考虑在生成过程中对每一位进行一个随机扰动（上图右边是扰动的结果），记扰动算子为$p$，则添加了扰动算子的逆根函数返回值为：</p>
+<script type="math/tex; mode=display">
+\Psi_b(a)=0.p(d_1(a))p(d_2(a))...p(d_m(a))</script><p>&emsp;&emsp;每一位的数字位取值为$(0,1,…,b-1)$，扰动操作将$d_i(a)$映射到另一个位于$(0,1,…,b-1)$的随机一个。为了实现扰动，我们预先生成一个扰动表<code>perms</code>，<code>perms</code>的前两个用于基数为$2$的扰动映射，紧接着的三个用于基数为$3$的扰动映射，依次类推。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">uint16_t</span>&gt; ComputeRadicalInversePermutations(RNG &amp;rng) &#123;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">uint16_t</span>&gt; perms;</span><br><span class="line">    <span class="comment">// Allocate space in _perms_ for radical inverse permutations</span></span><br><span class="line">    <span class="keyword">int</span> permArraySize = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; PrimeTableSize; ++i) permArraySize += Primes[i];</span><br><span class="line">    perms.resize(permArraySize);</span><br><span class="line">    <span class="keyword">uint16_t</span> *p = &amp;perms[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; PrimeTableSize; ++i) &#123;</span><br><span class="line">        <span class="comment">// Generate random permutation for $i$th prime base</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; Primes[i]; ++j) p[j] = j;</span><br><span class="line">        Shuffle(p, Primes[i], <span class="number">1</span>, rng);</span><br><span class="line">        p += Primes[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> perms;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;因此，有了随机扰动表，则对于每一位数字$d_i$，$perms[start+d_i]$（对应下面代码中的<code>perm[digit]</code>）就是该位扰动映射的结果。最后的<code>invBase * perm[0] / (1 - invBase))</code>考虑了最高位前面的零。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="keyword">int</span> base&gt;</span><br><span class="line">PBRT_NOINLINE <span class="keyword">static</span> Float</span><br><span class="line">ScrambledRadicalInverseSpecialized(<span class="keyword">const</span> <span class="keyword">uint16_t</span> *perm, <span class="keyword">uint64_t</span> a) &#123;</span><br><span class="line">    <span class="keyword">const</span> Float invBase = (Float)<span class="number">1</span> / (Float)base;</span><br><span class="line">    <span class="keyword">uint64_t</span> reversedDigits = <span class="number">0</span>;</span><br><span class="line">    Float invBaseN = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (a) &#123;</span><br><span class="line">        <span class="keyword">uint64_t</span> next = a / base;</span><br><span class="line">        <span class="keyword">uint64_t</span> digit = a - next * base;</span><br><span class="line">        CHECK_LT(perm[digit], base);</span><br><span class="line">        reversedDigits = reversedDigits * base + perm[digit];</span><br><span class="line">        invBaseN *= invBase;</span><br><span class="line">        a = next;</span><br><span class="line">    &#125;</span><br><span class="line">    DCHECK_LT(invBaseN * (reversedDigits + invBase * perm[<span class="number">0</span>] / (<span class="number">1</span> - invBase)),</span><br><span class="line">              <span class="number">1.00001</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::min(</span><br><span class="line">        invBaseN * (reversedDigits + invBase * perm[<span class="number">0</span>] / (<span class="number">1</span> - invBase)),</span><br><span class="line">        OneMinusEpsilon);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、Halton采样器的实现"><a href="#2、Halton采样器的实现" class="headerlink" title="2、Halton采样器的实现"></a>2、Halton采样器的实现</h3><p>&emsp;&emsp;Halton采样器基于Halton序列实现，相比于分层抖动采样，它的采样操作没有使用伪随机数。因此Halton采样的方法有可能出现走样现象而不是噪声。Halton序列的采样是一种全局采样器，设总共的像素数为$m$，每个像素的采样数量为$k$，每个采样向量维数为$d$，则它利用Halton序列生成$m\times k$个采样。每个采样都有一个全局索引$0,1,…,m\times k-1$，第$j$个采样向量的第$i$个维度使用扰动的Halton序列生成采样值$p(\Phi_{b_i}(j))$，注意根逆函数的输入是采样向量编号$j$和第$i$个素数。大致的实现思路就是这样。</p>
+<p>&emsp;&emsp;因此我们要构建像素坐标$(x,y)$和该像素获取的采样向量的全局索引$s$的对应关系。对于每一个采样向量，该向量的前两维用于构建这种对应关系。以第一个采样向量为例，其全局索引$s=0$，注意到前两维的采样值分别由$\Phi_2(s=0)$和$\Phi_3(s=0)$生成（使用的基数分别为$2$和$3$）。假设像素的宽$w=2^j$、高$h=3^k$，则总共的像素数量为$2^j\times 3^k$，想办法把$x$和$\Phi_2(s=0)$关联起来，$y$同理。设$\Phi_2(s=0)=0.d_1(0)d_2(0)…d_j(0)…d_m(0)$，则将$\Phi_2(0)$和$2^j$相乘得$d_1(0)d_2(0)…d_j(0).d_{j+1}(0)…d_m(0)$，取这里的整数部分$d_1(0)d_2(0)…d_j(0)$与像素坐标的$x$对应起来，因为$d_1(0)d_2(0)…d_j(0)$取值在$[0,2^j-1]$，刚好对应图像的宽度（即横向的像素数量）。</p>
+<p>&emsp;&emsp;总共生成$2^j\times 3^k\times spp$，$spp$是每个像素的采样数量，这些采样数量每隔$2^j\times 3^k$作为一组全部像素的单个采样点集合。例如某个像素的初始的采样点索引为$2$，则下一个应该是$2^j\times 3^k+2$，再下一个应该是$2^j\times 3^k+3$，依次类推下去。创建<code>HaltonSampler</code>类如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HaltonSampler</span> :</span> <span class="keyword">public</span> GlobalSampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// HaltonSampler Public Methods</span></span><br><span class="line">    HaltonSampler(<span class="keyword">int</span> nsamp, <span class="keyword">const</span> Bounds2i &amp;sampleBounds,</span><br><span class="line">                  <span class="keyword">bool</span> sampleAtCenter = <span class="literal">false</span>);</span><br><span class="line">    <span class="keyword">int64_t</span> GetIndexForSample(<span class="keyword">int64_t</span> sampleNum) <span class="keyword">const</span>;</span><br><span class="line">    <span class="function">Float <span class="title">SampleDimension</span><span class="params">(<span class="keyword">int64_t</span> index, <span class="keyword">int</span> dimension)</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Sampler&gt; Clone(<span class="keyword">int</span> seed);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// HaltonSampler Private Data</span></span><br><span class="line">    <span class="keyword">static</span> <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">uint16_t</span>&gt; radicalInversePermutations;</span><br><span class="line">    Point2i baseScales, baseExponents;</span><br><span class="line">    <span class="keyword">int</span> sampleStride;</span><br><span class="line">    <span class="keyword">int</span> multInverse[<span class="number">2</span>];</span><br><span class="line">    <span class="keyword">mutable</span> Point2i pixelForOffset = Point2i(<span class="built_in">std</span>::numeric_limits&lt;<span class="keyword">int</span>&gt;::max(),</span><br><span class="line">                                             <span class="built_in">std</span>::numeric_limits&lt;<span class="keyword">int</span>&gt;::max());</span><br><span class="line">    <span class="keyword">mutable</span> <span class="keyword">int64_t</span> offsetForCurrentPixel;</span><br><span class="line">    <span class="comment">// Added after book publication: force all image samples to be at the</span></span><br><span class="line">    <span class="comment">// center of the pixel area.</span></span><br><span class="line">    <span class="keyword">bool</span> sampleAtPixelCenter;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// HaltonSampler Private Methods</span></span><br><span class="line">    <span class="function"><span class="keyword">const</span> uint16_t *<span class="title">PermutationForDimension</span><span class="params">(<span class="keyword">int</span> dim)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (dim &gt;= PrimeTableSize)</span><br><span class="line">            LOG(FATAL) &lt;&lt; StringPrintf(<span class="string">"HaltonSampler can only sample %d "</span></span><br><span class="line">                                       <span class="string">"dimensions."</span>, PrimeTableSize);</span><br><span class="line">        <span class="keyword">return</span> &amp;radicalInversePermutations[PrimeSums[dim]];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>radicalInversePermutations</code>是前面提到的扰动映射表，<code>baseScales</code>存储$(2^i,3^k)$，<code>baseExponents</code>存储$(i,k)$，<code>sampleStride</code>存储$2^j\times 3^k$。<code>offsetForCurrentPixel</code>存储当前像素的第一个采样点的全局索引值，后续该像素的第<code>i</code>个采样点的索引就可以通过<code>offsetForCurrentPixel+sampleStride*i</code>得到。采样点的全局索引用于输入根逆函数获取采样值。如果图像的宽度不是$2$的幂次方，我们就寻找第一个大于宽度的$2$的幂次方值，作为$2^i$，高度同理。<code>SampleDimension</code>获取采样点的全局索引，返回采样向量对应维度<code>dim</code>的采样值：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Float HaltonSampler::SampleDimension(<span class="keyword">int64_t</span> index, <span class="keyword">int</span> dim) <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (sampleAtPixelCenter &amp;&amp; (dim == <span class="number">0</span> || dim == <span class="number">1</span>)) <span class="keyword">return</span> <span class="number">0.5f</span>;</span><br><span class="line">    <span class="keyword">if</span> (dim == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> RadicalInverse(dim, index &gt;&gt; baseExponents[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (dim == <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> RadicalInverse(dim, index / baseScales[<span class="number">1</span>]);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> ScrambledRadicalInverse(dim, index,</span><br><span class="line">                                       PermutationForDimension(dim));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="六、-0-2-序列采样"><a href="#六、-0-2-序列采样" class="headerlink" title="六、(0,2)序列采样"></a>六、(0,2)序列采样</h2><p>&emsp;&emsp;(0,2)序列采样也是一种特殊的低差异性序列，与分层抖动采样相比，它生成的采样分布情况更加优良。以基数$2$对二维空间$[0,1)^2$进行分割（其实就是二分），取两个非负整数$l_1$和$l_2$作为分割深度，则分割的区间集合为：</p>
+<script type="math/tex; mode=display">
+E=\{[\frac{a_1}{2^{l_1}},\frac{a_1+1}{2^{l_1}})\times [\frac{a_2}{2^{l_2}},\frac{a_2+1}{2^{l_2}})\}</script><p>&emsp;&emsp;其中$a_i=0,1,2,4,…,2^{l_i-1}$。(0,2)序列生成的$2^{l_1+l_2}$个采样中，上述的区间都将包含一个采样点，分布情况非常优秀。每生成$2^{l_1+l_2}$个 采样点都符合上述情况，因此以$2^{l_1+l_2}$个采样点作为一个批次，逐个批次为不同的像素生成采样点。(0,2)序列本质上是Sobol序列的前两维，它也用到了前面的根逆函数。但是考虑到根逆函数为不同基数（大于$2$的基数）的计算的计算量有点过于庞大，考虑将大于$2$的基数的逆根计算转换成基数为$2$的逆根计算。一种高效的方法就是使用<strong>生成矩阵（generator matrices）</strong>将其他不同基数的逆根计算转换到同一个基数下的逆根计算。</p>
+<p>&emsp;&emsp;设基数为$b$，非负整数$a$的位数为$n$，第$i$位为$d_i(a)$，我们有一个$n\times n$的生成矩阵$C$，则可以生成$x_a\in [0,1)$的采样点如下：</p>
+<script type="math/tex; mode=display">
+x_a=[b^{-1} b^{-2} ... b^n]
+\left[
+\begin{matrix}
+c_{1,1} & c_{1,2} & ... & c_{1,n}\\
+c_{2,1} & ... & ... & c_{2,n}\\
+... & ... & ... & ...\\
+c_{n,1} & ... & ... & c_{n,n}
+\end{matrix}
+\right]
+\left[
+\begin{matrix}
+d_1(a)\\ d_2(a) \\ ... \\ d_3(a)
+\end{matrix}
+\right]</script><p>&emsp;&emsp;若生成矩阵$C$为单位矩阵，则上述的公式等价于前面我们提到的常规的根逆计算。在这里，我们仅将实现基数$b=2$和$n=32$的生成矩阵。基数为$2$时，生成矩阵的元素取值为$0$或者$1$，因此生成矩阵的一列可以用一个$32$为的非负整数表示。根据矩阵向量乘法定义，则上面的矩阵向量相乘$C[d_i(a)]^T$可写成：</p>
+<script type="math/tex; mode=display">
+\left[
+\begin{matrix}
+c_{1,1} & c_{1,2} & ... & c_{1,n}\\
+c_{2,1} & ... & ... & c_{2,n}\\
+... & ... & ... & ...\\
+c_{n,1} & ... & ... & c_{n,n}
+\end{matrix}
+\right]
+\left[
+\begin{matrix}
+d_1(a)\\ d_2(a) \\ ... \\ d_3(a)
+\end{matrix}
+\right]
+=
+d_1
+\left[
+\begin{matrix}
+c_{1,1}\\ c_{2,1} \\ ... \\ c_{n,1}
+\end{matrix}
+\right]
++ ... + 
+d_n
+\left[
+\begin{matrix}
+c_{1,n}\\ c_{2,n} \\ ... \\ c_{n,n}
+\end{matrix}
+\right]</script><p>&emsp;&emsp;$d_i$也是取值为$0$或者$1$，因此上面的矩阵向量相乘等价于将$d_i$为$1$的对应的矩阵的那一列全部加起来，因为我们用一个$32$位整数表示矩阵的一列，所以这些列的相加等价于这些整数的异或。由此可以非常高效实现矩阵向量相乘的过程：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> uint32_t <span class="title">MultiplyGenerator</span><span class="params">(<span class="keyword">const</span> <span class="keyword">uint32_t</span> *C, <span class="keyword">uint32_t</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> v = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; a != <span class="number">0</span>; ++i, a &gt;&gt;= <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">if</span> (a &amp; <span class="number">1</span>) v ^= C[i];</span><br><span class="line">    <span class="keyword">return</span> v;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;矩阵向量相乘<code>MultiplyGenerator</code>的结果$v$再与$[b^{-1} b^{-2} … b^n]$相乘等价于将$v$做二进制位的镜像翻转再除以$2^{32}$，这样就得到了我们所需的采样值$x_a$。为了进一步减少位翻转的开销，pbrt里在传入<code>MultiplyGenerator</code>之前先将生成矩阵的每一列做了位翻转，因为生成矩阵是预计算好的，这样后面就不用再翻转了。整个过程只涉及到一些移位运算和异或操作，非常高效。</p>
+<p>&emsp;&emsp;同样为了加入随机性，我们给<code>MultiplyGenerator</code>的返回值做一个位扰动。扰动算法的设计需要非常小心，以防丢失了(0,2)序列的低差异性属性。具体的扰动算法这里不说了，扰动的实现可以直接用一个预先生成好的扰动序列<code>scramble</code>（用$32$位整数表示）与返回值<code>v</code>进行异或，如下所示，<code>Float(0x1p-32)</code>是$2^{-32}$：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> Float <span class="title">SampleGeneratorMatrix</span><span class="params">(<span class="keyword">const</span> <span class="keyword">uint32_t</span> *C, <span class="keyword">uint32_t</span> a,</span></span></span><br><span class="line"><span class="function"><span class="params">                                   <span class="keyword">uint32_t</span> scramble = <span class="number">0</span>)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::min((MultiplyGenerator(C, a) ^ scramble) * Float(<span class="number">0x1</span>p<span class="number">-32</span>),</span><br><span class="line">                    OneMinusEpsilon);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;上面给出了一种高效的采样值计算过程。但pbrt指出，我们可以实现更高效的采样值生成过程。更高效的实现是从生成采样值的过程中以格雷码（gray code）的顺序执行入手。对于$n$位的$a$，$a$的取值范围为$0$到$2^n-1$，格雷码以一种特殊的顺序枚举$0$到$2^n-1$之间的数字，这种特殊的顺序表现<strong>在两个相邻的格雷码之间仅有一个二进制位不同</strong>，如下图的$g(n)$所示：</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/13.png" width="60%"></div></p>
+<p>&emsp;&emsp;由此，假设对于$a$，我们已经计算得到了$v=C[d_i(a)]^T$，那么对于与$a$只有一个二进制位不同的$a’$的$v’=C[d_I(a’)]^T$的计算，我们只需在$v$的基础上加上或减去（通过异或实现）该不同二进制位对应的矩阵的那一列。所以关键是找到不同的那一个二进制位，这个比较技巧性，就不赘述了。下面是<code>GrayCodeSample</code>方法，与<code>SampleGeneratorMatrix</code>只生成给定的<code>a</code>对应的采样值不同，它输入$n$，生成$0$到$2^n-1$之间所有整数值对应的采样值，结果保存到$p$数组中，通过以格雷码的顺序枚举加速整个生成过程。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">GrayCodeSample</span><span class="params">(<span class="keyword">const</span> <span class="keyword">uint32_t</span> *C, <span class="keyword">uint32_t</span> n, <span class="keyword">uint32_t</span> scramble,</span></span></span><br><span class="line"><span class="function"><span class="params">                           Float *p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> v = scramble;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">uint32_t</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">        p[i] = <span class="built_in">std</span>::min(v * Float(<span class="number">0x1</span>p<span class="number">-32</span>) <span class="comment">/* 1/2^32 */</span>, OneMinusEpsilon);</span><br><span class="line">        v ^= C[CountTrailingZeros(i + <span class="number">1</span>)];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;上面讨论的都是一维的采样值生成过程，二维就是多加了一个生成矩阵<code>C1</code>，差别不大。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">GrayCodeSample</span><span class="params">(<span class="keyword">const</span> <span class="keyword">uint32_t</span> *C0, <span class="keyword">const</span> <span class="keyword">uint32_t</span> *C1, <span class="keyword">uint32_t</span> n,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">const</span> Point2i &amp;scramble, Point2f *p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> v[<span class="number">2</span>] = &#123;(<span class="keyword">uint32_t</span>)scramble.x, (<span class="keyword">uint32_t</span>)scramble.y&#125;;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">uint32_t</span> i = <span class="number">0</span>; i &lt; n; ++i) &#123;</span><br><span class="line">        p[i].x = <span class="built_in">std</span>::min(v[<span class="number">0</span>] * Float(<span class="number">0x1</span>p<span class="number">-32</span>), OneMinusEpsilon);</span><br><span class="line">        p[i].y = <span class="built_in">std</span>::min(v[<span class="number">1</span>] * Float(<span class="number">0x1</span>p<span class="number">-32</span>), OneMinusEpsilon);</span><br><span class="line">        v[<span class="number">0</span>] ^= C0[CountTrailingZeros(i + <span class="number">1</span>)];</span><br><span class="line">        v[<span class="number">1</span>] ^= C1[CountTrailingZeros(i + <span class="number">1</span>)];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;紧接着用上述的相关函数创建<code>ZeroTwoSequenceSampler</code>的(0,2)序列采样器，这个采样器对于摄像机的五个采样值（即$(x,y,t,u,v)$）以及其他二维的采样值使用扰动的(0,2)序列生成，剩下的一维采样值使用扰动的van der Corput序列生成（就是基数为$2$的根逆函数生成的序列）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ZeroTwoSequenceSampler</span> :</span> <span class="keyword">public</span> PixelSampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// ZeroTwoSequenceSampler Public Methods</span></span><br><span class="line">    ZeroTwoSequenceSampler(<span class="keyword">int64_t</span> samplesPerPixel, <span class="keyword">int</span> nSampledDimensions = <span class="number">4</span>);</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">StartPixel</span><span class="params">(<span class="keyword">const</span> Point2i &amp;)</span></span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Sampler&gt; Clone(<span class="keyword">int</span> seed);</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">RoundCount</span><span class="params">(<span class="keyword">int</span> count)</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> RoundUpPow2(count); &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;(0,2)序列采样器需要确保每个像素的采样数量为$2$的幂次方，如果不是就使得采样数量为第一个大于当前采样数量的$2$幂次方，即下面的<code>RoundUpPow2</code>函数，因为这样能够使得(0,2)序列生成得采样点分布更加优良：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">ZeroTwoSequenceSampler::ZeroTwoSequenceSampler(<span class="keyword">int64_t</span> samplesPerPixel,</span><br><span class="line">                                               <span class="keyword">int</span> nSampledDimensions)</span><br><span class="line">    : PixelSampler(RoundUpPow2(samplesPerPixel), nSampledDimensions) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!IsPowerOf2(samplesPerPixel))</span><br><span class="line">        Warning(</span><br><span class="line">            <span class="string">"Pixel samples being rounded up to power of 2 "</span></span><br><span class="line">            <span class="string">"(from %"</span> PRId64 <span class="string">" to %"</span> PRId64 <span class="string">")."</span>,</span><br><span class="line">            samplesPerPixel, RoundUpPow2(samplesPerPixel));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;对于一维的采样点，将使用前面的<code>GrayCodeSample</code>生成van der Corput序列，van der Corput序列本身就是由基数为$2$的根逆函数生成，因此生成矩阵就是一个单位矩阵。下面的<code>CVanDerCorput</code>数组保存了生成矩阵的每一列，它的每一列都预先翻转了。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">VanDerCorput</span><span class="params">(<span class="keyword">int</span> nSamplesPerPixelSample, <span class="keyword">int</span> nPixelSamples,</span></span></span><br><span class="line"><span class="function"><span class="params">                         Float *samples, RNG &amp;rng)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> scramble = rng.UniformUInt32();</span><br><span class="line">    <span class="comment">// Define _CVanDerCorput_ Generator Matrix</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">uint32_t</span> CVanDerCorput[<span class="number">32</span>] = &#123;</span><br><span class="line">      <span class="comment">// clang-format off</span></span><br><span class="line">      <span class="number">0b10000000000000000000000000000000</span>,</span><br><span class="line">      <span class="number">0b1000000000000000000000000000000</span>,</span><br><span class="line">      <span class="number">0b100000000000000000000000000000</span>,</span><br><span class="line">      <span class="number">0b10000000000000000000000000000</span>,</span><br><span class="line">      <span class="comment">// Remainder of Van Der Corput generator matrix entries</span></span><br><span class="line">	  ...</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">int</span> totalSamples = nSamplesPerPixelSample * nPixelSamples;</span><br><span class="line">    GrayCodeSample(CVanDerCorput, totalSamples, scramble, samples);</span><br><span class="line">    <span class="comment">// Randomly shuffle 1D sample points</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nPixelSamples; ++i)</span><br><span class="line">        Shuffle(samples + i * nSamplesPerPixelSample, nSamplesPerPixelSample, <span class="number">1</span>,</span><br><span class="line">                rng);</span><br><span class="line">    Shuffle(samples, nPixelSamples, nSamplesPerPixelSample, rng);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;为了防止生成的采样点之间存在某种意想不到的关联，生成的采样序列需要被<code>Shuffle</code>进行一个随机洗牌过程。对于二维的采样值，这里将使用Sobol序列的生成矩阵调用<code>GrayCodeSample</code>。如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">Sobol2D</span><span class="params">(<span class="keyword">int</span> nSamplesPerPixelSample, <span class="keyword">int</span> nPixelSamples,</span></span></span><br><span class="line"><span class="function"><span class="params">                    Point2f *samples, RNG &amp;rng)</span> </span>&#123;</span><br><span class="line">    Point2i scramble;</span><br><span class="line">    scramble[<span class="number">0</span>] = rng.UniformUInt32();</span><br><span class="line">    scramble[<span class="number">1</span>] = rng.UniformUInt32();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Define 2D Sobol$'$ generator matrices _CSobol[2]_</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">uint32_t</span> CSobol[<span class="number">2</span>][<span class="number">32</span>] = &#123;</span><br><span class="line">        &#123;<span class="number">0x80000000</span>, <span class="number">0x40000000</span>, <span class="number">0x20000000</span>, <span class="number">0x10000000</span>, <span class="number">0x8000000</span>, <span class="number">0x4000000</span>,</span><br><span class="line">         <span class="number">0x2000000</span>, <span class="number">0x1000000</span>, <span class="number">0x800000</span>, <span class="number">0x400000</span>, <span class="number">0x200000</span>, <span class="number">0x100000</span>, <span class="number">0x80000</span>,</span><br><span class="line">         <span class="number">0x40000</span>, <span class="number">0x20000</span>, <span class="number">0x10000</span>, <span class="number">0x8000</span>, <span class="number">0x4000</span>, <span class="number">0x2000</span>, <span class="number">0x1000</span>, <span class="number">0x800</span>,</span><br><span class="line">         <span class="number">0x400</span>, <span class="number">0x200</span>, <span class="number">0x100</span>, <span class="number">0x80</span>, <span class="number">0x40</span>, <span class="number">0x20</span>, <span class="number">0x10</span>, <span class="number">0x8</span>, <span class="number">0x4</span>, <span class="number">0x2</span>, <span class="number">0x1</span>&#125;,</span><br><span class="line">        &#123;<span class="number">0x80000000</span>, <span class="number">0xc0000000</span>, <span class="number">0xa0000000</span>, <span class="number">0xf0000000</span>, <span class="number">0x88000000</span>, <span class="number">0xcc000000</span>,</span><br><span class="line">         <span class="number">0xaa000000</span>, <span class="number">0xff000000</span>, <span class="number">0x80800000</span>, <span class="number">0xc0c00000</span>, <span class="number">0xa0a00000</span>, <span class="number">0xf0f00000</span>,</span><br><span class="line">         <span class="number">0x88880000</span>, <span class="number">0xcccc0000</span>, <span class="number">0xaaaa0000</span>, <span class="number">0xffff0000</span>, <span class="number">0x80008000</span>, <span class="number">0xc000c000</span>,</span><br><span class="line">         <span class="number">0xa000a000</span>, <span class="number">0xf000f000</span>, <span class="number">0x88008800</span>, <span class="number">0xcc00cc00</span>, <span class="number">0xaa00aa00</span>, <span class="number">0xff00ff00</span>,</span><br><span class="line">         <span class="number">0x80808080</span>, <span class="number">0xc0c0c0c0</span>, <span class="number">0xa0a0a0a0</span>, <span class="number">0xf0f0f0f0</span>, <span class="number">0x88888888</span>, <span class="number">0xcccccccc</span>,</span><br><span class="line">         <span class="number">0xaaaaaaaa</span>, <span class="number">0xffffffff</span>&#125;&#125;;</span><br><span class="line">    GrayCodeSample(CSobol[<span class="number">0</span>], CSobol[<span class="number">1</span>], nSamplesPerPixelSample * nPixelSamples,</span><br><span class="line">                   scramble, samples);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nPixelSamples; ++i)</span><br><span class="line">        Shuffle(samples + i * nSamplesPerPixelSample, nSamplesPerPixelSample, <span class="number">1</span>,</span><br><span class="line">                rng);</span><br><span class="line">    Shuffle(samples, nPixelSamples, nSamplesPerPixelSample, rng);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后，在<code>StartPixel</code>中使用这里两个函数生成所需的采样点。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> ZeroTwoSequenceSampler::StartPixel(<span class="keyword">const</span> Point2i &amp;p) &#123;</span><br><span class="line">    ProfilePhase _(Prof::StartPixel);</span><br><span class="line">    <span class="comment">// Generate 1D and 2D pixel sample components using $(0,2)$-sequence</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples1D.size(); ++i)</span><br><span class="line">        VanDerCorput(<span class="number">1</span>, samplesPerPixel, &amp;samples1D[i][<span class="number">0</span>], rng);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples2D.size(); ++i)</span><br><span class="line">        Sobol2D(<span class="number">1</span>, samplesPerPixel, &amp;samples2D[i][<span class="number">0</span>], rng);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Generate 1D and 2D array samples using $(0,2)$-sequence</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples1DArraySizes.size(); ++i)</span><br><span class="line">        VanDerCorput(samples1DArraySizes[i], samplesPerPixel,</span><br><span class="line">                     &amp;sampleArray1D[i][<span class="number">0</span>], rng);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples2DArraySizes.size(); ++i)</span><br><span class="line">        Sobol2D(samples2DArraySizes[i], samplesPerPixel, &amp;sampleArray2D[i][<span class="number">0</span>],</span><br><span class="line">                rng);</span><br><span class="line">    PixelSampler::StartPixel(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="七、最大最短距离采样"><a href="#七、最大最短距离采样" class="headerlink" title="七、最大最短距离采样"></a>七、最大最短距离采样</h2><p>&emsp;&emsp;(0,2)序列有时生成的采样点也会过于聚集，一种可行的解决方案就是使用一对不同的生成矩阵，使得既可以生成良好分布的(0,2)序列，又可以最大化采样点之间的最短距离。下面将实现一个最大最短距离采样器<code>MaxMinDistSampler</code>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MaxMinDistSampler</span> :</span> <span class="keyword">public</span> PixelSampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// MaxMinDistSampler Public Methods</span></span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// MaxMinDistSampler Private Data</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">uint32_t</span> *CPixel;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里实现的最大最短距离采样与(0,2)序列采样区别不是很大，主要的区别在于使用了一个特殊的生成器矩阵。这些生成器矩阵的获取比较复杂，直接从相关的paper中拿出来保存到<code>CMaxMinDist</code>中。下面的变量保存了<code>17</code>个生成矩阵，分别对应着像素采样数量为$2^0,2^1,2^2,…,2^{15},2^{16}$，例如单个像素的采样数量为$2^5$，则获取<code>CMaxMinDist[5]</code>作为特殊的生成矩阵保存到<code>CPixel</code>中。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="keyword">uint32_t</span> CMaxMinDist[<span class="number">17</span>][<span class="number">32</span>];</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;对于非$2$幂次数量的情况，则用<code>Log2Int</code>方法计算其矩阵的下标，并用<code>RoundUpPow2</code>变成大于当前数量的第一个$2$幂次方。（注意，采样数量上限为$2^{16}$）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">MaxMinDistSampler(<span class="keyword">int64_t</span> samplesPerPixel, <span class="keyword">int</span> nSampledDimensions)</span><br><span class="line">    : PixelSampler([](<span class="keyword">int64_t</span> spp) &#123;</span><br><span class="line">          <span class="keyword">if</span> (!IsPowerOf2(spp)) &#123;</span><br><span class="line">              spp = RoundUpPow2(spp);</span><br><span class="line">              Warning(<span class="string">"Non power-of-two sample count rounded up to %"</span> PRId64</span><br><span class="line">                      <span class="string">" for MaxMinDistSampler."</span>,</span><br><span class="line">                      spp);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">return</span> spp;</span><br><span class="line">      &#125;(samplesPerPixel), nSampledDimensions) &#123;</span><br><span class="line">    <span class="keyword">int</span> Cindex = Log2Int(samplesPerPixel);</span><br><span class="line">    CPixel = CMaxMinDist[Cindex];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;它生成采样点的过程是这样的。对于第一个维度的二维的采样值，用<code>Point2f(i * invSPP, SampleGeneratorMatrix(CPixel, i))</code>生成，剩余的照搬前面的(0,2)序列采样。（应该是为了像素内的偏移$(x,y)$量身定做的，因为第一个维度一般用于像素内偏移的采样）</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> MaxMinDistSampler::StartPixel(<span class="keyword">const</span> Point2i &amp;p) &#123;</span><br><span class="line">    Float invSPP = (Float)<span class="number">1</span> / samplesPerPixel;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; samplesPerPixel; ++i)</span><br><span class="line">        samples2D[<span class="number">0</span>][i] = Point2f(i * invSPP, SampleGeneratorMatrix(CPixel, i));</span><br><span class="line">    Shuffle(&amp;samples2D[<span class="number">0</span>][<span class="number">0</span>], samplesPerPixel, <span class="number">1</span>, rng);</span><br><span class="line">    <span class="comment">// Generate remaining samples for _MaxMinDistSampler_</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples1D.size(); ++i)</span><br><span class="line">        VanDerCorput(<span class="number">1</span>, samplesPerPixel, &amp;samples1D[i][<span class="number">0</span>], rng);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">1</span>; i &lt; samples2D.size(); ++i)</span><br><span class="line">        Sobol2D(<span class="number">1</span>, samplesPerPixel, &amp;samples2D[i][<span class="number">0</span>], rng);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples1DArraySizes.size(); ++i) &#123;</span><br><span class="line">        <span class="keyword">int</span> count = samples1DArraySizes[i];</span><br><span class="line">        VanDerCorput(count, samplesPerPixel, &amp;sampleArray1D[i][<span class="number">0</span>], rng);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples2DArraySizes.size(); ++i) &#123;</span><br><span class="line">        <span class="keyword">int</span> count = samples2DArraySizes[i];</span><br><span class="line">        Sobol2D(count, samplesPerPixel, &amp;sampleArray2D[i][<span class="number">0</span>], rng);</span><br><span class="line">    &#125;</span><br><span class="line">    PixelSampler::StartPixel(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="八、Sobol’-采样"><a href="#八、Sobol’-采样" class="headerlink" title="八、Sobol’ 采样"></a>八、Sobol’ 采样</h2><p>&emsp;&emsp;(0,2)序列采样在Halton采样的基础上改进，仅使用基数为$2$的根逆函数，而且使用不同的生成矩阵，但它仅考虑一维和两维的情况。由此，考虑全部维度使用不同的生成矩阵，就是Sobol序列的采样方法。Sobol序列也只考虑基数为$2$的根逆函数，采样向量的每个维度都有格子不同的生成矩阵$C$。生成矩阵的获取由特殊的算法得到，<a href="https://web.maths.unsw.edu.au/~fkuo/sobol/" target="_blank" rel="noopener">这里</a>给出了Sobol序列的预计算好的生成矩阵，可以直接拿来用。下面实现了Sobol采样，它的关键点就是生成矩阵的<code>SobolMatrices32</code>，其他和前面的Halton采样一样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> <span class="keyword">float</span> <span class="title">SobolSampleFloat</span><span class="params">(<span class="keyword">int64_t</span> a, <span class="keyword">int</span> dimension, <span class="keyword">uint32_t</span> scramble)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">uint32_t</span> v = scramble;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = dimension * SobolMatrixSize; a != <span class="number">0</span>; a &gt;&gt;= <span class="number">1</span>, i++)</span><br><span class="line">        <span class="keyword">if</span> (a &amp; <span class="number">1</span>) v ^= SobolMatrices32[i];</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">std</span>::min(v * <span class="number">0x1</span>p<span class="number">-32f</span> <span class="comment">/* 1/2^32 */</span>, FloatOneMinusEpsilon);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;Sobol’采样在各个维度上使用不同的生成矩阵，因此具备优良的分布。但是它的缺点就是在收敛之前容易出现网格结构状的失真现象。下面实现一个Sobol’采样器，注意它是一个全局采样器：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SobolSampler</span> :</span> <span class="keyword">public</span> GlobalSampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// SobolSampler Public Methods</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Sampler&gt; Clone(<span class="keyword">int</span> seed);</span><br><span class="line">    SobolSampler(<span class="keyword">int64_t</span> samplesPerPixel, <span class="keyword">const</span> Bounds2i &amp;sampleBounds)</span><br><span class="line">        : GlobalSampler(RoundUpPow2(samplesPerPixel)),</span><br><span class="line">          sampleBounds(sampleBounds) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!IsPowerOf2(samplesPerPixel))</span><br><span class="line">            Warning(<span class="string">"Non power-of-two sample count rounded up to %"</span> PRId64</span><br><span class="line">                    <span class="string">" for SobolSampler."</span>,</span><br><span class="line">                    <span class="keyword">this</span>-&gt;samplesPerPixel);</span><br><span class="line">        resolution = RoundUpPow2(</span><br><span class="line">            <span class="built_in">std</span>::max(sampleBounds.Diagonal().x, sampleBounds.Diagonal().y));</span><br><span class="line">        log2Resolution = Log2Int(resolution);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int64_t</span> GetIndexForSample(<span class="keyword">int64_t</span> sampleNum) <span class="keyword">const</span>;</span><br><span class="line">    <span class="function">Float <span class="title">SampleDimension</span><span class="params">(<span class="keyword">int64_t</span> index, <span class="keyword">int</span> dimension)</span> <span class="keyword">const</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// SobolSampler Private Data</span></span><br><span class="line">    <span class="keyword">const</span> Bounds2i sampleBounds;</span><br><span class="line">    <span class="keyword">int</span> resolution, log2Resolution;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里的一个实现难点依旧跟Halton采样一样，就是如何将像素坐标与采样向量的全局索引的映射建立起来。依旧用采样向量的前两维$[0,1)^2$与像素坐标联系起来。设图像的宽高$(w,h)=(2^i,2^j)$，如果不是$2$的幂次方则做一个<code>RoundUpPow2</code>，令<code>log2Resolution=max(i,j)</code>，<code>sampleBounds</code>是像素的坐标范围。理论上，将前两维$[0,1)^2$乘上$2^{log2Resolution}$就可以得到采样向量与像素坐标的映射关系。但通常情况下我们是已知像素坐标要获取采样向量，因此要实现的是逆映射，具体细节这里不展开。</p>
+<p>&emsp;&emsp;因为前两维用于像素坐标与采样向量的映射，因此获取时要做一些额外的处理（返回相对于当前像素的偏移量）。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Float SobolSampler::SampleDimension(<span class="keyword">int64_t</span> index, <span class="keyword">int</span> dim) <span class="keyword">const</span> &#123;</span><br><span class="line">    Float s = SobolSample(index, dim);</span><br><span class="line">    <span class="comment">// Remap Sobol$'$ dimensions used for pixel samples</span></span><br><span class="line">    <span class="keyword">if</span> (dim == <span class="number">0</span> || dim == <span class="number">1</span>) &#123;</span><br><span class="line">        s = s * resolution + sampleBounds.pMin[dim];</span><br><span class="line">        s = Clamp(s - currentPixel[dim], (Float)<span class="number">0</span>, OneMinusEpsilon);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>$[1]$ M, Jakob W, Humphreys G. Physically based rendering: From theory to implementation[M]. Morgan Kaufmann, 2016.</p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-04-11T22:51:39+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2020年4月11日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Ray-Tracer/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Ray Tracer</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2020/04/11/Sampling2/&title=Physically Based Rendering：采样和重建（二） | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本篇承接上一篇《采样和重建（一）》，主要包含了分层抖动采样、Halton采样、(0,2)序列采样、最大最短距离采样和Sobol’采样方面的内容。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2020/04/11/Sampling2/&title=Physically Based Rendering：采样和重建（二） | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本篇承接上一篇《采样和重建（一）》，主要包含了分层抖动采样、Halton采样、(0,2)序列采样、最大最短距离采样和Sobol’采样方面的内容。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2020/04/11/Sampling2/&title=Physically Based Rendering：采样和重建（二） | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=本篇承接上一篇《采样和重建（一）》，主要包含了分层抖动采样、Halton采样、(0,2)序列采样、最大最短距离采样和Sobol’采样方面的内容。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                    <section class="prev">
+                        <span class="art-item-left">
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h4>
+                                <a href="/2020/04/11/Sampling3/" rel="prev" title="Physically Based Rendering：采样和重建（三）">
+                                  
+                                      Physically Based Rendering：采样和重建（三）
+                                  
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2020/04/11/Sampling1/" rel="prev" title="Physically Based Rendering：采样和重建（一）">
+                                    
+                                        Physically Based Rendering：采样和重建（一）
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: 'Physically Based Rendering：采样和重建（二）',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.png"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#四、分层抖动采样"><span class="toc-text">四、分层抖动采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、Halton采样"><span class="toc-text">五、Halton采样</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Hammersley序列和Halton序列"><span class="toc-text">1、Hammersley序列和Halton序列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、Halton采样器的实现"><span class="toc-text">2、Halton采样器的实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#六、-0-2-序列采样"><span class="toc-text">六、(0,2)序列采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#七、最大最短距离采样"><span class="toc-text">七、最大最短距离采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#八、Sobol’-采样"><span class="toc-text">八、Sobol’ 采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错或者乱码，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(28)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Image-processing/" href="/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(8)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 15.67px; color: #c6c6c6">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22.33px; color: #f4f4f4">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 15.67px; color: #c6c6c6">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 17.33px; color: #d2d2d2">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 20.67px; color: #e8e8e8">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 15.67px; color: #c6c6c6">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 19px; color: #ddd">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>

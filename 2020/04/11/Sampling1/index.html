@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>Physically Based Rendering：采样和重建（一） | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2020/04/11/Sampling1/">
+        Physically Based Rendering：采样和重建（一）
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="https://yangwc.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2020-04-11</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Ray-Tracer/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Ray Tracer</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>计算机作为离散数据的计算机器，只能使用采样的手段处理连续的数据。计算图形学本质上是采用虚拟摄像机处理虚拟空间的信号数据，因此在图形领域采样的身影无所不在，如何使用采样和重建的技术合成尽可能真实、无噪声、无走样的图像是图形学的一个重要话题。</p>
+<a id="more"></a>
+<p>&emsp;&emsp;以下的内容大部分整理自pbrt第三版的第七章——SAMPLING AND RECONSTRUCTION。</p>
+<h2 id="一、采样理论"><a href="#一、采样理论" class="headerlink" title="一、采样理论"></a>一、采样理论</h2><p>&emsp;&emsp;在图形渲染领域，二维的像素栅格阵列本质上就是在虚拟摄像机的成像平面上对入射辐射率做离散的采样，因此相关的采样技术可以说是图形学的重要基础技术之一。对于连续的函数或信号，<strong>采样</strong>是我们的计算机捕获这个函数或信号的方法。除此之外，对于采样得到的数据我们还需要进行<strong>重建</strong>以尽可能地还原出原始的函数或信号分布。在基于光线追踪的渲染算法中，从视角发射的一条射线就是一个采样的过程，它返回入射到这个视角方向的出射辐射率，但这仅仅是采样，如何利用采样得到的辐射率构建与原始图像尽可能相符的图片是重建的范畴（更多的涉及到图像空间的滤波技术）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/1.png" width="60%"></div></p>
+<p>&emsp;&emsp;上图给出了原始信号（左）与采样重建得到的信号（右）对比，黑色的点通过采样得到，然后在采样点之间利用线性插值的重建方法得到捕获的信号分布。可以看到，重建的结果与原始信号存在着差异，这是由采样的离散性和线性的重建引入的误差导致，这些误差在图形学中表现为锯齿和闪烁。分析和减小此类误差的手段在相关的信号处理课程中已有详细的介绍，这里只摘取了一些重点。</p>
+<h3 id="1、傅里叶分析"><a href="#1、傅里叶分析" class="headerlink" title="1、傅里叶分析"></a>1、傅里叶分析</h3><p>&emsp;&emsp;傅里叶分析是信号处理技术的基础，大致方法就是将空间域（或时空域）的信号和函数通过傅里叶变换转变到频率域，在频率域分析相关的频谱特征。下面给出了一维的时空域和频率域互相转换的公式，它们互相构成了傅里叶变换对：</p>
+<script type="math/tex; mode=display">
+F(\omega)=\int_{-\infty}^{+\infty}f(x)e^{-i2\pi \omega x}dx\\
+f(x)=\int_{-\infty}^{+\infty}F(\omega)e^{i2\pi\omega x}d\omega \tag {1}</script><p>&emsp;&emsp;傅里叶变换是工科的基础，相关的细节就不赘述了。傅里叶分析中常用的一个定理就是卷积定理，卷积定理指出：空间域的卷积等价于频率域的乘积，反之亦然。即空间域的两个函数乘积等价于这两个函数的傅里叶变换形式的卷积（如下公式$(2)$），而频率域的两个函数乘积等价于这两个函数在空间域的卷积（如下公式$(3)$）：</p>
+<script type="math/tex; mode=display">
+\zeta \{f(x)g(x)\}=F(\omega)\otimes G(\omega) \tag {2}</script><script type="math/tex; mode=display">
+\zeta(f(x)\otimes g(x))=F(\omega)G(\omega) \tag {3}</script><h3 id="2、采样与重建"><a href="#2、采样与重建" class="headerlink" title="2、采样与重建"></a>2、采样与重建</h3><p>&emsp;&emsp;常用的采样的手段是等间隔的均匀采样，即根据每隔一定间隔采样一次。这种形式的采样可以表示成一个脉冲序列与原始信号的乘积。脉冲序列由一个个单位脉冲函数构成，离散变量的单位脉冲函数$\delta (x)$定义如下：</p>
+<script type="math/tex; mode=display">
+\delta (x)=
+\begin{cases}
+1, x=0\\
+0, x\neq 0
+\end{cases}</script><p>&emsp;&emsp;对于这样的单位脉冲函数，它具备如下的取样特性，它在$x=x_0$处取一次$f(x)$的函数值：</p>
+<script type="math/tex; mode=display">
+\displaystyle \sum_{x=-\infty}^{+\infty}f(x-x_0)\delta (x)=f(x_0)</script><p>&emsp;&emsp;由此，脉冲序列就是由很多个$\delta (x)$组成，其数学形式如下：</p>
+<script type="math/tex; mode=display">
+III_T(x)=T\sum_{i=-\infty}^{\infty}\delta (x-iT) \tag {4}</script><p>&emsp;&emsp;其中$T$是采样周期或者说采样间隔，数学形式看着有点复杂，但其实很简单。下图(b)展示了离散的脉冲序列，其采样周期为$T=1$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/2.png" width="70%"></div></p>
+<p>&emsp;&emsp;因此，采样的过程就可以表达成采样的脉冲序列和原始信号的乘积：</p>
+<script type="math/tex; mode=display">
+III_T(x) f(x)=T\sum_i \delta(x-iT)f(iT) \tag {5}</script><p>&emsp;&emsp;公式$(5)$给出了采样得到的函数值序列，这是一个一个离散的点（如上图(c)所示）。根据这些离散点，我们进行一个重建的过程以还原原始的函数分布，在空间域我们对这些采样点进行卷积得到重建的结果（其实就是滤波），记重建的函数分布为$\hat f(x)$：</p>
+<script type="math/tex; mode=display">
+\hat f(x)=(III_I(x)f(x))\otimes r(x) \tag {6}</script><p>&emsp;&emsp;$r(x)$是卷积权重函数。事实上，根据卷积定理，我们可以知道采样的信号在频率的分布情况，公式$(5)$可以转换成频率域的卷积形式，卷积的函数分别是$F(\omega)$和脉冲序列函数的傅里叶形式，脉冲序列函数在频率域依旧是一个脉冲序列，只不过它的采样周期变成了$1/T$。在频率域，$F(\omega)$和脉冲序列做卷积，得到的结果就是$F(\omega)$在每个采样脉冲点上都有一份相同的拷贝。下图(c)是原始信号的傅里叶形式（即$F(\omega)$，图(a)是$F(\omega)$与频率域的脉冲序列做卷积的结果，每一个脉冲点上均有$F(\omega)$的一份拷贝，他们之间的间隔就是脉冲间隔$1/T$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/3.png" width="70%"></div></p>
+<p>&emsp;&emsp;在理想的情况下，在频率域，我们只需要获取一份$F(\omega)$即可，因此设计一个滤波器$\prod_T(\omega)$如上图(b)所示，将其与采样得到的傅里叶形式（即上图(a)）相乘，试图得到原始信号的傅里叶分布（即上图(c)）。这个过程可以描述为如下的形式：</p>
+<script type="math/tex; mode=display">
+\hat F(\omega)=(F(\omega)\otimes III_{1/T}(\omega)) \prod_T(\omega) \tag {7}</script><p>&emsp;&emsp;上述的公式$(7)$与公式$(6)$殊途同归、遥相呼应，公式$(6)$给出了空间域下的采样重建过程，得到$\hat f(x)$，而公式$(7)$则给出了频率域的表达形式，得到$\hat F(\omega)$。$\hat f(x)$和$\hat F(\omega)$是采样信号分别在空间域和频率域的不同形式，它们通过卷积定理联系起来。<strong>因此，理想的采样和重建的过程可以总结为，在空间域中，对信号做一个均匀的采样，然后对采样得到的数据序列做一个卷积</strong>（在图形学中，一个常用的卷积核就是box滤波，即对周围的邻域采样值取平均）。</p>
+<p>&emsp;&emsp;目前我们的讨论都是假设$F(\omega)$是一个带限（band limit）函数，即它在频率的自变量（也就是频率）是有上界的，即定义域范围是有限的（通常由$[-u_{max},+u_{nax}]$表示）。超出该定义域范围的$F(\omega)$取值为$0$，代表$f(x)$没有该频率的分量。从现实意义上说，即一个信号的频率是有最大频率的。</p>
+<p>&emsp;&emsp;值得一提的是，空间域中采样间隔为$T$的脉冲序列，对应到频率域，其采样间隔变成了$1/T$。这是一个反比关系，即如果空间域采样间隔越小，采样越密集，则频域下的采样间隔越大（因此越能扩展到更高的频率范围，从而捕获更多的高频信息）。</p>
+<h3 id="3、走样现象（Aliasing）"><a href="#3、走样现象（Aliasing）" class="headerlink" title="3、走样现象（Aliasing）"></a>3、走样现象（Aliasing）</h3><p>&emsp;&emsp;前面我们假设待采样的信号是带限的，但在图形学中仅有很少函数分布是带限的，大部分都拥有无穷的频率范围。对一个非带限函数采样或着使用过低的采样频率（对应就是使用较宽的采样间隔）进行采样时，将不可能避免地使得重建出来的函数分布与原始的函数分布相差甚远，这种现象被称为走样（aliasing）。</p>
+<p>&emsp;&emsp;这种现象的产生原因不难理解，以过低的采样频率为例子。采样频率过低意味着使用了很宽的采样间隔$T$，转换到频率域，则其对应的频率域周期$1/T$过低，使得原本互不重叠的采样分布重叠了，正如下图图(a)所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/4.png" width="70%"></div></p>
+<p>&emsp;&emsp;由此重叠产生的效应我们称之为混淆。我们再对上图(a)的频谱分布进行一个带通滤波，将得到上图$(b)$的结果，这个就是重建得到的结果。相比于原始的频谱分布，它的两端被切掉了，丢失了高频部分的信息，从而产生了走样现象。由此为了避免产生明显的走样现象，一种暴力的方法就是提高我们的采样频率，降低采样间隔，但盲目地提高采样率不可取。</p>
+<p>&emsp;&emsp;理想情况下，我们的目标就是使得上图(a)中的函数刚刚好互不重叠即可。<strong>奈奎斯特采样定理</strong>给出了理想采样频率与待采样的原始信号频率之间的关系，即采样的频率至少应该为采样信号中的最大频率的两倍才不至于丢失采样信号中的信息，才能够完美地重建出原始的信号分布。<strong>这个定理我们可以从两个方面看：一是给定一个采样频率，则我们能够完美捕获的最大信号频率是采样频率的一半；另一方面则是若已知信号的最大频率，则可以以最大频率的两倍作为采样频率进行采样以完美重建原始的信号</strong>。采样频率低于定理给出的频率则是欠采样，超出了则是过采样，最理想的情况就是刚刚好，即临采样。</p>
+<h3 id="4、反走样技术"><a href="#4、反走样技术" class="headerlink" title="4、反走样技术"></a>4、反走样技术</h3><p>&emsp;&emsp;针对走样现象，目前已经有诸多的反走样技术，下面介绍三大类反走样技术。在采样阶段产生的失真我们称之为前走样（prealiasing），在重建阶段产生的失真被称为后走样（postaliasing）。</p>
+<h4 id="（1）、非均匀采样"><a href="#（1）、非均匀采样" class="headerlink" title="（1）、非均匀采样"></a>（1）、非均匀采样</h4><p>&emsp;&emsp;顾名思义，在均匀采样的基础上对采样的间隔做一个随机扰动，使得采样的间隔不再是均匀分布。记$\zeta$为$[0,1]$的随机数，则一个非均匀的脉冲采样序列定义为：</p>
+<script type="math/tex; mode=display">
+\sum_{i=-\infty}^{\infty} \delta(x-(i+\frac12-\zeta)T)</script><p>&emsp;&emsp;上面的公式就是在原来的基础上加了$\frac12-\zeta$，它的取值范围是$[-\frac12,+\frac12]$，即在一个周期内随机扰动。对于采样频率过低的情况，均匀采样和非均匀采样均会产生错误的结果，只不过非均匀采样产生的噪声而非走样现象。对于人类视觉系统，噪声更容易被接收一些。</p>
+<h4 id="（2）、自适应采样"><a href="#（2）、自适应采样" class="headerlink" title="（2）、自适应采样"></a>（2）、自适应采样</h4><p>&emsp;&emsp;这里的自适应针对的是原始信号频域的适应，注意到一般信号有高频和低频部分。对于低频部分，没必要使用很高的采样率去采样；而对于高频分布，则应该提高采样频率以防走样的产生。这项技术的初衷非常好，但比较难适用到现实中，因为通常情况下待采样的信号分布我们并不知晓。一些技术通过上两次的采样值对当前的信号频率进行评估，如果值差异过大则适当地提高采样频率。这种方法效果依旧不是很好。</p>
+<h4 id="（3）、预滤波技术"><a href="#（3）、预滤波技术" class="headerlink" title="（3）、预滤波技术"></a>（3）、预滤波技术</h4><p>&emsp;&emsp;预滤波技术从产生问题的根源着手。既然在较低采样率的情况下难以捕获高频信息导致了走样的产生，那么直接在采样之前想办法去掉高频信息。此类技术直接在采样之前对信号执行一个滤波操作，这个滤波采用的滤波核通常是一个低通滤波器，目的是去掉高频、保留低频。这种方法迫使原始的信号分布在一个较低频的范围之内，避免了走样的产生。但附带的结果就是原始信号中的高频信息丢失，信号更加平滑、更加模糊了。相对于走样来说，模糊更能够被人接受一些。</p>
+<h3 id="5、渲染中的采样"><a href="#5、渲染中的采样" class="headerlink" title="5、渲染中的采样"></a>5、渲染中的采样</h3><p>&emsp;&emsp;基于光线追钟的渲染算法本质上就是对场景的辐射率进行采样和重建的过程。场景中的辐射率是一个关于像素位置$(x,y)$、时间$t$、透镜采样点$(u,v)$和光线采样值$i_1,i_2,…$的高维函数：</p>
+<script type="math/tex; mode=display">
+f(x,y,t,u,v,i_1,i_2,...)\to L \tag {8}</script><p>&emsp;&emsp;如何对这些维度进行高效、高质量的采样和重建是光线追踪渲染中永恒不变的话题。在图形渲染中，产生走样的源头主要有场景的几何体（边缘锯齿现象）、纹理和材质（摩尔纹和闪烁现象）和阴影等。这些源头是渲染的重要组成成分，因此不可能直接丢弃。最后需要提的一点就是二维阵列中的像素本质上是一个离散的采样点，它并没有面积这个概念。</p>
+<h2 id="二、采样器接口"><a href="#二、采样器接口" class="headerlink" title="二、采样器接口"></a>二、采样器接口</h2><p>&emsp;&emsp;前面已经提到，光线追踪渲染器通常需要对一个$n$维的空间进行采样，因此一个采样点可以表示成$n$维向量。每个维度在$[0,1)$上随机采样，采样空间序列也可以写成$[0,1)^n$。具体多少维，取决于渲染的积分器。一种最简单的随机采样方法就是随机均匀采样，但这种方法往往需要很多的采样数量才能使得渲染积分收敛到正确的结果。在相同采样数量下，我们寻求尽可能好和高效的采样方法。</p>
+<p>&emsp;&emsp;对于生成的采样向量的用途，我们规定，采样向量的前$5$维用于摄像机（分别是单个像素内的偏移量$(x,y)$、摄像机时间$t$和透镜光圈上的随机采样$(u,v)$）。采样向量剩余维度的数据用于光线追踪过程中的采样。</p>
+<h3 id="1、采样质量评估：差异性"><a href="#1、采样质量评估：差异性" class="headerlink" title="1、采样质量评估：差异性"></a>1、采样质量评估：差异性</h3><p>&emsp;&emsp;对于高维的采样向量的质量评估，傅里叶分析已经满足不了。为此，数学家们提出了一种高维采样质量的评估策略——差异性（discrepancy）。对于一个分布良好的采样序列，它应该具备低差异性的评判标准。$n$维空间$[0,1)^n$的采样序列的差异性评估方法为：寻找$[0,1)^n$的任意一个子空间，使得散落在这个子空间内的采样点数量占总采样点数量的比值与这个子空间占总空间的比值的差最大。理想情况下，最优的采样策略应该是这两个比值相等，即差异性为零。因此，我们的目的就是寻找使得差异性尽可能小的采样模式。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/5.png" width="50%"></div></p>
+<p>&emsp;&emsp;差异性的计算定义如下，首先从采样空间的$[0,1)^n$的一个子空间$B$开始，例如下面这个：</p>
+<script type="math/tex; mode=display">
+B=\{[0,v_1]\times[0,v_2]\times...\times[0,v_n]\}</script><p>&emsp;&emsp;其中$0\leq v_i &lt; 1$。对于给定的采样点序列$P=x_1,…,x_N$，则该采样点集相对于子空间$B$的差异性为：</p>
+<script type="math/tex; mode=display">
+D_N(B,P)=sup_{b\in B}|\frac{\#\{x_i\in b\}}{N}-V(b)|</script><p>&emsp;&emsp;其中$#\{x_i\in b\}$为采样点散落到子空间$b$的采样点数量，$V(b)$是子空间的体积。上面的符号$sup$应该是$max$的意思。差异性的计算一般需要数值方法来近似求解，很少能够直接求解析解。差异性的主旨思想就是衡量采样点的分布情况，如果分布得不是很均匀，那么其差异性将会很高。</p>
+<p>&emsp;&emsp;当然差异性得评估标准也有缺点：一些低差异性的点集内部可能会出现一些点过于聚集。这是低差异性的评估方法的固有缺陷导致。由此衍生了另一种评估方法，计算采样点集中任意两个采样点之间的最小距离，这个最小距离一般是越大越好。泊松圆盘采样（Poisson disk sampling）就是就是基于此评判标准进行采样的。但在实际的用途中，尽管泊松圆盘采样得到的采样点分布质量很高，但是其效率远低于低差异性的采样方法，因此用的比较少。</p>
+<h3 id="2、Sampler接口"><a href="#2、Sampler接口" class="headerlink" title="2、Sampler接口"></a>2、<code>Sampler</code>接口</h3><p>&emsp;&emsp;在光追渲染器中，我们首先创建一个基本的采样器基类，声明一些通用的接口以供不同的采样策略进行复用。采样器基类如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Sampler Declarations</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sampler</span> &#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// Sampler Interface</span></span><br><span class="line">    <span class="keyword">virtual</span> ~Sampler();</span><br><span class="line">    Sampler(<span class="keyword">int64_t</span> samplesPerPixel);</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">StartPixel</span><span class="params">(<span class="keyword">const</span> Point2i &amp;p)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Float <span class="title">Get1D</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Point2f <span class="title">Get2D</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function">CameraSample <span class="title">GetCameraSample</span><span class="params">(<span class="keyword">const</span> Point2i &amp;pRaster)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Request1DArray</span><span class="params">(<span class="keyword">int</span> n)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">Request2DArray</span><span class="params">(<span class="keyword">int</span> n)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">int</span> <span class="title">RoundCount</span><span class="params">(<span class="keyword">int</span> n)</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> n; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Float *<span class="title">Get1DArray</span><span class="params">(<span class="keyword">int</span> n)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point2f *<span class="title">Get2DArray</span><span class="params">(<span class="keyword">int</span> n)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">StartNextSample</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="keyword">virtual</span> <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Sampler&gt; Clone(<span class="keyword">int</span> seed) = <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">bool</span> <span class="title">SetSampleNumber</span><span class="params">(<span class="keyword">int64_t</span> sampleNum)</span></span>;</span><br><span class="line">    <span class="keyword">int64_t</span> CurrentSampleNumber() <span class="keyword">const</span> &#123; <span class="keyword">return</span> currentPixelSampleIndex; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Sampler Public Data</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int64_t</span> samplesPerPixel;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">protected</span>:</span><br><span class="line">    <span class="comment">// Sampler Protected Data</span></span><br><span class="line">    Point2i currentPixel;</span><br><span class="line">    <span class="keyword">int64_t</span> currentPixelSampleIndex;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; samples1DArraySizes, samples2DArraySizes;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt;&gt; sampleArray1D;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Point2f&gt;&gt; sampleArray2D;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// Sampler Private Data</span></span><br><span class="line">    <span class="keyword">size_t</span> array1DOffset, array2DOffset;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>samplesPerPixel</code>存储每个像素需要的采样数量，<code>currentPixel</code>存储当前正在进行采样的像素坐标，而<code>currentPixelSampleIndex</code>指明当前进行到第几个采样。某一些应用场景可能会一次性要求获取当前采样向量中的$m$个一维或两维向量，由此，我们声明下面的几个变量：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; samples1DArraySizes, samples2DArraySizes;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt;&gt; sampleArray1D;</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Point2f&gt;&gt; sampleArray2D;</span><br><span class="line"><span class="keyword">size_t</span> array1DOffset, array2DOffset;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里以1D为例。<code>samples1DArraySizes</code>存储每个$m$的大小（因为可能有多个不同数量的一次性请求），然后<code>sampleArray1D</code>存储相应数量的采样点，<code>array1DOffset</code>辅助采样点的获取。然后使用下面的函数进行初始化：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> Sampler::Request1DArray(<span class="keyword">int</span> n) &#123;</span><br><span class="line">    CHECK_EQ(RoundCount(n), n);</span><br><span class="line">    samples1DArraySizes.push_back(n);</span><br><span class="line">    sampleArray1D.push_back(<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt;(n * samplesPerPixel));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;上面的<code>RoundCount</code>用于某些特殊的采样算法对$n$进行调整，例如要求$n$是$2$的幂次方。每次获取<code>sampleArray1D</code>对应的采样序列，并使其加一：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Float *Sampler::Get1DArray(<span class="keyword">int</span> n) &#123;</span><br><span class="line">    <span class="keyword">if</span> (array1DOffset == sampleArray1D.size()) <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    CHECK_EQ(samples1DArraySizes[array1DOffset], n);</span><br><span class="line">    CHECK_LT(currentPixelSampleIndex, samplesPerPixel);</span><br><span class="line">    <span class="keyword">return</span> &amp;sampleArray1D[array1DOffset++][currentPixelSampleIndex * n];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;提供一个<code>GetCameraSample</code>方便直接获取摄像机要用到的采样值：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CameraSample Sampler::GetCameraSample(<span class="keyword">const</span> Point2i &amp;pRaster) &#123;</span><br><span class="line">    CameraSample cs;</span><br><span class="line">    cs.pFilm = (Point2f)pRaster + Get2D();</span><br><span class="line">    cs.time = Get1D();</span><br><span class="line">    cs.pLens = Get2D();</span><br><span class="line">    <span class="keyword">return</span> cs;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;每使用完一个采样点，则调用<code>StartNextSample</code>转换到下一个采样点：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> Sampler::StartNextSample() &#123;</span><br><span class="line">    <span class="comment">// Reset array offsets for next pixel sample</span></span><br><span class="line">    array1DOffset = array2DOffset = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">return</span> ++currentPixelSampleIndex &lt; samplesPerPixel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;而<code>SetSampleNumber</code>允许我们根据给定的参数<code>sampleNum</code>跳到第<code>sampleNum</code>采样点：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> Sampler::SetSampleNumber(<span class="keyword">int64_t</span> sampleNum) &#123;</span><br><span class="line">    <span class="comment">// Reset array offsets for next pixel sample</span></span><br><span class="line">    array1DOffset = array2DOffset = <span class="number">0</span>;</span><br><span class="line">    currentPixelSampleIndex = sampleNum;</span><br><span class="line">    <span class="keyword">return</span> currentPixelSampleIndex &lt; samplesPerPixel;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后，使用采样器的接口进行采样的过程大致如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sampler-&gt;StartPixel(p);</span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">    Float v = a(sampler-&gt;Get1D());</span><br><span class="line">    v += b(sampler-&gt;Get1D());</span><br><span class="line">    v += c(sampler-&gt;Get1D());</span><br><span class="line">&#125; <span class="keyword">while</span> (sampler-&gt;StartNextSample());</span><br></pre></td></tr></table></figure>
+<h3 id="3、PixelSampler接口"><a href="#3、PixelSampler接口" class="headerlink" title="3、PixelSampler接口"></a>3、<code>PixelSampler</code>接口</h3><p>&emsp;&emsp;我们首先继承采样器接口类实现一个<code>PixelSampler</code>，这个<code>PixelSampler</code>就是逐像素的采样器。每一次在指定的像素位置上，一次性生成指定数量的采样点，然后再逐个获取生成的采样点进行相关的采样计算过程。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PixelSampler</span> :</span> <span class="keyword">public</span> Sampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// PixelSampler Public Methods</span></span><br><span class="line">    PixelSampler(<span class="keyword">int64_t</span> samplesPerPixel, <span class="keyword">int</span> nSampledDimensions);</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">StartNextSample</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">SetSampleNumber</span><span class="params">(<span class="keyword">int64_t</span>)</span></span>;</span><br><span class="line">    <span class="function">Float <span class="title">Get1D</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Point2f <span class="title">Get2D</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">protected</span>:</span><br><span class="line">    <span class="comment">// PixelSampler Protected Data</span></span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt;&gt; samples1D;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Point2f&gt;&gt; samples2D;</span><br><span class="line">    <span class="keyword">int</span> current1DDimension = <span class="number">0</span>, current2DDimension = <span class="number">0</span>;</span><br><span class="line">    RNG rng;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;构造函数中的<code>nSampledDimensions</code>用于指定采样向量的最大维度。<code>samples1D</code>和<code>samples2D</code>分别存储采样点，每一维度存储<code>samplesPerPixel</code>个生成好的采样数据。以1D为例，索引方式为<code>samples1D[current1DDimension][currentPixelSampleIndex]</code>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PixelSampler::PixelSampler(<span class="keyword">int64_t</span> samplesPerPixel, <span class="keyword">int</span> nSampledDimensions)</span><br><span class="line">    : Sampler(samplesPerPixel) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nSampledDimensions; ++i) &#123;</span><br><span class="line">        samples1D.push_back(<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Float&gt;(samplesPerPixel));</span><br><span class="line">        samples2D.push_back(<span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Point2f&gt;(samplesPerPixel));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;因此<code>Get1D</code>函数定义如下，它每次获取一个一维的采样数据，超出预设的最大维度下标，则返回均匀随机数，成员变量<code>rng</code>是随机数生成器（random number generator）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Float PixelSampler::Get1D() &#123;</span><br><span class="line">    CHECK_LT(currentPixelSampleIndex, samplesPerPixel);</span><br><span class="line">    <span class="keyword">if</span> (current1DDimension &lt; samples1D.size())</span><br><span class="line">        <span class="keyword">return</span> samples1D[current1DDimension++][currentPixelSampleIndex];</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> rng.UniformFloat();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4、GlobalSampler接口"><a href="#4、GlobalSampler接口" class="headerlink" title="4、GlobalSampler接口"></a>4、<code>GlobalSampler</code>接口</h3><p>&emsp;&emsp;除了逐像素一次性生成的采样方法，还有一些其他的采样算法是在整个图像空间生成采样，然后将采样点播撒到图像中的像素上。也就是连续生成的采样不再是全部由单个像素占有并使用，而是一个个地分发到不同的像素上。以下图一类采样算法生成的采样序列为例，中间一列给出了生成的前二维采样序列，考虑$2\times 3$大小的图像，这些前二维采样值乘上图像的分辨率得到相应的像素采样坐标（向下取整）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.34/blog/Sampler/6.png" width="70%"></div></p>
+<p>&emsp;&emsp;可以看到在该采样算法中，采样索引为$0$、$6$、$12$的采样点对应着$(0,0)$这个像素坐标，其他依次类推。<code>GlobalSampler</code>的一些接口和通用函数声明如下所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GlobalSampler</span> :</span> <span class="keyword">public</span> Sampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// GlobalSampler Public Methods</span></span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">StartNextSample</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">StartPixel</span><span class="params">(<span class="keyword">const</span> Point2i &amp;)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">SetSampleNumber</span><span class="params">(<span class="keyword">int64_t</span> sampleNum)</span></span>;</span><br><span class="line">    <span class="function">Float <span class="title">Get1D</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Point2f <span class="title">Get2D</span><span class="params">()</span></span>;</span><br><span class="line">    GlobalSampler(<span class="keyword">int64_t</span> samplesPerPixel) : Sampler(samplesPerPixel) &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> int64_t <span class="title">GetIndexForSample</span><span class="params">(<span class="keyword">int64_t</span> sampleNum)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Float <span class="title">SampleDimension</span><span class="params">(<span class="keyword">int64_t</span> index, <span class="keyword">int</span> dimension)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// GlobalSampler Private Data</span></span><br><span class="line">    <span class="keyword">int</span> dimension;</span><br><span class="line">    <span class="keyword">int64_t</span> intervalSampleIndex;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">const</span> <span class="keyword">int</span> arrayStartDim = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">int</span> arrayEndDim;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里有两个关键的接口辅助此类采样器的实现：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">virtual</span> int64_t <span class="title">GetIndexForSample</span><span class="params">(<span class="keyword">int64_t</span> sampleNum)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line"><span class="function"><span class="keyword">virtual</span> Float <span class="title">SampleDimension</span><span class="params">(<span class="keyword">int64_t</span> index, <span class="keyword">int</span> dimension)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>GetIndexForSample</code>输入采样点的索引<code>sampleNum</code>，根据当前的像素坐标<code>currentPixel</code>返回全局采样索引值（即上图中的sample index）。以上图为例，若当前像素坐标为<code>(0,2)</code>，<code>sampleNum=0</code>，则该接口应该返回第一个出现的对应的像素坐标值为<code>(0,2)</code>的采样的全局索引即<code>2</code>。同理<code>GetIndexForSample(1)</code>应返回<code>8</code>。这里<code>sampleNum</code>是相对于当前像素的采样索引，即当前像素的第一个采样、第二个采样，依次类推。</p>
+<p>&emsp;&emsp;而<code>SampleDimension</code>获取全局采样索引<code>index</code>（即上面接口的输出）和要查询的第几维度<code>dimension</code>，返回对应的采样值相对于其所在像素的偏移量。依旧以上图为例，<code>SampleDimension(4,1)</code>返回值为<code>0.333333</code>，首先根据全局采样索引<code>4</code>找到对应的采样向量<code>(0.125000, 0.444444)</code>，乘以图像分辨率得到<code>(0.250000, 1.33333)</code>，减去其对应的像素坐标<code>(0,1)</code>，得到偏移量<code>(0.250000, 0.33333)</code>，然后因为<code>dimension</code>为<code>1</code>，所以返回<code>0.33333</code>。</p>
+<p>&emsp;&emsp;<strong>尽管是全局生成了所有像素的所有采样点，但是在使用的时候还是逐个像素使用该像素应有的采样点，这需要一些技巧找到给定像素的所有采样点</strong>。<code>dimension</code>用于记录当前像素将要获取的当前采样向量中的下一个维度的索引，<code>intervalSampleIndex</code>记录当前采样向量的全局索引。在初始时，我们需要从全局的采样点中获取当前像素应有的采样点，保存到基类的<code>sampleArray1D</code>和<code>sampleArray2D</code>当中：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> GlobalSampler::StartPixel(<span class="keyword">const</span> Point2i &amp;p) &#123;</span><br><span class="line">    Sampler::StartPixel(p);</span><br><span class="line">    dimension = <span class="number">0</span>;</span><br><span class="line">    intervalSampleIndex = GetIndexForSample(<span class="number">0</span>);</span><br><span class="line">    <span class="comment">// Compute _arrayEndDim_ for dimensions used for array samples</span></span><br><span class="line">    arrayEndDim =</span><br><span class="line">        arrayStartDim + sampleArray1D.size() + <span class="number">2</span> * sampleArray2D.size();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Compute 1D array samples for _GlobalSampler_</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; samples1DArraySizes.size(); ++i) &#123;</span><br><span class="line">        <span class="keyword">int</span> nSamples = samples1DArraySizes[i] * samplesPerPixel;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; nSamples; ++j) &#123;</span><br><span class="line">            <span class="keyword">int64_t</span> index = GetIndexForSample(j);</span><br><span class="line">            sampleArray1D[i][j] = SampleDimension(index, arrayStartDim + i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Compute 2D array samples for _GlobalSampler_</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>arrayStartDim</code>和<code>arrayEndDim</code>记录那些需要一次性获取<strong>多个</strong>一维或二维采样值的下标起始，例如<code>sampleArray1D[arrayStartDim]</code>到<code>arrayStartDim[arrayEndDim]</code>之间的数组保存着这样的采样值。<code>sampleArray1D[0]</code>到<code>sampleArray1D[arrayStartDim]</code>之间保存着用于摄像机的五个维度的采样。而<code>arrayStartDim[arrayEndDim]</code>之后的保存着一次只获取一个一维的采样值。</p>
+<p>&emsp;&emsp;值得注意的是<code>sampleArray1D</code>依旧保存的是那些需要一次性获取多个一维采样值，而对于那些一次只获取一个采样值的，我们依旧从全局采样点集中动态获取，2D同理：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Float GlobalSampler::Get1D() &#123;</span><br><span class="line">    ProfilePhase _(Prof::GetSample);</span><br><span class="line">    <span class="keyword">if</span> (dimension &gt;= arrayStartDim &amp;&amp; dimension &lt; arrayEndDim)</span><br><span class="line">        dimension = arrayEndDim;</span><br><span class="line">    <span class="keyword">return</span> SampleDimension(intervalSampleIndex, dimension++);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Point2f GlobalSampler::Get2D() &#123;</span><br><span class="line">    ProfilePhase _(Prof::GetSample);</span><br><span class="line">    <span class="keyword">if</span> (dimension + <span class="number">1</span> &gt;= arrayStartDim &amp;&amp; dimension &lt; arrayEndDim)</span><br><span class="line">        dimension = arrayEndDim;</span><br><span class="line">    <span class="function">Point2f <span class="title">p</span><span class="params">(SampleDimension(intervalSampleIndex, dimension),</span></span></span><br><span class="line"><span class="function"><span class="params">              SampleDimension(intervalSampleIndex, dimension + <span class="number">1</span>))</span></span>;</span><br><span class="line">    dimension += <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="三、完全随机采样"><a href="#三、完全随机采样" class="headerlink" title="三、完全随机采样"></a>三、完全随机采样</h2><p>&emsp;&emsp;完全随机采样是一种基本的采样方法之一，虽然效果不佳，但是通常被用于与其他的采样方法进行比较，因此有必要创建一个完全随机的采样器。完全随机的采样器很简单，使用随机数生成器直接生成即可：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RandomSampler</span> :</span> <span class="keyword">public</span> Sampler &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    RandomSampler(<span class="keyword">int</span> ns, <span class="keyword">int</span> seed = <span class="number">0</span>);</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">StartPixel</span><span class="params">(<span class="keyword">const</span> Point2i &amp;)</span></span>;</span><br><span class="line">    <span class="function">Float <span class="title">Get1D</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">Point2f <span class="title">Get2D</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Sampler&gt; Clone(<span class="keyword">int</span> seed);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    RNG rng;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">RandomSampler::RandomSampler(<span class="keyword">int</span> ns, <span class="keyword">int</span> seed) : Sampler(ns), rng(seed) &#123;&#125;</span><br><span class="line"></span><br><span class="line">Float RandomSampler::Get1D() &#123;</span><br><span class="line">    ProfilePhase _(Prof::GetSample);</span><br><span class="line">    CHECK_LT(currentPixelSampleIndex, samplesPerPixel);</span><br><span class="line">    <span class="keyword">return</span> rng.UniformFloat();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Point2f RandomSampler::Get2D() &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> RandomSampler::StartPixel(<span class="keyword">const</span> Point2i &amp;p) &#123;</span><br><span class="line">    ProfilePhase _(Prof::StartPixel);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; sampleArray1D.size(); ++i)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">size_t</span> j = <span class="number">0</span>; j &lt; sampleArray1D[i].size(); ++j)</span><br><span class="line">            sampleArray1D[i][j] = rng.UniformFloat();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">size_t</span> i = <span class="number">0</span>; i &lt; sampleArray2D.size(); ++i)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">size_t</span> j = <span class="number">0</span>; j &lt; sampleArray2D[i].size(); ++j)</span><br><span class="line">            sampleArray2D[i][j] = &#123;rng.UniformFloat(), rng.UniformFloat()&#125;;</span><br><span class="line">    Sampler::StartPixel(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;完全随机的采样方法拥有简单、高效的优点，但其缺点也十分明显。完全随机生成的采样点很容易出现某些采样空间播撒的采样点很少（欠采样）、而另外一些采样空间播撒的采样点很密集（过采样），因此为了能够收敛到正确的结果往往需要生成大量的采样点。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>$[1]$ M, Jakob W, Humphreys G. Physically based rendering: From theory to implementation[M]. Morgan Kaufmann, 2016.</p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-04-11T22:50:27+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2020年4月11日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Ray-Tracer/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Ray Tracer</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2020/04/11/Sampling1/&title=Physically Based Rendering：采样和重建（一） | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=计算机作为离散数据的计算机器，只能使用采样的手段处理连续的数据。计算图形学本质上是采用虚拟摄像机处理虚拟空间的信号数据，因此在图形领域采样的身影无所不在，如何使用采样和重建的技术合成尽可能真实、无噪声、无走样的图像是图形学的一个重要话题。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2020/04/11/Sampling1/&title=Physically Based Rendering：采样和重建（一） | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=计算机作为离散数据的计算机器，只能使用采样的手段处理连续的数据。计算图形学本质上是采用虚拟摄像机处理虚拟空间的信号数据，因此在图形领域采样的身影无所不在，如何使用采样和重建的技术合成尽可能真实、无噪声、无走样的图像是图形学的一个重要话题。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2020/04/11/Sampling1/&title=Physically Based Rendering：采样和重建（一） | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=计算机作为离散数据的计算机器，只能使用采样的手段处理连续的数据。计算图形学本质上是采用虚拟摄像机处理虚拟空间的信号数据，因此在图形领域采样的身影无所不在，如何使用采样和重建的技术合成尽可能真实、无噪声、无走样的图像是图形学的一个重要话题。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                    <section class="prev">
+                        <span class="art-item-left">
+                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
+                            <h4>
+                                <a href="/2020/04/11/Sampling2/" rel="prev" title="Physically Based Rendering：采样和重建（二）">
+                                  
+                                      Physically Based Rendering：采样和重建（二）
+                                  
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2020/04/06/Spectral/" rel="prev" title="Physically Based Rendering：光谱与辐射度量">
+                                    
+                                        Physically Based Rendering：光谱与辐射度量
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: 'Physically Based Rendering：采样和重建（一）',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.png"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、采样理论"><span class="toc-text">一、采样理论</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、傅里叶分析"><span class="toc-text">1、傅里叶分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、采样与重建"><span class="toc-text">2、采样与重建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、走样现象（Aliasing）"><span class="toc-text">3、走样现象（Aliasing）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、反走样技术"><span class="toc-text">4、反走样技术</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#（1）、非均匀采样"><span class="toc-text">（1）、非均匀采样</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#（2）、自适应采样"><span class="toc-text">（2）、自适应采样</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#（3）、预滤波技术"><span class="toc-text">（3）、预滤波技术</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、渲染中的采样"><span class="toc-text">5、渲染中的采样</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、采样器接口"><span class="toc-text">二、采样器接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、采样质量评估：差异性"><span class="toc-text">1、采样质量评估：差异性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、Sampler接口"><span class="toc-text">2、Sampler接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、PixelSampler接口"><span class="toc-text">3、PixelSampler接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、GlobalSampler接口"><span class="toc-text">4、GlobalSampler接口</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、完全随机采样"><span class="toc-text">三、完全随机采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错或者乱码，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(28)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Image-processing/" href="/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(8)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 15.67px; color: #c6c6c6">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22.33px; color: #f4f4f4">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 15.67px; color: #c6c6c6">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 17.33px; color: #d2d2d2">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 20.67px; color: #e8e8e8">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 15.67px; color: #c6c6c6">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 19px; color: #ddd">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
