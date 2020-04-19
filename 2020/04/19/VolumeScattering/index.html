@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>Physically Based Rendering：体积散射 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2020/04/19/VolumeScattering/">
+        Physically Based Rendering：体积散射
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="https://yangwc.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2020-04-19</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Ray-Tracer/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Ray Tracer</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>在不考虑空气介质的散射效应时，我们假定光线在真空中传播，故光线的辐射率在传播过程不会发生变化。但真实地球世界却并非真空，大气散射、烟雾散射等丁达尔效应现象对渲染结果至关重要，这类光学效果涉及到散射介质，光线在此类介质中被吸收、散射，最终到达人眼的辐射率与未考虑介质散射的有非常明显的不同。</p>
+<a id="more"></a>
+<p>&emsp;&emsp;以下的内容大部分整理自pbrt第三版的第十章——VOLUME SCATTERING。</p>
+<h2 id="一、体积散射效应"><a href="#一、体积散射效应" class="headerlink" title="一、体积散射效应"></a>一、体积散射效应</h2><p>&emsp;&emsp;光线在参与介质（participating media）中传播的辐射率分布主要受以下三个方面的影响：</p>
+<ul>
+<li>吸收（Absorption）：光线与介质中的粒子碰撞，直接将光能转换成其它形式的能量，例如热能，因此光线的辐射率被衰减了；</li>
+<li>发光（Emission）：介质中的发光粒子产生的辐射率附加到光线上，因此光线的辐射率被增强了；</li>
+<li>散射（Scattering）：光线与介质中的粒子碰撞，导致光线的传播方向发生了变化，对于给定的传播方向，既有该方向上的光线向外散射到其他方向（外散射），又有其他方向的光线被散射并融入到该方向上（内散射）。</li>
+</ul>
+<p>&emsp;&emsp;这些体积散射效应按照介质的类别又可以分为均匀（homogeneous）散射和非均匀（inhomogeneous）散射。均匀散射指参与介质在其分布的空间中是均匀分布的（可以看成参与介质的粒子是均匀散落在空间中），此类介质的散射比较简单；非均匀散射则是指光线在非均匀分布的参与介质中传播，例如地球的大气层，从海平面逐渐升高空气的密度逐渐稀薄。</p>
+<h3 id="1、吸收"><a href="#1、吸收" class="headerlink" title="1、吸收"></a>1、吸收</h3><p>&emsp;&emsp;阳光照射到空气中的烟雾，也会在地面上投射出一个阴影轮廓，这是因为光线经过烟雾介质时一部分的辐射率被吸收了，导致到达地面上的辐射率低了不少，从而形成阴影。烟雾越浓越厚，则阴影越明显。介质的吸收性质通常用介质的<strong>吸收截面</strong>$\sigma_a$（absorption cross section）来表示，它描述了光透过介质中的单位距离时被吸收的分量，因此这是一个概率密度函数，单位为距离的倒数$m^{-1}$。吸收截面通常与空间中的位置$p$和介质的光谱有关，但在某些特殊情况下也与方向$\omega$有关。值得注意的是，虽然$\sigma_a$是概率密度，但它的取值并没有被限制于$0$到$1$之间，因此需要进一步取自然底数$e$的指数转换成吸收概率密度值（后面会看到）。</p>
+<p>&emsp;&emsp;下图展示了光线在介质中经过的一段极短的距离（以$p$点为中心）被吸收的情况，设该极短距离为$dt$。光线从左边入射进来，其辐射率为$L_i(p,-\omega)$，与介质中的粒子碰撞被吸收之后的出射辐射率记为$L_o(p,\omega)$。现给定吸收截面$\sigma_a$，则被吸收的微分辐射率为：</p>
+<script type="math/tex; mode=display">
+L_o(p,\omega)-L_i(p,-\omega)=dL_o(p,\omega)=-\sigma_a(p,\omega)L_i(p,-\omega)dt \tag {1.1}</script><p>&emsp;&emsp;上式给出了光线被吸收的辐射率值，它表明被吸收的微分辐射率$dL_o$是其初始辐射率$L_i$的线性函数。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/1.png" width="50%"></div></p>
+<p>&emsp;&emsp;因此，给定光线的起始点$p$和入射方向$\omega$，光线在介质中穿过$d$距离时，经过吸收衰减之后，剩余的辐射率占据原来的辐射率比值为如下的指数上的积分形式：</p>
+<script type="math/tex; mode=display">
+e^{-\int_0^d \sigma_a(p+\omega t,\omega)dt} \tag {1.2}</script><p>&emsp;&emsp;即对$[0,d]$上的吸收截面$\sigma_a$进行积分，得到总的吸收率，再取负就得到剩余的能量比例。</p>
+<h3 id="2、发光"><a href="#2、发光" class="headerlink" title="2、发光"></a>2、发光</h3><p>&emsp;&emsp;一方面光线透过介质被吸收导致衰减，但另一方面，介质中的发光粒子会产生光能，汇入到传播的光线当中。介质中的发光粒子的产生原因有很多，例如化学反应等。下图依旧以一个微分距离$dt$为例，记介质的发光辐射率为$L_e(p,\omega)$，它是关于位置$p$和方向$\omega$的函数，描述了单位距离上的发光辐射率值。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/2.png" width="50%"></div></p>
+<p>&emsp;&emsp;因此，经过上图的微分距离$dt$，新增的微分辐射率为：</p>
+<script type="math/tex; mode=display">
+dL_o(p,\omega)=L_e(p,\omega) dt \tag {1.3}</script><p>&emsp;&emsp;在这里，我们假定发光辐射率$L_e(p,\omega)$与入射辐射率$L_i$无关。</p>
+<h3 id="3、外散射"><a href="#3、外散射" class="headerlink" title="3、外散射"></a>3、外散射</h3><p>&emsp;&emsp;对于给定的光线传播方向$\omega$，根据散射方向的不同，可以分成内散射和外散射。对于给定的光线传播方向，因为与介质粒子碰撞导致光线的方向被弹射至其它方向，减弱了原本光线辐射率，这就是外散射；而又因为周围粒子的外散射导致其他方向的光线被弹射到当前的光线传播方向，增加了原本光线辐射率，这就是内散射。内散射源于外散射，两者不是排斥关系。这里先来看外散射效应。</p>
+<p>&emsp;&emsp;每单位距离的外散射的概率密度用散射系数$\sigma_s$。与吸收类似，外散射导致的减少的微分辐射率为：</p>
+<script type="math/tex; mode=display">
+dL_o(p,\omega)=-\sigma_s(p,\omega)L_i(p,-\omega)dt</script><p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/3.png" width="60%"></div></p>
+<p>&emsp;&emsp;通常，对于辐射率的衰减，我们把吸收和外散射两个因素综合起来一起计算，因此总的衰减比例为吸收截面加上散射系数：$\sigma_a+\sigma_s$。光线的吸收和外散射我们统一称为衰减（attenuation）或消光（extinction），用衰减系数$\sigma_t$记为两者之和：</p>
+<script type="math/tex; mode=display">
+\sigma_t(p,\omega)=\sigma_a(p,\omega)+\sigma_s(p,\omega) \tag {1.4}</script><p>&emsp;&emsp;给定了介质的衰减系数$\sigma_t$，辐射率的衰减速率为$\frac{dL_o(p,\omega)}{dt}=-\sigma_t(p,\omega) L_i(p,\omega)$。给定要通过的路径的两个端点$p$和$p’$（如下图所示），以下的积分公式计算光线通过这条路径时，除去被吸收和被外散射的，剩余的辐射率占比，我们称之为<strong>光束透射率</strong>（beam transmittance）：</p>
+<script type="math/tex; mode=display">
+T_r(p\to p')=e^{-\int_0^d\sigma_t(p+t\omega,\omega)dt} \tag {1.5}</script><p>&emsp;&emsp;其中$d=||p-p’||$是$p$和$p’$之间的直线距离，$\omega$是$p\to p’$的单位方向向量。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/4.png" width="60%"></div></p>
+<p>&emsp;&emsp;公式$(1.5)$计算得到的光束透射率取值介于$0$到$1$之间，本质上是个百分比。因此，经过衰减之后到达$p’$点的辐射率就是起始点$p$的辐射率再乘上光束透射率：</p>
+<script type="math/tex; mode=display">
+T_r(p\to p')L_o(p,\omega)</script><p>&emsp;&emsp;来观察观察一下光束透射率即公式$(1.5)$的一些性质。当介质为真空时，即$\sigma_t=0$，则$T_r=1$；当$p=p’$时，$T_r=1$。符合物理常识。此外，若衰减系数$\sigma_t$是关于方向对称的，即$\sigma_t(\omega)=\sigma_t(-\omega)$，或者$\sigma_t$仅仅是关于位置的函数，则介质中两点之间的透射率亦符合如下的对称性：</p>
+<script type="math/tex; mode=display">
+T_r(p\to p')=T_r(p'\to p)</script><p>&emsp;&emsp;关于光束透射率的另一个重要的属性就是 ，对于任意的介质，有如下的性质：</p>
+<script type="math/tex; mode=display">
+T_r(p\to p'')=T_r(p\to p')T_r(p'\to p'')</script><p>&emsp;&emsp;其中，$p’$是介于$p$和$p’’$之间的任意一点，如下图所示。这个性质非常有用，把原本$T_r(p\to p’’)$的求解拆分成两段独立的$T_r(p\to p’)$和$T_r(p’\to p’’)$的求解，最后再通过相乘得到$T_r(p\to p’’)$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/5.png" width="60%"></div></p>
+<p>&emsp;&emsp;公式$(1.5)$中的指数取反就是两点之间的<strong>光学厚度</strong>（optical thickness），用符号$\tau$表示：</p>
+<script type="math/tex; mode=display">
+\tau(p\to p')=\int_{o}^d \sigma_t(p+t\omega,-\omega)dt \tag {1.6}</script><p>&emsp;&emsp;求解公式$(1.5)$的关键就是求解光学厚度$(1.6)$。对于均匀介质，衰减系数$\sigma_t$是一个常量值，因此可以可以直接计算出光学厚度$\tau=\sigma_t d$，从而得出了Beer定律的光束透射率公式：</p>
+<script type="math/tex; mode=display">
+T_r(p\to p')=e^{-\sigma_t d} \tag {1.7}</script><p>&emsp;&emsp;这里有两个非常重要的与衰减系数相关的概念。一个是参与介质的<strong>反照率</strong>（albedo），其公式为$\rho=\frac{\sigma_s}{\sigma_t}$，取值为$[0,1]$，它给出了散射比例；另一个是<strong>平均自由路径</strong>（mean free path），其公式为$1/\sigma_t$，它给出了一束光线在介质中传播过程中与介质粒子碰撞时走过的平均路径。</p>
+<h3 id="4、内散射"><a href="#4、内散射" class="headerlink" title="4、内散射"></a>4、内散射</h3><p>&emsp;&emsp;与外散射相反，内散射是其他方向的光线被弹射到当前的光线传播方向，增加了当前的光照辐射率值。对于内散射，这里做了一个假设，即介质粒子之间的间隔是粒子半径的数倍（即互不接触），因此在描述散射性质时可以忽略粒子之间的交互作用。基于该假设，给定空间中的一点和光线传播方向$\omega$以及另外一个不同的方向$\omega’$，相位函数（phase function）$p(\omega,\omega’)$描述了从$\omega’$方向上的光线被散射到$\omega$方向的概率密度值，类似于BSDF函数。因此相位函数有如下的归一化约束：</p>
+<script type="math/tex; mode=display">
+\int_{S^2}p(\omega,\omega')d\omega' = 1</script><p>&emsp;&emsp;即对整个球体方向的积分求和值应该为$1$。通过内散射和发光增加的微分辐射率为：</p>
+<script type="math/tex; mode=display">
+dL_o(p,\omega)=L_s(p,\omega) dt</script><p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/6.png" width="50%"></div></p>
+<p>&emsp;&emsp;而$L_s(p,\omega)$综合了发光与内散射效应：</p>
+<script type="math/tex; mode=display">
+L_s(p,\omega)=L_e(p,\omega)+\sigma_s(p,\omega)\int_{S^2}p(p,\omega_i,\omega) L_i(p,\omega_i)d\omega{i} \tag {1.8}</script><h2 id="二、相位函数"><a href="#二、相位函数" class="headerlink" title="二、相位函数"></a>二、相位函数</h2><p>&emsp;&emsp;BSDF模型对于给定的入射方向和出射方向，计算出射辐射率占入射辐照度的比值。而在体积散射中，相位函数也是一个类似的模型。在图形学中用到的相位函数中，有些是通过拟合得到的参数化模型，有些是根据介质形状和材质的散射辐射率分布推导出的解析模型。对于大部分的自然介质，其相位函数是关于$\theta$的一维函数，入射方向$\theta$是$\omega_i$和出射方向$\omega_o$的夹角，这些相位函数通常记为$p(cos\theta)$。此类相位函数对应的参与介质是各向同性的，具有关于入射方向的局部旋转不变性。此外，因为$cos(-\theta)=cos(\theta)$，故该各向同性介质的相位函数具有可逆性，即$\omega_i$和$\omega_o$交换，但相位函数取值不变。对于各向异性的介质，其相位函数通常是关于$\omega_i$和$\omega_o$的四维函数，比较复杂。</p>
+<p>&emsp;&emsp;这里需要注意的一点就是，相位函数本身亦可以是各向同性或者各向同性的，因此各向同性的介质可以有一个各向异性的相位函数。一个各向同性的相位函数描述的是向所有方向均等散射的情况，因此与$\omega$和$\omega’$这两个方向无关，各向同性的相位函数只有如下面的一个：</p>
+<script type="math/tex; mode=display">
+p(\omega_o,\omega_i)=\frac{1}{4\pi}</script><p>&emsp;&emsp;$\omega_o$是原本的光线传播方向，$\omega_i$是从其他方向弹射过来的入射方向。创建一个<code>PhaseFunction</code>的接口类如下，其中<code>p(const Vector3f &amp;wo, const Vector3f &amp;wi)</code>就是相位函数的接口，它的输入参数为$\omega_i$和$\omega_o$：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">PhaseFunction</span> &#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// PhaseFunction Interface</span></span><br><span class="line">    <span class="keyword">virtual</span> ~PhaseFunction();</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Float <span class="title">p</span><span class="params">(<span class="keyword">const</span> Vector3f &amp;wo, <span class="keyword">const</span> Vector3f &amp;wi)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Float <span class="title">Sample_p</span><span class="params">(<span class="keyword">const</span> Vector3f &amp;wo, Vector3f *wi,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">const</span> Point2f &amp;u)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在这里，$\omega_i$和$\omega_o$的方向沿用BSDF的惯例，起始点为$p$，如下图所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/7.png" width="50%"></div></p>
+<p>&emsp;&emsp;Henyey和Greenstein提出一个现今广泛使用的相位函数，该相位函数的输入参数除了$cos\theta$之外，还有非对称参数$g$。但应用到某个参与介质上时，非对称参数$g$就固定了：</p>
+<script type="math/tex; mode=display">
+p_{HG}(cos\theta)=\frac{1}{4\pi}\frac{1-g^2}{(1+g^2+2g(cos\theta))^{3/2}} \tag {2.1}</script><p>&emsp;&emsp;非对称参数$g$的取值范围为$[-1,1]$，$g$的不同取值则对应的相位函数分布亦不相同。下图分别展示了$g=-0.35$（实线）和$g=0.67$（虚线）时的Henyey-Greenstein相位函数分布。$g$取$[-1,0]$时光线大部分都从后半球方向散射进来，称之为后向散射（back-scattering）；$g$取$[0,1]$时光线大部分都从前半球方向散射进来，称之为前向散射（forward-scattering）。$g$的绝对值越大，则越偏向于$\omega$（对于前向散射）或者$-\omega$（对于后想散射）方向。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/8.png" width="50%"></div></p>
+<p>&emsp;&emsp;前向散射和后向散射产生的视觉效果差别非常大，下图给出了两者的渲染结果。左边的是后向散射的结果，因此可以模型后面的光线透过模型，抵达人眼，产生透射效果；右边的是前向散射的结果，模型倾向于反射其前方的光线，产生反射效果。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.36/blog/VolumeScattering/9.png" width="50%"></div></p>
+<p>&emsp;&emsp;根据公式$(2.1)$，可以实现Henyey-Greenstein相位函数如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">inline</span> Float <span class="title">PhaseHG</span><span class="params">(Float cosTheta, Float g)</span> </span>&#123;</span><br><span class="line">    Float denom = <span class="number">1</span> + g * g + <span class="number">2</span> * g * cosTheta;</span><br><span class="line">    <span class="keyword">return</span> Inv4Pi * (<span class="number">1</span> - g * g) / (denom * <span class="built_in">std</span>::<span class="built_in">sqrt</span>(denom));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HenyeyGreenstein</span> :</span> <span class="keyword">public</span> PhaseFunction &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// HenyeyGreenstein Public Methods</span></span><br><span class="line">    HenyeyGreenstein(Float g) : g(g) &#123;&#125;</span><br><span class="line">    <span class="function">Float <span class="title">p</span><span class="params">(<span class="keyword">const</span> Vector3f &amp;wo, <span class="keyword">const</span> Vector3f &amp;wi)</span> <span class="keyword">const</span></span>;</span><br><span class="line">    <span class="function">Float <span class="title">Sample_p</span><span class="params">(<span class="keyword">const</span> Vector3f &amp;wo, Vector3f *wi,</span></span></span><br><span class="line"><span class="function"><span class="params">                   <span class="keyword">const</span> Point2f &amp;sample)</span> <span class="keyword">const</span></span>;</span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">const</span> Float g;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Float HenyeyGreenstein::p(<span class="keyword">const</span> Vector3f &amp;wo, <span class="keyword">const</span> Vector3f &amp;wi) <span class="keyword">const</span> &#123;</span><br><span class="line">    ProfilePhase _(Prof::PhaseFuncEvaluation);</span><br><span class="line">    <span class="keyword">return</span> PhaseHG(Dot(wo, wi), g);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;Henyey-Greenstein模型中的非对称参数$g$实际上有明确的数学意义，是相位函数$p$分布下的$cos\theta$值的数学期望（或者说平均值），这里相位函数是概率密度函数，即：</p>
+<script type="math/tex; mode=display">
+g=\int_{S^2}p(-\omega,\omega')(\omega \cdot \omega')d\omega'=2\pi \int_0^\pi p(-cos\theta)cos\theta sin\theta d\theta</script><p>&emsp;&emsp;对于各向同性的相位函数（即前面的$\frac{1}{4\pi}$），上面计算得到$g=0$，符合预期结果。更复杂的相位函数可以通过一些简单的相位函数加权叠加得到：</p>
+<script type="math/tex; mode=display">
+p(\omega,\omega')=\sum_{i=1}^n \omega_i p_i(\omega\to \omega') \tag {2.2}</script><p>&emsp;&emsp;其中，权重的总和$\sum_{i=1}^n\omega_i$应该等于$1$，确保相位函数的归一化性质。pbrt并没有实现该类相位函数。</p>
+<h2 id="三、参与介质"><a href="#三、参与介质" class="headerlink" title="三、参与介质"></a>三、参与介质</h2><p>&emsp;&emsp;自然界中的散射介质形态各异，有些没有明显的物体边界（例如烟雾、大气层），而有些却有明显的物体边界（例如人体的皮肤）。尽管某些参与介质没有明确的边界，但通常拥有一个包围盒或者类似于包围盒的复杂几何体来表示介质涉及的最大范围，然后在渲染的时候并不渲染这个包围几何体即可。关于这方便的设定不再赘述。</p>
+<p>&emsp;&emsp;有了边界，现在的问题就是如何描述边界之内的参与介质的分布情况。对于均匀的散射介质，介质粒子的密度为常量，根本不需要用额外的数据结构去存储参与介质的分布数据。而对于非均匀的散射介质，则要麻烦一些。这里首先创建一个<code>Medium</code>接口类，函数<code>Tr</code>是计算光束透射率的接口：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Medium</span> &#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// Medium Interface</span></span><br><span class="line">    <span class="keyword">virtual</span> ~Medium() &#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Spectrum <span class="title">Tr</span><span class="params">(<span class="keyword">const</span> Ray &amp;ray, Sampler &amp;sampler)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Spectrum <span class="title">Sample</span><span class="params">(<span class="keyword">const</span> Ray &amp;ray, Sampler &amp;sampler,</span></span></span><br><span class="line"><span class="function"><span class="params">                            MemoryArena &amp;arena,</span></span></span><br><span class="line"><span class="function"><span class="params">                            MediumInteraction *mi)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="1、均匀介质表示"><a href="#1、均匀介质表示" class="headerlink" title="1、均匀介质表示"></a>1、均匀介质表示</h3><p>&emsp;&emsp;均匀介质（Homogeneous medium）是一类最简单的参与介质，也是一种最高效的介质模型，在图形领域亦有诸多应用。均匀介质其密度为某个常量值，因此其吸收截面$\sigma_a$和散射系数$\sigma_s$在整个介质区域内亦为常量。因此可以直接省去计算光学深度的积分公式，直接套用前面提到的Beer透射定律公式$(1.7)$，即：</p>
+<script type="math/tex; mode=display">
+T_r(p\to p')=e^{-\sigma_t d}</script><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Spectrum HomogeneousMedium::Tr(<span class="keyword">const</span> Ray &amp;ray, Sampler &amp;sampler) <span class="keyword">const</span> &#123;</span><br><span class="line">    ProfilePhase _(Prof::MediumTr);</span><br><span class="line">    <span class="keyword">return</span> Exp(-<span class="keyword">sigma_t</span> * <span class="built_in">std</span>::min(ray.tMax * ray.d.Length(), MaxFloat));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、非均匀介质表示"><a href="#2、非均匀介质表示" class="headerlink" title="2、非均匀介质表示"></a>2、非均匀介质表示</h3><p>&emsp;&emsp;对于非均匀的散射介质，其密度随着空间位置的变化而变化（例如空气密度从海平面到高空逐渐稀薄），一般很难找到某种显式的数学解析式描述介质密度的空间分布情况。为此，一种表示非均匀介质的方法类似于离散采样，构建一个三维的均匀网格，在每个网格点上记录介质的密度值。则对于空间中的任意一点的密度值，可以通过其所在格子的八个顶点的密度值线性插值得到（三线性插值，当然也可以用B样条插值）。</p>
+<p>&emsp;&emsp;此种表示方法在连续介质例如流体的物理模拟中使用非常多，思想比较简单，关键是非均匀介质的密度数据的获取，密度数据的获取一般亦是通过物理模拟得到，这里只负责利用这些数据渲染。对于非均匀介质，因其密度分布没有显式的数学公式表达，因此亦只能通过数值方法求解下面的光束透射率：</p>
+<script type="math/tex; mode=display">
+T_r(p\to p')=e^{-\int_0^d\sigma_t(p+t\omega,\omega)dt}</script><p>&emsp;&emsp;求解的关键是$\int_0^d \sigma_t(p+t\omega,\omega)dt$即光学深度的积分，一种常用的方法就是利用梯度法求解该积分公式，还有一些则是基于随机采样的方法求解该积分（例如蒙特卡洛方法）。光束透射率的求解pbrt这里并没有提，暂时先跳过具体的细节。</p>
+<h2 id="四、BSSRDF"><a href="#四、BSSRDF" class="headerlink" title="四、BSSRDF"></a>四、BSSRDF</h2><p>&emsp;&emsp;类似于BSDF模型，BSSRDF（Bidirectional scattering-surface reflectance distribution function，双向散射表面反射分布函数）模型描述了在出射点$p_o$和出射方向上$\omega_o$的出射辐射率占表面上另一个点$p_i$和入射方向$\omega_i$的入射辐照度的比值，通常记为$S(p_o,\omega_o,p_i,\omega_i)$。由此，次表面散射的反射方程是对物体表面和半球方向的多重积分：</p>
+<script type="math/tex; mode=display">
+L_o(p_o,\omega_o)=\int_A \int_{H^2(n)} S(p_o,\omega_o,p_i,\omega_i)L_i(p_i,\omega_i)|cos\theta_i|d\omega_i dA \tag {4.1}</script><p>&emsp;&emsp;其中$A$是介质的所有表面，这就是体积散射要求解的渲染方程。该方程虽然是物理准确的，但即便对于离线渲染，直接求解亦是不切实际。BSSRDF是一个高维函数，研究者们已经提出了一系列的简化模型来提高渲染效率。BSSRDF的计算与介质内部和外部的折射系数密切相关，因此通常需要内部和外部的相对折射指数作为其计算的参数。这里先创建一个BSSRDF接口类：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BSSRDF</span> &#123;</span></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// BSSRDF Public Methods</span></span><br><span class="line">    BSSRDF(<span class="keyword">const</span> SurfaceInteraction &amp;po, Float eta) : po(po), eta(eta) &#123;&#125;</span><br><span class="line">    <span class="keyword">virtual</span> ~BSSRDF() &#123;&#125;</span><br><span class="line">    <span class="comment">// BSSRDF Interface</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Spectrum <span class="title">S</span><span class="params">(<span class="keyword">const</span> SurfaceInteraction &amp;pi, <span class="keyword">const</span> Vector3f &amp;wi)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> Spectrum <span class="title">Sample_S</span><span class="params">(<span class="keyword">const</span> Scene &amp;scene, Float u1, <span class="keyword">const</span> Point2f &amp;u2,</span></span></span><br><span class="line"><span class="function"><span class="params">                              MemoryArena &amp;arena, SurfaceInteraction *si,</span></span></span><br><span class="line"><span class="function"><span class="params">                              Float *pdf)</span> <span class="keyword">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">protected</span>:</span><br><span class="line">    <span class="comment">// BSSRDF Protected Data</span></span><br><span class="line">    <span class="keyword">const</span> SurfaceInteraction &amp;po;</span><br><span class="line">    Float eta;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;其中，<code>S</code>就是BSSRDF函数接口。</p>
+<h3 id="1、可分离的BSSRDF"><a href="#1、可分离的BSSRDF" class="headerlink" title="1、可分离的BSSRDF"></a>1、可分离的BSSRDF</h3><p>&emsp;&emsp;相比于BSDF模型，BSSRDF模型复杂了不少，其中一个关键就是其对介质表面的依赖，很难找到一种通用的BSSRDF模型适用于任意形状的物体表面。这里来看一种简化的BSSRDF模型，它将$S(p_o,\omega_o,p_i,\omega_i)$拆分成如下的三种独立函数的乘积形式：</p>
+<script type="math/tex; mode=display">
+S(p_o,\omega_o,p_i,\omega_i)\approx (1-F_r(cos\theta_o))S_p(p_o,p_i)S_{\omega}(\omega_i) \tag {4.2}</script><p>&emsp;&emsp;其中，$F_r$和$S_\omega$是关于方向的函数，而$S_p$是关于空间的函数。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Spectrum <span class="title">S</span><span class="params">(<span class="keyword">const</span> SurfaceInteraction &amp;pi, <span class="keyword">const</span> Vector3f &amp;wi)</span> </span>&#123;</span><br><span class="line">    <span class="function">ProfilePhase <span class="title">pp</span><span class="params">(Prof::BSSRDFEvaluation)</span></span>;</span><br><span class="line">    Float Ft = FrDielectric(CosTheta(po.wo), <span class="number">1</span>, eta);</span><br><span class="line">    <span class="keyword">return</span> (<span class="number">1</span> - Ft) * Sp(pi) * Sw(wi);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;公式$(4.2)$中的$(1-F_r(cos\theta))$不难理解，$F_r(cos\theta)$给出了菲涅尔反射率，故剩余比例的为透射率，它给出了在$p_o$上向$\omega_o$方向透射的光能辐射率的比例，确保符合能量守恒。而$S_\omega(\omega_i)$描述了在$p_i$上向$\omega_i$入射的分布情况，其在菲涅尔方程的基础上再乘上一个缩放系数：</p>
+<script type="math/tex; mode=display">
+S_\omega(\omega_i)=\frac{1-F_r(cos\theta_i)}{c\pi} \tag {4.3}</script><p>&emsp;&emsp;上式中的缩放系数$c$是一个归一化因子，它使得：</p>
+<script type="math/tex; mode=display">
+\int_{H^2}S_\omega(\omega)cos\theta d\omega=1</script><p>&emsp;&emsp;也就是说，$c$的计算公式为：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+c=&\int_{0}^{2\pi}\int_{0}^{\frac{\pi}{2}}\frac{1-F_r(\eta,cos\theta)}{\pi}sin\theta cos\theta d\theta d\phi\\
+=&1-2\int_o^{\frac{\pi}{2}}F_r(\eta,cos\theta)sin\theta cos\theta d\theta
+\end{align} \tag {4.4}</script><p>&emsp;&emsp;上面计算$c$的积分实际上只是关于菲涅尔方程的一阶矩（first moment），次表面散射中有多阶矩的$c$的应用，其区别在于上面公式中的$cos\theta$的指数$i$，更通用的$i$阶菲涅尔矩的公式为：</p>
+<script type="math/tex; mode=display">
+\overline F_{r,i}(\eta)=\int_0^{\frac{\pi}{2}}F_r(\eta,cos\theta)sin\theta cos^i\theta d\theta \tag {4.5}</script><p>&emsp;&emsp;但计算积分还是太麻烦了，因此实现的时候实际上用一个近似拟合上述积分公式的多项式去计算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Float <span class="title">FresnelMoment1</span><span class="params">(Float eta)</span> </span>&#123;</span><br><span class="line">    Float eta2 = eta * eta, eta3 = eta2 * eta, eta4 = eta3 * eta,</span><br><span class="line">          eta5 = eta4 * eta;</span><br><span class="line">    <span class="keyword">if</span> (eta &lt; <span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.45966f</span> - <span class="number">1.73965f</span> * eta + <span class="number">3.37668f</span> * eta2 - <span class="number">3.904945</span> * eta3 +</span><br><span class="line">               <span class="number">2.49277f</span> * eta4 - <span class="number">0.68441f</span> * eta5;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="keyword">return</span> <span class="number">-4.61686f</span> + <span class="number">11.1136f</span> * eta - <span class="number">10.4646f</span> * eta2 + <span class="number">5.11455f</span> * eta3 -</span><br><span class="line">               <span class="number">1.27198f</span> * eta4 + <span class="number">0.12746f</span> * eta5;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;用公式$(4.4)$计算出缩放系数$c$，然后再代入公式$(4.3)$计算$S_\omega$：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Spectrum <span class="title">Sw</span><span class="params">(<span class="keyword">const</span> Vector3f &amp;w)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">    Float c = <span class="number">1</span> - <span class="number">2</span> * FresnelMoment1(<span class="number">1</span> / eta);</span><br><span class="line">    <span class="keyword">return</span> (<span class="number">1</span> - FrDielectric(CosTheta(w), <span class="number">1</span>, eta)) / (c * Pi);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后就是函数$S_p(p_i,p_o)$的计算。这里再次做了近似简化，注意到$p_i$和$p_o$相距越远，则从$p_i$入射进来的辐射率对$p_o$出射的辐射率贡献越小，因此假定物体形状是一个平面，将$S_p(p_i,p_o)$近似逼近成如下的一维公式：</p>
+<script type="math/tex; mode=display">
+S_p(p_i,p_o)\approx S_r(||p_o-p_i||) \tag {4.6}</script><p>&emsp;&emsp;$||p_o-p_i||$是该两点之间的直线距离。具体的$S_r(||p_o-p_i||)$公式取决于具体的BSSRDF函数，这里暂不展开。值得注意的是，将$S_p(p_i,p_o)$近似成上面的一维函数蕴含了一个假设，就是散射介质是相对比较均匀的。而且如果介质几何体越复杂（越不是一个平面），则上面的近似误差越大。</p>
+<h3 id="2、基于查找表的BSSRDF"><a href="#2、基于查找表的BSSRDF" class="headerlink" title="2、基于查找表的BSSRDF"></a>2、基于查找表的BSSRDF</h3><p>&emsp;&emsp;正如之前提到的傅里叶基下打表的BSDF模型，BSSRDF模型也可以通过真实实验测量的数据得到，并在渲染时查找这些数据并做相应的插值（线性插值或B样条插值）。在可分离的BSSRDF模型上，我们只需要存储前面提到的$S_r(||p_o-p_i||)$函数，其余两个函数均可以快速计算得到。</p>
+<p>&emsp;&emsp;乍一看$S_r(||p_o-p_i||)$是一个一维函数，但其实不然。这里有隐性的关联，$S_r(||p_o-p_i||)$与散射材质息息相关，不同的散射介质应该有不同的$S_r$函数。因此，$S_r$还有额外的四个参数：折射指数$\eta$、散射非对称系数$g$、反照率$\rho$和衰减系数$\sigma_t$。即$S_r(\eta,g,\rho,\sigma_t,r)$，其中$r=||p_o-p_i||$，这是个五维函数，直接离散打表不太可能，因为这需要非常大的存储空间。因此需要适当地降维。</p>
+<p>&emsp;&emsp;首先$\sigma_t$和$r$可以合并成一个参数，$r_{optical}=\sigma_t r$，称之为光学半径，这样所有的参数都是无量纲：</p>
+<script type="math/tex; mode=display">
+S_r(\eta,g,\rho,\sigma_t,r)=\sigma_t^2S_r(\eta,g,\rho,1,r_{optical})</script><p>&emsp;&emsp;转换成右边形式的还要乘上$\sigma_t^2$补偿参数转变的损失。除此之外，令$\eta$和$g$取值固定，最后$S_r$就是关于$\rho$和$r$的二维函数，因此打表的BSSRDF只需存储反照率$\rho$和光学半径$r$的离散值，分别对应下面的<code>rhoSamples</code>和<code>radiusSamples</code>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">BSSRDFTable</span> &#123;</span></span><br><span class="line">    <span class="comment">// BSSRDFTable Public Data</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> nRhoSamples, nRadiusSamples;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Float[]&gt; rhoSamples, radiusSamples;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Float[]&gt; profile;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Float[]&gt; rhoEff;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">unique_ptr</span>&lt;Float[]&gt; profileCDF;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// BSSRDFTable Public Methods</span></span><br><span class="line">    BSSRDFTable(<span class="keyword">int</span> nRhoSamples, <span class="keyword">int</span> nRadiusSamples);</span><br><span class="line">    <span class="function"><span class="keyword">inline</span> Float <span class="title">EvalProfile</span><span class="params">(<span class="keyword">int</span> rhoIndex, <span class="keyword">int</span> radiusIndex)</span> <span class="keyword">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> profile[rhoIndex * nRadiusSamples + radiusIndex];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;有了<code>BSSRDFTable</code>，则在计算$S_r$时就根据$r_{optical}$和$\rho$做适当的B样条插值即可，因为返回的是一个光谱值，因此对光谱的每一个通道都进行插值和计算的过程：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Spectrum TabulatedBSSRDF::Sr(Float r) <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="function">Spectrum <span class="title">Sr</span><span class="params">(<span class="number">0.f</span>)</span></span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> ch = <span class="number">0</span>; ch &lt; Spectrum::nSamples; ++ch) &#123;</span><br><span class="line">        <span class="comment">// Convert $r$ into unitless optical radius $r_&#123;\roman&#123;optical&#125;&#125;$</span></span><br><span class="line">        Float rOptical = r * <span class="keyword">sigma_t</span>[ch];</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Compute spline weights to interpolate BSSRDF on channel _ch_</span></span><br><span class="line">        <span class="keyword">int</span> rhoOffset, radiusOffset;</span><br><span class="line">        Float rhoWeights[<span class="number">4</span>], radiusWeights[<span class="number">4</span>];</span><br><span class="line">        <span class="keyword">if</span> (!CatmullRomWeights(table.nRhoSamples, table.rhoSamples.get(),</span><br><span class="line">                               rho[ch], &amp;rhoOffset, rhoWeights) ||</span><br><span class="line">            !CatmullRomWeights(table.nRadiusSamples, table.radiusSamples.get(),</span><br><span class="line">                               rOptical, &amp;radiusOffset, radiusWeights))</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Set BSSRDF value _Sr[ch]_ using tensor spline interpolation</span></span><br><span class="line">        Float sr = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; ++i) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">4</span>; ++j) &#123;</span><br><span class="line">                Float weight = rhoWeights[i] * radiusWeights[j];</span><br><span class="line">                <span class="keyword">if</span> (weight != <span class="number">0</span>)</span><br><span class="line">                    sr += weight *</span><br><span class="line">                          table.EvalProfile(rhoOffset + i, radiusOffset + j);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Cancel marginal PDF factor from tabulated BSSRDF profile</span></span><br><span class="line">        <span class="keyword">if</span> (rOptical != <span class="number">0</span>) sr /= <span class="number">2</span> * Pi * rOptical;</span><br><span class="line">        Sr[ch] = sr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Transform BSSRDF value into world space units</span></span><br><span class="line">    Sr *= <span class="keyword">sigma_t</span> * <span class="keyword">sigma_t</span>;</span><br><span class="line">    <span class="keyword">return</span> Sr.Clamp();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;这里提到了有效反照率（effective albedo），不是很明白为什么要这样做，先放着。</p>
+<h3 id="3、次表面散射材质"><a href="#3、次表面散射材质" class="headerlink" title="3、次表面散射材质"></a>3、次表面散射材质</h3><p>&emsp;&emsp;pbrt实现了两类次表面散射材质，分别是<code>SubsurfaceMaterial</code>和<code>KdSubsurfaceMaterial</code>。<code>SubsurfaceMaterial</code>材质是一个有明确表面的材质，例如完美镜面透射或者gloosy镜面透射等。因此该材质除了BSSRDF模型，还有BSDF模型。关于BSDF模型，这里不再具体赘述。下面的<code>scale</code>、<code>table</code>、<code>eta</code>、<code>sigma_a</code>和<code>sigma_s</code>用于BSSRDF模型的计算：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SubsurfaceMaterial</span> :</span> <span class="keyword">public</span> Material &#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// SubsurfaceMaterial Public Methods</span></span><br><span class="line">   	...</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// SubsurfaceMaterial Private Data</span></span><br><span class="line">    <span class="keyword">const</span> Float scale;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Texture&lt;Spectrum&gt;&gt; Kr, Kt, sigma_a, sigma_s;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Texture&lt;Float&gt;&gt; uRoughness, vRoughness;</span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;Texture&lt;Float&gt;&gt; bumpMap;</span><br><span class="line">    <span class="keyword">const</span> Float eta;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">bool</span> remapRoughness;</span><br><span class="line">    BSSRDFTable table;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;<code>scale</code>用于对吸收截面和散射系数的缩放（因此要求单位为$m^{-1}$）。在材质类的<code>ComputeScatteringFunctions</code>函数中初始化相关的bssrdf函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> SubsurfaceMaterial::ComputeScatteringFunctions(</span><br><span class="line">    SurfaceInteraction *si, MemoryArena &amp;arena, TransportMode mode,</span><br><span class="line">    <span class="keyword">bool</span> allowMultipleLobes) <span class="keyword">const</span> &#123;</span><br><span class="line">    <span class="comment">// Perform bump mapping with _bumpMap_, if present</span></span><br><span class="line">    <span class="keyword">if</span> (bumpMap) Bump(bumpMap, si);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Initialize BSDF for SubsurfaceMaterial</span></span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    Spectrum sig_a = scale * sigma_a-&gt;Evaluate(*si).Clamp();</span><br><span class="line">    Spectrum sig_s = scale * sigma_s-&gt;Evaluate(*si).Clamp();</span><br><span class="line">    si-&gt;bssrdf = ARENA_ALLOC(arena, TabulatedBSSRDF)(*si, <span class="keyword">this</span>, mode, eta,</span><br><span class="line">                                                     sig_a, sig_s, table);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;直接设置吸收截面和散射系数并不是非常直观，因此pbrt创建了<code>KdSubsurfaceMaterial</code>材质，方便直接根据漫反射反射率和自由平均路径$1/\sigma_t$间接设置吸收截面和散射系数，使得这两个参数的设置变得直观起来。从反射率和自由平均路径计算吸收截面和散射系数<code>SubsurfaceFromDiffuse</code>将在后面实现路径积分时解释。</p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>&emsp;&emsp;体积散射效果无论是理论上还是实现上相比于普通的表面散射效果复杂了不少，关于体积渲染的实现效果和效率至今仍是图形领域的重要话题。在阅读pbrt时有几个地方不是太理解，先放着等后面回过头再来看看。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>$[1]$ M, Jakob W, Humphreys G. Physically based rendering: From theory to implementation[M]. Morgan Kaufmann, 2016.</p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-04-19T21:53:19+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2020年4月19日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Ray-Tracer/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Ray Tracer</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2020/04/19/VolumeScattering/&title=Physically Based Rendering：体积散射 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=在不考虑空气介质的散射效应时，我们假定光线在真空中传播，故光线的辐射率在传播过程不会发生变化。但真实地球世界却并非真空，大气散射、烟雾散射等丁达尔效应现象对渲染结果至关重要，这类光学效果涉及到散射介质，光线在此类介质中被吸收、散射，最终到达人眼的辐射率与未考虑介质散射的有非常明显的不同。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2020/04/19/VolumeScattering/&title=Physically Based Rendering：体积散射 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=在不考虑空气介质的散射效应时，我们假定光线在真空中传播，故光线的辐射率在传播过程不会发生变化。但真实地球世界却并非真空，大气散射、烟雾散射等丁达尔效应现象对渲染结果至关重要，这类光学效果涉及到散射介质，光线在此类介质中被吸收、散射，最终到达人眼的辐射率与未考虑介质散射的有非常明显的不同。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2020/04/19/VolumeScattering/&title=Physically Based Rendering：体积散射 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=在不考虑空气介质的散射效应时，我们假定光线在真空中传播，故光线的辐射率在传播过程不会发生变化。但真实地球世界却并非真空，大气散射、烟雾散射等丁达尔效应现象对渲染结果至关重要，这类光学效果涉及到散射介质，光线在此类介质中被吸收、散射，最终到达人眼的辐射率与未考虑介质散射的有非常明显的不同。">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2020/04/15/Scattering/" rel="prev" title="Physically Based Rendering：散射模型">
+                                    
+                                        Physically Based Rendering：散射模型
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: 'Physically Based Rendering：体积散射',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.png"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、体积散射效应"><span class="toc-text">一、体积散射效应</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、吸收"><span class="toc-text">1、吸收</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、发光"><span class="toc-text">2、发光</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、外散射"><span class="toc-text">3、外散射</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、内散射"><span class="toc-text">4、内散射</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、相位函数"><span class="toc-text">二、相位函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、参与介质"><span class="toc-text">三、参与介质</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、均匀介质表示"><span class="toc-text">1、均匀介质表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、非均匀介质表示"><span class="toc-text">2、非均匀介质表示</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、BSSRDF"><span class="toc-text">四、BSSRDF</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、可分离的BSSRDF"><span class="toc-text">1、可分离的BSSRDF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、基于查找表的BSSRDF"><span class="toc-text">2、基于查找表的BSSRDF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、次表面散射材质"><span class="toc-text">3、次表面散射材质</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、总结"><span class="toc-text">五、总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错或者乱码，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(30)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Image-processing/" href="/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16px; color: #c9c9c9">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22px; color: #f1f1f1">Fluid Simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 16px; color: #c9c9c9">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 18px; color: #d6d6d6">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 22px; color: #f1f1f1">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 16px; color: #c9c9c9">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 20px; color: #e4e4e4">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
