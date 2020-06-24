@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>Fluid Simulation：栅格Boltzmann流体模拟 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2020/06/24/LBM/">
+        Fluid Simulation：栅格Boltzmann流体模拟
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="https://yangwc.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2020-06-24</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Fluid-simulation/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Fluid  simulation</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>相对于基于N-S流体方程的模拟方法，栅格Boltzmann流体模拟方法（Lattice Boltzmann Method，简称LBM）是一种截然不同的流体模拟算法，表面上看起来跟Navier-Stokes没什么太大的关联，但依旧能够实现非常逼真的流体动画（特别是细粒度流体）。LBM容易理解，实现起来也不难。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.37/blog/MassSpring/header.png" width="80%"></div></p>
+<a id="more"></a>
+<p>&emsp;&emsp;LBM方法本质上是一种基于拉格朗日视角的模拟方法，形式上却跟欧拉视角下的网格有点相似，它将微观粒子的动力学与宏观流体规律相结合，同时具有较好的精度，因此是很好的弱可压缩（甚至不可压缩）N-S方程二阶精准求解方法。在图形学领域，我们模拟的绝大部分都是不可压流体，因此契合得很好。</p>
+<p>&emsp;&emsp;LBM是一种介于宏观和微观之间的介观尺度的方法。一方面它将流体空间离散为一个个栅格，另一方面又通过栅格上的概率密度函数来描述微观尺度下的粒子分布情况。如下图所示：</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.37/blog/MassSpring/1.jpg" width="70%"></div></p>
+<h2 id="一、LBM方程"><a href="#一、LBM方程" class="headerlink" title="一、LBM方程"></a>一、LBM方程</h2><p>&emsp;&emsp;在了解LBM方程之前，有必要对LBM方法是如何规划模拟区域的。与将空间均匀划分的欧拉网格相似，LBM方法也是先均匀分割流体所在的区域，从而得到一个个小的格子。但与欧拉网格方法不同，LBM格子之间的连接方式略有不同。以三维为例，欧拉网格的格子邻居仅仅有上下、左右、前后六个，但LBM格子的邻居除了这六个之外，还可以有八个对角上的邻居，甚至可以有八个仅仅是边相连的邻居。通常用<code>DdQq</code>来表示某种LBM格子模式，其中d表示维度，<code>q</code>表示联通的格子数目（包含它自己）。常用的有<code>D1Q3</code>、<code>D2Q9</code>、<code>D3Q15</code>、<code>D3Q19</code>和<code>D3Q27</code>。这些不难理解。</p>
+<p>&emsp;&emsp;目前我们以<code>D2Q9</code>即二维的LBM为例。每个LBM格子与<code>9</code>个格子相连（上下左右，以及四个corner，还有自身），相应的我们有<code>9</code>个速度方向，这些速度方向指向连通的格子，例如下面的九个，每个方向我们记为$c_i$, 其中$i=0,…,8$：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="number">0</span>, <span class="number">0</span>], [<span class="number">1</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">-1</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">-1</span>], [<span class="number">1</span>, <span class="number">1</span>], [<span class="number">-1</span>, <span class="number">1</span>], [<span class="number">-1</span>, <span class="number">-1</span>], [<span class="number">1</span>, <span class="number">-1</span>]</span><br></pre></td></tr></table></figure>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.37/blog/MassSpring/2.png" width="30%"></div></p>
+<p>&emsp;&emsp;每个LBM格子中心存储粒子分布函数$f$，用以描述流体粒子的分布情况。$f$是一个关于空间位置$x$和时间轴$t$的函数，写作$f(x,t)$。需要注意的是，粒子分布函数在每个方向上都有一个，因此一个LBM格子的有$9$个粒子分布函数，记为$f_i(x,t)\ , i=0,…,8$，分别对应每个速度方向上的粒子分布情况，这里说的粒子仅仅是概念上的虚拟粒子。</p>
+<p>&emsp;&emsp;有了上述的栅格粒子分布函数，如何得到流场的速度场？一般通过下面的公式来得到流体的速度场$u(x,t)$：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+\rho(x,t)&=\Sigma_i f_i(x,t)\\
+u(x,t)&=\frac{1}{\rho(x,t)}\Sigma_i c_i f_i(x,t), \ \ i=0,...,8
+\end{align} \tag {1}</script><p>&emsp;&emsp;这里的$\rho(x,t)$是虚拟粒子的密度，并非流体真正的密度场。相关概念介绍得差不多了。现在来看看LBM的核心公式，LBM方法的核心可以分成两个步骤，分别是<strong>碰撞</strong>和<strong>流动</strong>，我们先来看看<strong>碰撞</strong>步骤。碰撞步骤的核心计算公式如下所示：</p>
+<script type="math/tex; mode=display">
+f_i(x, t+\Delta t)=f_i(x, t)+\frac{f_i^{eq}(x,t)-f_i(x, t)}{\tau_f} \tag {2}</script><p>&emsp;&emsp;上述公式使用了BGK碰撞算子（Bhatnagar Gross and Krook）。其中$\tau_f$被称为松弛时间，与运动粘度息息相关，一般来说$\tau_f$越大则模拟出来的流体表现得越粘。运动粘度$\mu$与松弛时间的关系为$\mu =c_s^2(\tau_f -\frac{\Delta t}{2})$，其中$c_s$是声波在流体中的传播速度。而上述公式中的$f_i^{eq}(x,t)$是流场平衡状态下的分布函数，它的计算公式为：</p>
+<script type="math/tex; mode=display">
+f_i^{eq}(x,t)=\omega_i \rho(x,t)(1+\frac{u(x,t)\cdot c_i}{c_s^2}+\frac{(u(x,t)\cdot c_i)^2}{2c_s^4}-\frac{u(x,t)\cdot u(x,t)}{2c_s^2}) \tag {3}</script><p>&emsp;&emsp;$\omega_i$为在该方向上的权重值。碰撞步骤可以理解为处理流体粒子的碰撞，使得流体粒子碰撞之后，能够朝向平衡状态变化。碰撞之后，我们紧接着进行<strong>流动</strong>步骤，流动步骤的核心公式如下所示：</p>
+<script type="math/tex; mode=display">
+f_i(x+c_i \Delta t, t+\Delta t) = f_i(x,t) \tag {4}</script><p>&emsp;&emsp;乍一看，这个流动的公式颇有半拉格朗日对流算法的味道。上述的公式并不难理解，它本质上就是在相连的栅格之间传播$f_i(x,t)$函数值，从而形成流体流动的效果。一般情况下我们把流动和碰撞这两个步骤合在一起实现，也就是把公式$(2)$和公式$(4)$合并成下面的形式：</p>
+<script type="math/tex; mode=display">
+f_i(x+c_i \Delta t, t+\Delta t)=f_i(x,t)-\frac{\Delta t}{\tau_f}(f_i(x,t)-f_i^{eq}(x,t)) \tag {5}</script><p>&emsp;&emsp;公式$(5)$就是栅格Boltzmann流体模拟的核心方程，就是这么朴实无华、简单（没有偏微分）。但要实现一个完整的LBM流体解算器还需要考虑一些其他方面的东西，例如初始状态设定、边界条件处理等等。公式$(5)$也可以写成如下的等价形式：</p>
+<script type="math/tex; mode=display">
+f_i(x, t+\Delta t)=f_i(x-c_i \Delta t,t)-\frac{\Delta t}{\tau_f}(f_i(x-c_i \Delta t,t)-f_i^{eq}(x-c_i \Delta t,t)) \tag {6}</script><p>&emsp;&emsp;实现的时候我们更倾向于使用公式$(6)$，遍历所有的格子，并按照公式更新每个格子对应的值。</p>
+<h2 id="二、LBM解算步骤"><a href="#二、LBM解算步骤" class="headerlink" title="二、LBM解算步骤"></a>二、LBM解算步骤</h2><p>&emsp;&emsp;首先是关于系统初始状态的设定。在初始情况下（也就是$t=0$时），我们令相关变量的取值如下：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+\rho(x,t=0) &= 1\\
+u(x,t=0) &= 0\\
+\end{align} \tag {6}</script><p>&emsp;&emsp;然后在每一个时间步上进行迭代求解。每个时间步主要的迭代过程分成如下几步：</p>
+<p>Step (1)：利用公式$(5)$进行碰撞和流动，更新每个格子每个方向上的粒子分布函数$f_i(x,t)$；</p>
+<p>Step (2)：利用公式$(1)$计算每个格子的$\rho(x,t)$和流体的速度场$u(x,t)$</p>
+<p>Step (3)：处理边界条件，处理流体与边界、固体的碰撞，对流体的速度场$u(x,t)$进行边界修正</p>
+<p>&emsp;&emsp;一般情况默认时间步长$\Delta t = 1$。这里提一下流体与固体的碰撞处理，一种最简单的方案就是构建一个与LBM网格一样大小的栅格数据结构，每个栅格上存储的是布尔变量。若当前格子被固体占据，则设为True，反之设为False。这样就能快速判断当前的格子是不是在固体内部，如果在固体内部则需要做进一步的修正处理。（至于如何构建这样的一个mask结构，你可以去了解一下网格体素化的概念）</p>
+<p>&emsp;&emsp;而在边界处理方面，按照处理方法的不同可分成狄拉克边界条件（Dirichlet boundary condition）和冯诺伊曼边界条件（Neumann边界）。狄拉克边界条件直接设定边界上的物理值，例如我直接令边界上的速度场为零；而冯诺伊曼边界条件通常直接设定的是物理值在边界上的偏导数值，例如设置边界上的偏导值为零，则表示该物理量在边界上不会发生任何变化，因此应该等于靠近边上的物理量值。关于这两种边界条件的细节我不再多说。</p>
+<h2 id="三、二维solver的实现"><a href="#三、二维solver的实现" class="headerlink" title="三、二维solver的实现"></a>三、二维solver的实现</h2><p>&emsp;&emsp;这里以一个二维的LBM解算器实现为例展开相关的实现细节，主要参考了<a href="https://forum.taichi.graphics/" target="_blank" rel="noopener">taichi</a>论坛上的一位搞CFD大佬的代码。首先是数据结构的声明和创建。在这里我们需要为$\rho(x,t)$、$u(x,t)$、$f_i(x,t))$和固体$mask$开辟一个二维数组，其中$f_i(x,t))$需要开辟两个一样的数组，用以迭代交换。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self,</span></span></span><br><span class="line"><span class="function"><span class="params">             nx, # domain size</span></span></span><br><span class="line"><span class="function"><span class="params">             ny,</span></span></span><br><span class="line"><span class="function"><span class="params">             niu, # viscosity of fluid</span></span></span><br><span class="line"><span class="function"><span class="params">             bc_type, # [left,top,right,bottom] boundary conditions: <span class="number">0</span> -&gt; Dirichlet ; <span class="number">1</span> -&gt; Neumann</span></span></span><br><span class="line"><span class="function"><span class="params">             bc_value, # if bc_type = <span class="number">0</span>, we need to specify the velocity in bc_value</span></span></span><br><span class="line"><span class="function"><span class="params">             cy = <span class="number">0</span>, # whether to place a cylindrical obstacle</span></span></span><br><span class="line"><span class="function"><span class="params">             cy_para = [<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>], # location and radius of the cylinder</span></span></span><br><span class="line"><span class="function"><span class="params">             steps = <span class="number">60000</span>)</span>:</span> <span class="comment"># total steps to run</span></span><br><span class="line">    self.nx = nx  <span class="comment"># by convention, dx = dy = dt = 1.0 (lattice units)</span></span><br><span class="line">    self.ny = ny</span><br><span class="line">    self.niu = niu</span><br><span class="line">    self.tau = <span class="number">3.0</span> * niu + <span class="number">0.5</span></span><br><span class="line">    self.inv_tau = <span class="number">1.0</span> / self.tau</span><br><span class="line">    <span class="comment"># density.</span></span><br><span class="line">    self.rho = ti.var(dt=ti.f32, shape=(nx, ny))</span><br><span class="line">    <span class="comment"># velocity.</span></span><br><span class="line">    self.vel = ti.Vector(<span class="number">2</span>, dt=ti.f32, shape=(nx, ny))</span><br><span class="line">    self.mask = ti.var(dt=ti.f32, shape=(nx, ny))</span><br><span class="line">    <span class="comment"># particle density function.</span></span><br><span class="line">    self.f_old = ti.Vector(<span class="number">9</span>, dt=ti.f32, shape=(nx, ny))</span><br><span class="line">    self.f_new = ti.Vector(<span class="number">9</span>, dt=ti.f32, shape=(nx, ny))</span><br><span class="line">    <span class="comment"># weights for velocity.</span></span><br><span class="line">    self.w = ti.var(dt=ti.f32, shape=<span class="number">9</span>)</span><br><span class="line">    <span class="comment"># lattice vector</span></span><br><span class="line">    self.e = ti.var(dt=ti.i32, shape=(<span class="number">9</span>, <span class="number">2</span>))</span><br><span class="line">    <span class="comment"># boundary condition.</span></span><br><span class="line">    self.bc_type = ti.var(dt=ti.i32, shape=<span class="number">4</span>)</span><br><span class="line">    <span class="comment"># boundary value if we use dirichlet boundary condition.</span></span><br><span class="line">    self.bc_value = ti.var(dt=ti.f32, shape=(<span class="number">4</span>, <span class="number">2</span>))</span><br><span class="line">    <span class="comment"># whether to place a cylindrical obstacle.</span></span><br><span class="line">    self.cy = cy</span><br><span class="line">    self.cy_para = ti.var(dt=ti.f32, shape=<span class="number">3</span>)</span><br><span class="line">    self.bc_type.from_numpy(np.array(bc_type, dtype=np.int32))</span><br><span class="line">    self.bc_value.from_numpy(np.array(bc_value, dtype=np.float32))</span><br><span class="line">    self.cy_para.from_numpy(np.array(cy_para, dtype=np.float32))</span><br><span class="line">    <span class="comment"># number of substeps.</span></span><br><span class="line">    self.steps = steps</span><br><span class="line">    <span class="comment"># 1/36  1/9  1/36</span></span><br><span class="line">    <span class="comment"># 1/9   4/9  1/9</span></span><br><span class="line">    <span class="comment"># 1/36  1/9  1/36</span></span><br><span class="line">    arr = np.array([ <span class="number">4.0</span> / <span class="number">9.0</span>, <span class="number">1.0</span> / <span class="number">9.0</span>, <span class="number">1.0</span> / <span class="number">9.0</span>, <span class="number">1.0</span> / <span class="number">9.0</span>, <span class="number">1.0</span> / <span class="number">9.0</span>, <span class="number">1.0</span> / <span class="number">36.0</span>,</span><br><span class="line">        <span class="number">1.0</span> / <span class="number">36.0</span>, <span class="number">1.0</span> / <span class="number">36.0</span>, <span class="number">1.0</span> / <span class="number">36.0</span>], dtype=np.float32)</span><br><span class="line">    self.w.from_numpy(arr)</span><br><span class="line">    arr = np.array([[<span class="number">0</span>, <span class="number">0</span>], [<span class="number">1</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>], [<span class="number">-1</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">-1</span>], [<span class="number">1</span>, <span class="number">1</span>],</span><br><span class="line">                    [<span class="number">-1</span>, <span class="number">1</span>], [<span class="number">-1</span>, <span class="number">-1</span>], [<span class="number">1</span>, <span class="number">-1</span>]], dtype=np.int32)</span><br><span class="line">    self.e.from_numpy(arr)</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后就是系统状态的初始化，我们给场景中加了一个原型的固体，因此在初始化的时候相应地也设置<code>mask</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ti.kernel</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">init</span><span class="params">(self)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> i, j <span class="keyword">in</span> self.rho:</span><br><span class="line">        self.vel[i, j] = ti.Vector([<span class="number">0.0</span>, <span class="number">0.0</span>])</span><br><span class="line">        self.rho[i, j] = <span class="number">1.0</span></span><br><span class="line">        self.mask[i, j] = <span class="number">0.0</span></span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> ti.static(range(<span class="number">9</span>)):</span><br><span class="line">            self.f_new[i, j][k] = self.f_eq(i, j, k)</span><br><span class="line">            self.f_old[i, j][k] = self.f_new[i, j][k]</span><br><span class="line">        <span class="keyword">if</span>(self.cy==<span class="number">1</span>):</span><br><span class="line">            <span class="keyword">if</span> ((ti.cast(i, ti.f32) - self.cy_para[<span class="number">0</span>])**<span class="number">2.0</span> + (ti.cast(j, ti.f32)</span><br><span class="line">                - self.cy_para[<span class="number">1</span>])**<span class="number">2.0</span> &lt;= self.cy_para[<span class="number">2</span>]**<span class="number">2.0</span>):</span><br><span class="line">                self.mask[i, j] = <span class="number">1.0</span></span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在进行碰撞和流体之前，我们根据公式$(3)$实现平衡状态的$f_i^{eq}(x,t)$的计算：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ti.func # compute equilibrium distribution function</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">f_eq</span><span class="params">(self, i, j, k)</span>:</span></span><br><span class="line">    eu = ti.cast(self.e[k, <span class="number">0</span>], ti.f32) * self.vel[i, j][<span class="number">0</span>] + ti.cast(self.e[k, <span class="number">1</span>], </span><br><span class="line">        ti.f32) * self.vel[i, j][<span class="number">1</span>]</span><br><span class="line">    uv = self.vel[i, j][<span class="number">0</span>]**<span class="number">2.0</span> + self.vel[i, j][<span class="number">1</span>]**<span class="number">2.0</span></span><br><span class="line">    <span class="keyword">return</span> self.w[k] * self.rho[i, j] * (<span class="number">1.0</span> + <span class="number">3.0</span> * eu + <span class="number">4.5</span> * eu**<span class="number">2</span> - <span class="number">1.5</span> * uv)</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;然后套用前面的公式$(6)$进行碰撞和流动的处理，得到新的$f_i(x,t)$：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ti.kernel</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">collide_and_stream</span><span class="params">(self)</span>:</span> <span class="comment"># lbm core equation</span></span><br><span class="line">    <span class="keyword">for</span> i, j <span class="keyword">in</span> ti.ndrange((<span class="number">1</span>, self.nx - <span class="number">1</span>), (<span class="number">1</span>, self.ny - <span class="number">1</span>)):</span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> ti.static(range(<span class="number">9</span>)):</span><br><span class="line">            ip = i - self.e[k, <span class="number">0</span>]</span><br><span class="line">            jp = j - self.e[k, <span class="number">1</span>]</span><br><span class="line">            self.f_new[i,j][k] = (<span class="number">1.0</span>-self.inv_tau)*self.f_old[ip,jp][k] + \</span><br><span class="line">                                    self.f_eq(ip,jp,k)*self.inv_tau</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;随后利用新的$f_i(x,t)$套用公式$(1)$计算$\rho(x,t)$和$u(x,t)$：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ti.kernel</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_macro_var</span><span class="params">(self)</span>:</span> <span class="comment"># compute rho u v</span></span><br><span class="line">    <span class="keyword">for</span> i, j <span class="keyword">in</span> ti.ndrange((<span class="number">1</span>, self.nx - <span class="number">1</span>), (<span class="number">1</span>, self.ny - <span class="number">1</span>)):</span><br><span class="line">        self.rho[i, j] = <span class="number">0.0</span></span><br><span class="line">        self.vel[i, j][<span class="number">0</span>] = <span class="number">0.0</span></span><br><span class="line">        self.vel[i, j][<span class="number">1</span>] = <span class="number">0.0</span></span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> ti.static(range(<span class="number">9</span>)):</span><br><span class="line">            self.f_old[i, j][k] = self.f_new[i, j][k]</span><br><span class="line">            self.rho[i, j] += self.f_new[i, j][k]</span><br><span class="line">            self.vel[i, j][<span class="number">0</span>] += (ti.cast(self.e[k, <span class="number">0</span>], ti.f32) *</span><br><span class="line">                                  self.f_new[i, j][k])</span><br><span class="line">            self.vel[i, j][<span class="number">1</span>] += (ti.cast(self.e[k, <span class="number">1</span>], ti.f32) *</span><br><span class="line">                                  self.f_new[i, j][k])</span><br><span class="line">        self.vel[i, j][<span class="number">0</span>] /= self.rho[i, j]</span><br><span class="line">        self.vel[i, j][<span class="number">1</span>] /= self.rho[i, j]</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;最后需要对流体的属性根据边界条件和与固体的碰撞进行修正：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ti.kernel</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">apply_bc</span><span class="params">(self)</span>:</span> <span class="comment"># impose boundary conditions</span></span><br><span class="line">    <span class="comment"># left and right</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> ti.ndrange(<span class="number">1</span>, self.ny - <span class="number">1</span>):</span><br><span class="line">        <span class="comment"># left: dr = 0; ibc = 0; jbc = j; inb = 1; jnb = j</span></span><br><span class="line">        self.apply_bc_core(<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, j, <span class="number">1</span>, j)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># right: dr = 2; ibc = nx-1; jbc = j; inb = nx-2; jnb = j</span></span><br><span class="line">        self.apply_bc_core(<span class="number">1</span>, <span class="number">2</span>, self.nx - <span class="number">1</span>, j, self.nx - <span class="number">2</span>, j)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># top and bottom</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> ti.ndrange(self.nx):</span><br><span class="line">        <span class="comment"># top: dr = 1; ibc = i; jbc = ny-1; inb = i; jnb = ny-2</span></span><br><span class="line">        self.apply_bc_core(<span class="number">1</span>, <span class="number">1</span>, i, self.ny - <span class="number">1</span>, i, self.ny - <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># bottom: dr = 3; ibc = i; jbc = 0; inb = i; jnb = 1</span></span><br><span class="line">        self.apply_bc_core(<span class="number">1</span>, <span class="number">3</span>, i, <span class="number">0</span>, i, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># cylindrical obstacle</span></span><br><span class="line">    <span class="comment"># Note: for cuda backend, putting 'if statement' inside loops can be much faster!</span></span><br><span class="line">    <span class="keyword">for</span> i, j <span class="keyword">in</span> ti.ndrange(self.nx, self.ny): </span><br><span class="line">        <span class="keyword">if</span> (self.cy == <span class="number">1</span> <span class="keyword">and</span> self.mask[i, j] == <span class="number">1</span>):</span><br><span class="line">            self.vel[i, j][<span class="number">0</span>] = <span class="number">0.0</span>  <span class="comment"># velocity is zero at solid boundary  </span></span><br><span class="line">            self.vel[i, j][<span class="number">1</span>] = <span class="number">0.0</span></span><br><span class="line">            inb = <span class="number">0</span></span><br><span class="line">            jnb = <span class="number">0</span></span><br><span class="line">            <span class="keyword">if</span> (ti.cast(i,ti.f32) &gt;= self.cy_para[<span class="number">0</span>]):</span><br><span class="line">                inb = i + <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                inb = i - <span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> (ti.cast(j,ti.f32) &gt;= self.cy_para[<span class="number">1</span>]):</span><br><span class="line">                jnb = j + <span class="number">1</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                jnb = j - <span class="number">1</span></span><br><span class="line">            self.apply_bc_core(<span class="number">0</span>, <span class="number">0</span>, i, j, inb, jnb)</span><br><span class="line"></span><br><span class="line"><span class="meta">@ti.func</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">apply_bc_core</span><span class="params">(self, outer, dr, ibc, jbc, inb, jnb)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> (outer == <span class="number">1</span>):  <span class="comment"># handle outer boundary</span></span><br><span class="line">        <span class="comment"># Dirichlet boundary condition</span></span><br><span class="line">        <span class="keyword">if</span> (self.bc_type[dr] == <span class="number">0</span>):</span><br><span class="line">            self.vel[ibc, jbc][<span class="number">0</span>] = self.bc_value[dr, <span class="number">0</span>]</span><br><span class="line">            self.vel[ibc, jbc][<span class="number">1</span>] = self.bc_value[dr, <span class="number">1</span>]</span><br><span class="line">        <span class="comment"># Neumann boundary condition</span></span><br><span class="line">        <span class="keyword">elif</span> (self.bc_type[dr] == <span class="number">1</span>):</span><br><span class="line">            self.vel[ibc, jbc][<span class="number">0</span>] = self.vel[inb, jnb][<span class="number">0</span>]</span><br><span class="line">            self.vel[ibc, jbc][<span class="number">1</span>] = self.vel[inb, jnb][<span class="number">1</span>]</span><br><span class="line">    self.rho[ibc, jbc] = self.rho[inb, jnb]</span><br><span class="line">    <span class="keyword">for</span> k <span class="keyword">in</span> ti.static(range(<span class="number">9</span>)):</span><br><span class="line">        self.f_old[ibc,jbc][k] = self.f_eq(ibc,jbc,k) - self.f_eq(inb,jnb,k) + \</span><br><span class="line">                                    self.f_old[inb,jnb][k]</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;把上面的过程串起来作为一个迭代，则LBM的迭代解算过程如下，后面的一些流程可视化方法这里就不提了。总的来说，LBM方法挺简单的，不用求解大规模的PDE。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">solve</span><span class="params">(self)</span>:</span></span><br><span class="line">    gui = ti.GUI(<span class="string">'lbm solver'</span>, (self.nx, <span class="number">2</span>*self.ny))</span><br><span class="line">    self.init()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(self.steps):</span><br><span class="line">        self.collide_and_stream()</span><br><span class="line">        self.update_macro_var()</span><br><span class="line">        self.apply_bc()</span><br><span class="line">        <span class="comment">##  code fragment displaying vorticity is contributed by woclass</span></span><br><span class="line">        vel = self.vel.to_numpy()</span><br><span class="line">        ugrad = np.gradient(vel[:, :, <span class="number">0</span>])</span><br><span class="line">        vgrad = np.gradient(vel[:, :, <span class="number">1</span>])</span><br><span class="line">        vor = ugrad[<span class="number">1</span>] - vgrad[<span class="number">0</span>]</span><br><span class="line">        vel_mag = (vel[:, :, <span class="number">0</span>]**<span class="number">2.0</span>+vel[:, :, <span class="number">1</span>]**<span class="number">2.0</span>)**<span class="number">0.5</span></span><br><span class="line">        <span class="comment">## color map</span></span><br><span class="line">        colors = [(<span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>), (<span class="number">0.953</span>, <span class="number">0.490</span>, <span class="number">0.016</span>), (<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>),</span><br><span class="line">            (<span class="number">0.176</span>, <span class="number">0.976</span>, <span class="number">0.529</span>), (<span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>)]</span><br><span class="line">        my_cmap = matplotlib.colors.LinearSegmentedColormap.from_list(</span><br><span class="line">            <span class="string">'my_cmap'</span>, colors)</span><br><span class="line">        vor_img = cm.ScalarMappable(norm=matplotlib.colors.Normalize(</span><br><span class="line">            vmin=<span class="number">-0.02</span>, vmax=<span class="number">0.02</span>),cmap=my_cmap).to_rgba(vor)</span><br><span class="line">        vel_img = cm.plasma(vel_mag / <span class="number">0.15</span>)</span><br><span class="line">        img = np.concatenate((vor_img, vel_img), axis=<span class="number">1</span>)</span><br><span class="line">        gui.set_image(img)</span><br><span class="line">        gui.show()</span><br><span class="line">        <span class="keyword">if</span> (i % <span class="number">1000</span> == <span class="number">0</span>):</span><br><span class="line">            print(<span class="string">'Step: &#123;:&#125;'</span>.format(i))</span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>$[1]$ <a href="https://en.wikipedia.org/wiki/Lattice_Boltzmann_methods" target="_blank" rel="noopener">Lattice Boltzmann methods From Wikipedia, the free encyclopedia</a></p>
+<p>$[2]$ <a href="https://blog.csdn.net/fortunately1/article/details/100034184" target="_blank" rel="noopener">格子玻尔兹曼方法（LBM）的学习笔记</a></p>
+<p>$[3]$ <a href="https://forum.taichi.graphics/t/homework0/506" target="_blank" rel="noopener">计算流体力学视角的流体求解器</a></p>
+<p>$[4]$ <a href="https://zhuanlan.zhihu.com/p/144610457" target="_blank" rel="noopener">大道至简的LBM算法</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-06-24T10:09:31+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2020年6月24日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Fluid-simulation/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Fluid simulation</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2020/06/24/LBM/&title=Fluid Simulation：栅格Boltzmann流体模拟 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=相对于基于N-S流体方程的模拟方法，栅格Boltzmann流体模拟方法（Lattice Boltzmann Method，简称LBM）是一种截然不同的流体模拟算法，表面上看起来跟Navier-Stokes没什么太大的关联，但依旧能够实现非常逼真的流体动画（特别是细粒度流体）。LBM容易理解，实现起来也不难。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2020/06/24/LBM/&title=Fluid Simulation：栅格Boltzmann流体模拟 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=相对于基于N-S流体方程的模拟方法，栅格Boltzmann流体模拟方法（Lattice Boltzmann Method，简称LBM）是一种截然不同的流体模拟算法，表面上看起来跟Navier-Stokes没什么太大的关联，但依旧能够实现非常逼真的流体动画（特别是细粒度流体）。LBM容易理解，实现起来也不难。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2020/06/24/LBM/&title=Fluid Simulation：栅格Boltzmann流体模拟 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png&summary=相对于基于N-S流体方程的模拟方法，栅格Boltzmann流体模拟方法（Lattice Boltzmann Method，简称LBM）是一种截然不同的流体模拟算法，表面上看起来跟Navier-Stokes没什么太大的关联，但依旧能够实现非常逼真的流体动画（特别是细粒度流体）。LBM容易理解，实现起来也不难。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2020/06/24/MassSpring/" rel="prev" title="Physical Simulation：Mass-spring systems">
+                                    
+                                        Physical Simulation：Mass-spring systems
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Physical-simulation/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Physical simulation</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: 'Fluid Simulation：栅格Boltzmann流体模拟',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.png"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、LBM方程"><span class="toc-text">一、LBM方程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、LBM解算步骤"><span class="toc-text">二、LBM解算步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、二维solver的实现"><span class="toc-text">三、二维solver的实现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错或者乱码，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(32)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-simulation/" href="/categories/Fluid-simulation/"><div class="name">Fluid  simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Image-processing/" href="/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physical-simulation/" href="/categories/Physical-simulation/"><div class="name">Physical simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16px; color: #c9c9c9">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22px; color: #f1f1f1">Fluid Simulation</a> <a href="/tags/Fluid-simulation/" style="font-size: 14px; color: #bbb">Fluid simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physical-simulation/" style="font-size: 14px; color: #bbb">Physical simulation</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 16px; color: #c9c9c9">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 18px; color: #d6d6d6">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 22px; color: #f1f1f1">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 16px; color: #c9c9c9">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 20px; color: #e4e4e4">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
