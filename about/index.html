@@ -237,14 +237,16 @@ Features: Basic math and geometry operations and data structures; Jacobi, Gauss-
 </div>
 
 
-<h3 id="Soft-Renderer"><a href="#Soft-Renderer" class="headerlink" title=" Soft-Renderer"></a><i class="fab fa-github"></i> <a href="https://github.com/ZeusYang/Soft-Renderer" target="_blank" rel="noopener">Soft-Renderer</a></h3><h4 id="A-soft-renderer-using-C-from-scratch-without-any-graphics-library"><a href="#A-soft-renderer-using-C-from-scratch-without-any-graphics-library" class="headerlink" title="A soft renderer using C++ from scratch without any graphics library."></a>A soft renderer using C++ from scratch without any graphics library.</h4><div>
+<h3 id="TinySoftRenderer"><a href="#TinySoftRenderer" class="headerlink" title=" TinySoftRenderer"></a><i class="fab fa-github"></i> <a href="https://github.com/ZeusYang/TinySoftRenderer" target="_blank" rel="noopener">TinySoftRenderer</a></h3><h4 id="A-soft-renderer-using-C-from-scratch"><a href="#A-soft-renderer-using-C-from-scratch" class="headerlink" title="A soft renderer using C++ from scratch."></a>A soft renderer using C++ from scratch.</h4><div>
 <fancybox>
-<img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.8/blog/SoftRenderer-Shading/pointLight.gif" width="90%" ailing="left">
-<span>
-Features: A simple 3D rendering pipeline built from scratch; Bresenham algorithom for triangle rasterization; Back face culling and Invisible elimination; Texture mapping and bilinear texture filtering; Obj loader and Blin-Phong lighting. 
-</span>
+<img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.38/blog/TinySoftRenderer/renderer.jpg" width="90%" ailing="left">
+<p><span>
+The original intention of building such a 3D rendering system from scratch without any help of graphics library is to get a thorough understanding of the three-dimensional rendering process. This project was totally refactored based on previous naive version I built 2 years ago.
+</span></p>
 </fancybox>
 </div>
+<div><p>Features: Perspective correct per vertex parameter interpolation; Back face culling; Z-buffering (reversed z);Sutherland Hodgeman homogeneous cliping; Accelerated edge function-based triangle rasterization;Texture mapping, nearest texture sampling, and bilinear texture sampling;Tiling and morton curve memory layout for accessing to texture;Phong/Blinn-Phong illumination;Mipmap texture mapping;Reinhard tone mapping;Multi sampling anti-aliasing (MSAA 4X, and MSAA 8X);Alpha blending, and alpha to coverage;Multi-thread parallelization using tbb as backend.</p></div>
+
 
 
 <h3 id="Ray-Tracer"><a href="#Ray-Tracer" class="headerlink" title=" Ray-Tracer"></a><i class="fab fa-github"></i> <a href="https://github.com/ZeusYang/Ray-Tracer" target="_blank" rel="noopener">Ray-Tracer</a></h3><h4 id="An-offline-renderer-path-tracer-Just-a-personal-toy-for-learning-and-playing"><a href="#An-offline-renderer-path-tracer-Just-a-personal-toy-for-learning-and-playing" class="headerlink" title="An offline renderer : path tracer. Just a personal toy for learning and playing."></a>An offline renderer : path tracer. Just a personal toy for learning and playing.</h4><div>
