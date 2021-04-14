@@ -201,6 +201,112 @@
       
         
   <h2 class="title">
+    <a href="/2019/08/03/MakingFluidImcompressible/">
+      流体模拟Fluid Simulation：求解流体不可压缩的泊松方程
+    </a>
+  </h2>
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="https://yangwc.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2019-08-03</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Fluid-Simulation/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Fluid Simulation</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+  <section class="article typo">
+    <div class="article-entry" itemprop="articleBody">
+      <p>本文主要是流体不可压缩投影，在进行半拉格朗日对流之后，还需要对流体速度进行修正，使流体的速度场散度为零。主要是关于流体压强的泊松方程求解，通常采用共轭梯度法求解大规模稀疏矩阵的线性方程组，辅以不完全的Cholesky因子化。涉及到的数学内容比较多。</p>
+      
+        <div class="readmore">
+          <a href="/2019/08/03/MakingFluidImcompressible/" class="flat-box">
+            <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
+            阅读全文
+          </a>
+        </div>
+      
+    </div>
+    
+      <div class="full-width auto-padding tags">
+        
+          <a href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Computer Graphics</a>
+        
+          <a href="/tags/Fluid-Simulation/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Fluid Simulation</a>
+        
+      </div>
+    
+  </section>
+</article>
+
+          </div>
+        
+      
+        
+          <div class="post-wrapper">
+            <article class="post reveal ">
+  
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  <h2 class="title">
     <a href="/2019/07/30/LevelSet/">
       流体模拟Fluid Simulation：Level Set & Marching Cube
     </a>
@@ -947,113 +1053,6 @@
           </div>
         
       
-        
-          <div class="post-wrapper">
-            <article class="post reveal ">
-  
-
-
-  <section class="meta">
-    
-    
-    <div class="meta" id="header-meta">
-      
-        
-  <h2 class="title">
-    <a href="/2019/06/11/Voxelization/">
-      体素化Voxelization：基于GPU的三维体素化
-    </a>
-  </h2>
-
-
-      
-      <div class="new-meta-box">
-        
-          
-        
-          
-            
-  <div class="new-meta-item author">
-    <a href="https://yangwc.com" rel="nofollow">
-      
-        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.21/blog/2DLighting/header.png">
-      
-      <p>WC Yang</p>
-    </a>
-  </div>
-
-
-          
-        
-          
-            <div class="new-meta-item date">
-  <a class="notlink">
-    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2019-06-11</p>
-  </a>
-</div>
-
-          
-        
-          
-            
-  
-  <div class="new-meta-item category">
-    <a href="/categories/Voxelization/" rel="nofollow">
-      <i class="fas fa-folder-open" aria-hidden="true"></i>
-      <p>Computer Graphics&nbsp;/&nbsp;Position Based Dynamics&nbsp;/&nbsp;Voxelization</p>
-    </a>
-  </div>
-
-
-          
-        
-          
-            
-
-          
-        
-          
-            
-
-          
-        
-      </div>
-      
-        <hr>
-      
-    </div>
-  </section>
-
-
-  <section class="article typo">
-    <div class="article-entry" itemprop="articleBody">
-      <p>本篇文章主要是关于三维网格模型的基于GPU并行的体素化算法，这个算法我是偶然从NVIDIA官网上看到的。基于GPU的体素化算法巧妙地借助了渲染流程的光栅化处理，将整个体素化的过程并行化，速度极快，缺点就是占用的内存较高。相关的完整代码请看<a href="https://github.com/ZeusYang/PositionBasedFluid" target="_blank" rel="noopener">这个链接</a>中的Renderer目录下的Voxelization.h文件和Voxelization.cpp文件。</p>
-<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.13/blog/Voxelization/header.png" width="70%"></div></p>
-      
-        <div class="readmore">
-          <a href="/2019/06/11/Voxelization/" class="flat-box">
-            <i class="fas fa-book-open fa-fw" aria-hidden="true"></i>
-            阅读全文
-          </a>
-        </div>
-      
-    </div>
-    
-      <div class="full-width auto-padding tags">
-        
-          <a href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Computer Graphics</a>
-        
-          <a href="/tags/Voxelization/" rel="nofollow"><i class="fas fa-tag fa-fw"></i>Voxelization</a>
-        
-      </div>
-    
-  </section>
-</article>
-
-          </div>
-        
-      
     
   </section>
   
@@ -1069,7 +1068,7 @@
             </a>
           
           <p class="current">
-            3 / 4
+            3 / 5
           </p>
           
             <a class="next" rel="next" href="/page/4/">
@@ -1266,7 +1265,7 @@
         
           <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(32)</div></a></li>
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(33)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(10)</div></a></li>
         
@@ -1284,7 +1283,7 @@
         
           <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(10)</div></a></li>
         
-          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(2)</div></a></li>
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(3)</div></a></li>
         
           <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
         
@@ -1313,7 +1312,7 @@
 </header>
 
     <div class="content material">
-      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16px; color: #c9c9c9">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22px; color: #f1f1f1">Fluid Simulation</a> <a href="/tags/Fluid-simulation/" style="font-size: 14px; color: #bbb">Fluid simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physical-simulation/" style="font-size: 14px; color: #bbb">Physical simulation</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 16px; color: #c9c9c9">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 18px; color: #d6d6d6">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 22px; color: #f1f1f1">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 16px; color: #c9c9c9">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 20px; color: #e4e4e4">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 16px; color: #c9c9c9">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22px; color: #f1f1f1">Fluid Simulation</a> <a href="/tags/Fluid-simulation/" style="font-size: 14px; color: #bbb">Fluid simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physical-simulation/" style="font-size: 14px; color: #bbb">Physical simulation</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 16px; color: #c9c9c9">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 18px; color: #d6d6d6">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 22px; color: #f1f1f1">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 18px; color: #d6d6d6">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 20px; color: #e4e4e4">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
     </div>
   </section>
 
