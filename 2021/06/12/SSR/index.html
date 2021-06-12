@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>高质量实时渲染：实时全局光照 | YangWC&#39;s Blog</title>
+  
+  
+  <meta name="description" content="Personal blog website.">
+  
+
+  
+
+  <meta name="HandheldFriendly" content="True">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- meta -->
+  
+
+  <!-- link -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.6.3/css/all.min.css">
+  
+
+  
+  <link rel="shortcut icon" type="image/x-icon" href="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1//globalImage/logo.ico">
+  
+
+  
+    <link rel="stylesheet" href="/style.css">
+  
+
+  <script>
+    function setLoadingBarProgress(num) {
+      document.getElementById('loading-bar').style.width=num+"%";
+    }
+  </script>
+
+  
+  
+    <!-- ba -->
+    <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?fdf716664defeee80e01568ddbeb2425";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+    </script>
+  
+  
+</head>
+<body>
+  
+  
+  <header class="l_header material">
+  <div id="loading-bar-wrapper">
+    <div id="loading-bar" class="material"></div>
+  </div>
+
+	<div class="wrapper">
+		<div class="nav-main container container--flex">
+      <a class="logo flat-box" href="/">
+        
+          YangWC's Blog
+        
+      </a>
+			<div class="menu navgation">
+				<ul class="h-list">
+          
+  					
+  						<li>
+								<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+									<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/" id="home">
+									<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+									<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+									<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+								</a>
+							</li>
+      			
+  						<li>
+								<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+									<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+								</a>
+							</li>
+      			
+      		
+				</ul>
+			</div>
+
+			
+				<div class="m_search">
+					<form name="searchform" class="form u-search-form">
+						<input type="text" class="input u-search-input" placeholder="搜索">
+						<i class="icon fas fa-search fa-fw"></i>
+					</form>
+				</div>
+			
+			<ul class="switcher h-list">
+				
+					<li class="s-search"><a class="fas fa-search fa-fw" href="javascript:void(0)"></a></li>
+				
+				<li class="s-menu"><a class="fas fa-bars fa-fw" href="javascript:void(0)"></a></li>
+			</ul>
+		</div>
+
+		<div class="nav-sub container container--flex">
+			<a class="logo flat-box"></a>
+			<ul class="switcher h-list">
+				<li class="s-comment"><a class="flat-btn fas fa-comments fa-fw" href="javascript:void(0)"></a></li>
+        
+          <li class="s-toc"><a class="flat-btn fas fa-list fa-fw" href="javascript:void(0)"></a></li>
+        
+			</ul>
+		</div>
+	</div>
+</header>
+	<aside class="menu-phone">
+    <header>
+		<nav class="menu navgation">
+      <ul>
+        
+          
+            <li>
+							<a class="nav flat-box" href="/about/" rel="nofollow" id="about">
+								<i class="fas fa-info-circle fa-fw"></i>&nbsp;个人
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/" id="home">
+								<i class="fas fa-grin fa-fw"></i>&nbsp;博客
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/archives/" rel="nofollow" id="archives">
+								<i class="fas fa-archive fa-fw"></i>&nbsp;归档
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/categories/" rel="nofollow" id="categories">
+								<i class="fas fa-folder-open fa-fw"></i>&nbsp;分类
+							</a>
+            </li>
+          
+            <li>
+							<a class="nav flat-box" href="/tags/" rel="nofollow" id="tags">
+								<i class="fas fa-tag fa-fw"></i>&nbsp;标签
+							</a>
+            </li>
+          
+       
+      </ul>
+		</nav>
+    </header>
+	</aside>
+<script>setLoadingBarProgress(40);</script>
+
+
+
+  <div class="l_body nocover">
+    <div class='body-wrapper'>
+      <div class="l_main">
+  
+
+  
+    <article id="post" class="post white-box article-type-post" itemscope itemprop="blogPost">
+      
+
+
+  <section class="meta">
+    
+    
+    <div class="meta" id="header-meta">
+      
+        
+  
+    <h1 class="title">
+      <a href="/2021/06/12/SSR/">
+        高质量实时渲染：实时全局光照
+      </a>
+    </h1>
+  
+
+
+      
+      <div class="new-meta-box">
+        
+          
+        
+          
+            
+  <div class="new-meta-item author">
+    <a href="https://yangwc.com" rel="nofollow">
+      
+        <img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg">
+      
+      <p>WC Yang</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            <div class="new-meta-item date">
+  <a class="notlink">
+    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+    <p>2021-06-12</p>
+  </a>
+</div>
+
+          
+        
+          
+            
+  
+  <div class="new-meta-item category">
+    <a href="/categories/Real-time-Rendering/" rel="nofollow">
+      <i class="fas fa-folder-open" aria-hidden="true"></i>
+      <p>Computer Graphics&nbsp;/&nbsp;Real-time Rendering</p>
+    </a>
+  </div>
+
+
+          
+        
+          
+            
+  
+    <div class="new-meta-item browse busuanzi">
+      <a class="notlink">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <p>
+          <span id="busuanzi_value_page_pv">
+            <i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i>
+          </span>
+        </p>
+      </a>
+    </div>
+  
+
+
+          
+        
+          
+            
+
+          
+        
+      </div>
+      
+        <hr>
+      
+    </div>
+  </section>
+
+
+      <section class="article typo">
+        <div class="article-entry" itemprop="articleBody">
+          <p>本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，这一节的主题为实时全局光照，涉及的技术有RSM（Reflective Shadow Maps）、LPV（Light Propagation Volumes）、VXGI（Voxel Global Illumination）、SSAO（Screen Space Ambient Occlusion）、SSDO（Screen Space Directional Occlusion）以及SSR（Screen Space Reflection/Ray-tracing）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/1.jpg" width="100%"></div></p>
+<a id="more"></a>
+<p>&emsp;&emsp;在实时渲染领域，所谓的全局光照其实就是在直接光照的基础上再加一次bounce的间接光照（如下图1所示）。即便如此，一次bounce的间接光照也能让渲染的光影结果更为真实和炫酷。本次主题涉及的内容较多，相关的技术可以分成两类：一类为基于三维空间的方法（RSM、LPV和VOXGI），而另一类为基于屏幕空间的方法（SSAO、SSDO和SSR）。下面本文按照这个顺序依次对这些技术做一个简单的介绍和总结。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/2.jpg" width="40%"><br>    <center> 图1 one-bounce的间接光照示意图 </center></div></p>
+<p>&emsp;&emsp;上面提及的实时全局光照算法都是多Pass的方法。这些算法的核心思路基本上都是<strong>先计算出直接光照的辐射率，然后再把直接光照的结果当作次级光源进一步计算弹射一次的间接光照效果</strong>。如下图2所示，第一个Pass计算Q点的直接光照辐射率，紧接着后续的Pass把Q当作光源并计算Q通过P反射到视点的辐射率值。这个思路贯穿了实时全局光照算法的始终。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/3.jpg" width="40%"><br>    <center> 图2 把Q点当作次级光源计算Q到P再反射到摄像机的辐射率 </center></div></p>
+<p>&emsp;&emsp;具体的效果见如下图3所示。可以看到，加上了一次弹射的间接光照之后，整个渲染的场景明亮了许多，显得更加真实、美观，这就是实时全局光照算法的目的所在。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/4.jpg" width="80%"><br>    <center> 图3 有无间接光照的前后效果对比 </center></div></p>
+<h2 id="一、RSM"><a href="#一、RSM" class="headerlink" title="一、RSM"></a>一、RSM</h2><p>&emsp;&emsp;RSM（Reflective Shadow Maps）算法是基于Shadow Map机制的，也是两个Pass的方法。在第一个Pass，RSM算法需要记录哪些场景面元被直接光照照亮，将这些被直接光照照亮的面元几何信息和着色信息存储记录下来；在第二个Pass，根据前面得到的直接光照照亮面元的信息，计算这些面元对其他场景物体的光照。</p>
+<p>&emsp;&emsp;在第一个Pass，与Shadow Map一样，RSM算法将会从光源的视角来渲染整个场景，这样就能够保证将所有能够被直接光照照亮的面元捕获并存储到贴图中。相比与Shadow Map存储深度值，RSM还会存储其他的一些信息，例如世界空间的顶点坐标、法线向量、反射通量等，如下图4所示，后面会解释为什么需要存储辐射通量。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/5.jpg" width="100%"><br>    <center> 图4 RSM第一个Pass存储的贴图信息 </center></div></p>
+<p>&emsp;&emsp;我们把这些贴图上的像素称为surface patch，即当作一个面元。在第二个Pass，RSM算法把这些surface patch当作一个面光源来看待，因此这些面元亦被称为反射物（reflector）。为了便于存储和计算reflector到任意方向的辐射率，RSM算法做了一个假设：<strong>reflector即反射物的材质均为漫反射材质，这样reflector到任意方向的反射辐射率是一个某个固定的值</strong>。</p>
+<p>&emsp;&emsp;在第二个Pass，RSM算法会从摄像机的视角渲染整个场景。此时需要根据第一个Pass给定的surface patch信息做一个间接光照的计算。如下图所示，对于场景中的一点$p$，现需要计算reflector点$q$到$p$点的反射辐射率贡献，记为$L_i(q\to p)$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/6.jpg" width="40%"></div></p>
+<p>&emsp;&emsp;假设我们已经知道了$L_i(q\to p)$，那么$p$点向视点方向$\omega_o$的辐射率$L_o(p,\omega_o)$由以下的渲染方程给出：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+L_o(p,\omega_o)=&\int_{\Omega_{patch}}L_i(p,\omega_i)V(p,\omega_i)f_r(p,\omega_i,\omega_o)cos\theta_id\omega_i\\
+=&\int_{A_{patch}}L_i(q\to p)V(p,\omega_i)f_r(p,q\to p,\omega_o)\frac{cos\theta_p cos\theta_q}{||q-p||^2}dA
+
+\end{align} \tag {1}</script><p>&emsp;&emsp;因为现在的reflector都是以surface patch的形式给出，所以这里把渲染方程转成了对所有的面元做积分的形式。因为RSM假定reflector都是diffuse，因此$L_i(q\to p)$可以写成如下形式（结合BRDF定义）:</p>
+<script type="math/tex; mode=display">
+L_i(q\to p)=f_r\cdot \frac{\Phi}{dA}=\frac{\rho}{\pi}\cdot \frac{\Phi}{dA} \tag {2}</script><p>&emsp;&emsp;公式$(2)$中的$f_r$、$dA$和$\rho$分别为reflector的BRDF函数、面积以及反照率，而$\Phi$则是直接光源的辐射通量。把公式$(2)$带入到公式$(1)$，可以巧妙地消去$dA$项，从而有$q$点到$p$点的辐照度（Irradiance）公式：</p>
+<script type="math/tex; mode=display">
+E_q(p,n)=\Phi_q\frac{max(0,cos\theta_p)\cdot max(0,cos\theta_q)}{||p-q||^2} \tag {3}</script><p>&emsp;&emsp;其中，$\Phi_q$就是前面提到的反射通量（即图4的最后一列）。对于平行光源，其计算公式为$\Phi_q=\Phi\cdot \rho/\pi$，$\Phi$是直接光源的辐射通量，$\rho$是反射物$q$点的反照率；对于点光源，还要乘上一个余弦项（光照方向与$q$点法线夹角）。从而，$p$点接收到的所有间接光照辐照度为：</p>
+<script type="math/tex; mode=display">
+E(p,n)=\Sigma_{q}E_q(p,n) \tag {4}</script><p>&emsp;&emsp;从而，$p$点向视点反射的间接光照辐射率$L_o(p,\omega_o)$为（<strong>实际的渲染方程</strong>）：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+L_o(p,\omega_o)=&\Sigma_q f_r(p,q\to p,\omega_o)\cdot E_q(p,n)\\
+=&\Sigma_q f_r(p,q\to p,\omega_o)\cdot \Phi_q\cdot\frac{max(0,cos\theta_p)\cdot max(0,cos\theta_q)}{||p-q||^2}
+
+\end{align}
+\tag {5}</script><p>&emsp;&emsp;这里的$f_r$是$p$点的BRDF（请特别注意，RSM仅假定reflector是diffuse，并没有假定$p$点是diffuse，因此这里的BRDF没有任何限制）。公式$(5)$没有考虑可见性项$V$（做不了，直接不做了），因此会带来一定的artifact，但仍然还可接受。</p>
+<p>&emsp;&emsp;最后一个需要解决的问题是如何选定公式$(5)$中的求和范围$\Sigma_q$，即如何从第一个Pass的贴图中选定reflector像素集合。RSM算法直接大胆假设空间上相邻的点投影到Shadow Map上也是邻近的，因此RSM采用如下的采样模式。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/7.jpg" width="30%"></div></p>
+<p>&emsp;&emsp;首先把$p$点投影到贴图上，记投影点为$(s,t)$；对以$(s,t)$为中心、以$r_{max}$为半径的圆内像素做一个采样，这里通过极坐标来实现，令$\xi_1$、$\xi_2$为两个均匀随机数，那么采样的像素位置为：</p>
+<script type="math/tex; mode=display">
+(s+r_{max}\xi_1sin(2\pi\xi_2),t+r_{max}\xi_1cos(2\pi\xi_2))</script><p>&emsp;&emsp;这种采样会导致距离远的地方采样密度比较稀疏，为了补偿这一点，论文$^{[1]}$将采样得到的反射辐照度值再乘上一个值$\xi_1^2$（如上图圆盘大小所示），这样最后需要再做一次归一化操作，防止能量不守恒。论文$^{[1]}$实践指出采样$400$个像素就能够取得非常好的效果。</p>
+<p>&emsp;&emsp;RSM算法的优点就是实现起来非常简单，但缺点也有不少：</p>
+<ul>
+<li>与Shadow Map一样，光源数量等于贴图数量；</li>
+<li>不考虑间接光照的相互可见性，因此存在一些artifact；</li>
+<li>做了一些大胆的假设和限定，例如要求reflector必须是diffuse;</li>
+<li>渲染质量和贴图采样率息息相关，需要在两者之间做一个tradeoff。</li>
+</ul>
+<p>&emsp;&emsp;关于RSM的算法就总结到这，更多细节请看论文$^{[1]}$。</p>
+<h2 id="二、LPV"><a href="#二、LPV" class="headerlink" title="二、LPV"></a>二、LPV</h2><p>&emsp;&emsp;LPV（Light Propagation Volumes）算法基于这样的一个假设：光照辐射率在三维空间中沿直线传播且传播过程中辐射率保持不变。因此，LPV的核心思路就是将整个场景的三维空间划分成一个均匀的体素网格（注意并不是将场景物体体素化），如下图所示，然后在这些体素格子之间传播光照的辐射率，最后每个着色点根据其三维位置找到相应的体素格子，从中取传播得到的辐射率进行间接光照的计算。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/8.jpg" width="50%"></div></p>
+<p>&emsp;&emsp;由此，LPV算法可以分成以下的四个步骤：</p>
+<ul>
+<li>（1）直接光照的信息生成；</li>
+<li>（2）将直接光照得到的虚拟光源注入到三维体素网格中；</li>
+<li>（3）体素网格之间的辐射率扩散、传播；</li>
+<li>（4）根据传播得到的辐射率进行间接光照的计算。</li>
+</ul>
+<p>&emsp;&emsp;由于LPV涉及的具体细节比较多，限于篇幅，这里不会展开过多的细节描述。在步骤（1）中，LPV算法借助RSM机制，从光源的角度渲染整个场景，然后将深度信息、顶点位置、法线向量和反射通量保存到贴图纹理当中。然后在步骤$(2)$时，创建一个三维的体素网格（3D纹理），然后根据RSM贴图的信息，将有几何体的贴图像素当作一个虚拟光源，根据贴图上存储的顶点位置找到其对应的体素格子，将反射通量注入保存到这个体素格子中，从而完成虚拟光源注入的过程。</p>
+<p>&emsp;&emsp;每个体素网格的中心可以看成是一个点光源。但值得注意的是，格子中心的点光源并不是向所有方向均匀辐射的！因为在注入阶段，格子中心仅仅在某些方向被注入了虚拟光源。因此，为了描述格子中心向不同方向的辐射情况，LPV采用了球面谐波函数来描述其球面方向上的辐射率分布情况。</p>
+<p>&emsp;&emsp;LPV论文$^{[2]}$的作者采用了前两阶（也就是前四个）球面谐波函数来存储格子中心的辐射率分布。因此每个格子存储$4\times 3$个权重系数（乘以$3$是因为辐射率是RGB光谱）。在前一篇<a href="http://yangwc.com/2021/04/29/PRT/">博客</a>中我们提到，球面谐波权重的系数的计算公式为：</p>
+<script type="math/tex; mode=display">
+c_i=\int_{\Omega}L(\omega)\cdot B_i(\omega)d\omega</script><p>&emsp;&emsp;其中积分区域$\Omega$为球面方向，$B_i(\omega)$是第$i$个球面谐波函数，$L(\omega)$是虚拟光源向格子中心发射的辐射率，因此其取值为$L(\omega)=\Phi\cdot max(0,n\cdot \omega)$，其中$\Phi$、$n$分别是RSM贴图上的反射通量和法线向量，$\omega$是从虚拟光源到格子中心的方向向量。这个权重的计算发生在注入阶段（也就是步骤（2））。在实际的渲染场景，我们没有必要做球面的积分。这是因为$L(\omega)$分布是一个狄拉克函数，它仅仅在有虚拟光源的方向不为零，因此可以直接把积分符号去掉，转变成如下的求和公式：</p>
+<script type="math/tex; mode=display">
+c_i=\Sigma_p L_p(\omega)\cdot B_i(\omega) \tag {6}</script><p>&emsp;&emsp;即对所有落到该体素格子内部的虚拟光源做一个谐波函数权重求和，得到最终的权重系数。$L_p(\omega)$是虚拟光源$p$到格子中心的辐射率。将所有的虚拟光源注入到三维体素格子之后，步骤（3）开始在这些体素格子之间传播光照的辐射率。在此之前，我们需要知道如何复原格子中心向任意方向发射的辐射率信息。公式$(6)$计算了球面谐波的权重系数，那么对于给定的辐射方向$\omega_c$，我们可以用如下的公式复原得到格子中心向$\omega_c$发射的辐射率：</p>
+<script type="math/tex; mode=display">
+L_(\omega_c)=\Sigma_i c_i \cdot B_i(\omega_c) \tag {7}</script><p>&emsp;&emsp;步骤（3）的体素格子之间的辐射率传播采用迭代扩散的方式进行。在每一次迭代过程中，每个体素格子向与其直接相邻的格子传播辐射率（下图所示，三维情况是6个相邻格子）。依次迭代下去，直到一定的迭代次数，论文$^{[2]}$实践表明$4$次的迭代能够取得不错的效果。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/9.jpg" width="50%"></div></p>
+<p>&emsp;&emsp;相邻格子是如何传播的呢？这里根据我的理解简单说一下，下图以二维情况为例，从左边的格子传播到右边的格子。首先将体素格子中心的辐射率传播到右边格子的$3$个非临接面上（即不包括直接相接的那个面，三维情况是$5$个面）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/10.jpg" width="40%"></div></p>
+<p>&emsp;&emsp;从$p$点辐射到表面$f$的辐射通量为$\Phi_f=\Delta_f/(4\pi )\cdot I(\omega_c)$，其中$\Delta _f$为表面$f$投影到以$p$为中心的立体角值（可以预先计算得到），$\omega_c$是立体角的中心方向，$I(\omega_c)$是点$p$向$\omega_c$方向发射的辐射率值，由前面的公式$(7)$计算得到。然后由表面$f$再向$q$点发射的辐射率则为$\Phi_f/\pi$。再根据前面的公式$(6)$将其展开成球面谐波权重系数，将这些权重系数加到$q$点存储的权重系数上，从而完成了一个面的传播过程。其他面的计算过程类似。对于三维情况，相邻格子需要完成$5$个面的辐射率传播。</p>
+<p>&emsp;&emsp;最后的步骤（4）其实不言自明。在计算过程的时候，找到着色点对应的体素格子，从中取出球面谐波的权重系数，根据公式$(7)$还原出给定方向上的辐射率，完成间接计算的过程。<a href="https://github.com/djbozkosz/Light-Propagation-Volumes" target="_blank" rel="noopener">这里</a>有一个LPV的实现参考代码。LPV的问题主要是会产生漏光的artifact，而且如果三维体素格子如果划分得太过粗糙，那么实现的光照效果会有明显的块状artifact，比较难看。</p>
+<h2 id="三、VXGI"><a href="#三、VXGI" class="headerlink" title="三、VXGI"></a>三、VXGI</h2><p>&emsp;&emsp;VXGI（Voxel Global Illumination）与RSM算法一样，也是两个Pass的方法。目前基于体素的全局光照方法有两类，除了VXGI，还有Sparse Voxel Octree GI（简称SVOGI）。VXGI和SVOGI主要的区别在于使用的存储数据结构不同，SVOGI使用稀疏体素的八叉树结构来管理场景的体素，而VXGI则采用Clipmap机制。对于动态的场景，两种方法都要在物体发生动态变化时重建（或者说调整）场景的数据结构。基于Clipmap的VXGI算法可以看成是SVOGI的优化，它在构建数据结构时更为简单，而且内存效率方面更具优势，因此这里不对SVO做介绍。</p>
+<p>&emsp;&emsp;VXGI的场景体素化借用了光栅化的渲染机制，将场景物体分别在$x$、$y$和$z$轴三个方向上投影绘制三次，这个我在之前的一篇<a href="http://yangwc.com/2019/06/11/Voxelization/">博客</a>记录过，因此这里不再赘述。VXGI会创建一些3D纹理，场景体素化之后会将场景物体的颜色值、法线向量、自发光信息、阴影遮挡信息、粗糙度等存储到这些3D纹理中。需要注意的是，在体素化时，有可能不同的三角形面片会被体素化到同一个体素格子，因此体素格子的属性信息是所有落在这个体素内的三角形属性的平均值。</p>
+<p>&emsp;&emsp;生成了3D体素纹理之后，紧接着的步骤是直接光照的Pass。直接光照Pass可以直接借用RSM机制来实现，即从光的视角来渲染整个场景，将直接光照的数据存储到贴图中，然后再将贴图里面的直接光照数据注入到场景体素化的3D纹理当中。然后再为这些3D纹理生成Mipmap，如下图所示（Clipmap本质上就是在Mipmap的基础上加了个裁剪范围，使得显存只需要加载每个Mipmap层次的一部分，这里不细说）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/11.jpg" width="99%"></div></p>
+<p>&emsp;&emsp;间接光照Pass是从摄像机的角度渲染整个场景，并根据上面的Mipmap结构对场景发射射线进行追踪来计算间接光照部分。这里发射追踪的射线是具有一定角度的圆锥体。但圆锥体也并不是真正意义上的圆锥体，而是由不同level的体素拼接而成的类锥体的形状，如下图所示，从近到远，体素的大小逐渐增大。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/12.jpg" width="60%"></div></p>
+<p>&emsp;&emsp;记tracing的圆锥体起始点为$C_0$、方向为$C_d$、圆锥体的角度为$\theta$、当前追踪的长度为$t$，那么可以用以下的公式计算出当前的ray marching点所在体素的边长（仔细观察上图，不难理解）：</p>
+<script type="math/tex; mode=display">
+d=2t \cdot tan(\frac{\theta}{2}) \tag {8}</script><p>&emsp;&emsp;而后可以通过$d$计算出需要在哪个level的Mipmap上进行采样：</p>
+<script type="math/tex; mode=display">
+level=log_2(\frac{d}{V_{size}}) \tag {9}</script><p>&emsp;&emsp;其中，$V_{size}$是Mipmap最高level的大小（即最粗糙层级的Mipmap边长）。以上是一个tracing cone做光线步进。针对不同的材质，VXGI会发射不同数量的tracing cone进行间接光照的计算。对于glossy材质，VXGI只发射一个tracing cone，并通过调整锥形的角度来实现不同粗糙度下的glossy反射效果（越粗糙锥形角度越大）；对于diffuse材质，VXGI发射多个tracing cone（如下图所示），这些tracing cone基本覆盖了法线朝向的半球方向，从而近似实现对半球方向的积分。锥形的数量可以调整，越多越精确，但考虑到效率问题，一般也就$5$到$8$个。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/13.jpg" width="40%"></div></p>
+<p>&emsp;&emsp;VXGI可以实现非常惊艳的全局光照效果，但是它的缺点也显而易见：3D纹理太过耗费显存，体素化的精度决定了光照精度，而且也存在一些漏光的artifact现象。<a href="https://github.com/jose-villegas/VCTRenderer" target="_blank" rel="noopener">这里</a>给出了一个非常不错的VXGI实现，可以参考参考。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/14.jpg" width="99%"></div></p>
+<h2 id="四、SSAO"><a href="#四、SSAO" class="headerlink" title="四、SSAO"></a>四、SSAO</h2><p>&emsp;&emsp;SSAO（Screen Space Ambient Occlusion）本质上也是为了实现间接光照导致的光照强弱分明效果（在一些角落、拐角或者隐蔽的地方由于互相遮挡光照强度较弱），这种效果我们称之为环境光遮蔽。这种环境光遮蔽的效果能够大大地增强场景的光影层次感，使得渲染出来的效果更具三维立体感，下图给出了有无AO的效果对比。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/15.jpg" width="50%"></div></p>
+<p>&emsp;&emsp;SSAO首先做了如下的假设：</p>
+<ul>
+<li>场景中所有物体接收到的来自各个方向的间接光照为指定常量值（类似于Phong光照模型里面的ambient项）</li>
+<li>在计算场景物体的AO项，把场景中需要计算可见性项的物体的材质当作diffuse来看待</li>
+</ul>
+<p>&emsp;&emsp;这里的AO（Ambient Occlusion）就是衡量着色点接收到间接光照的量，如下图5所示。在半球方向内，如果存在的遮挡物比较多，那么该着色点接收到间接光照量就少，因而比较暗；反之则比较亮。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/16.jpg" width="50%"><br>    <center> 图5 Ambient Occlusion </center></div></p>
+<p>&emsp;&emsp;下面简单总结一下SSAO的理论。首先从间接光照的渲染方程出发：</p>
+<script type="math/tex; mode=display">
+L_o^{indiect}(p,\omega_o)=\int_{\Omega^+}L_i(p,\omega_i)f_r(p,\omega_i,\omega_o)V(p,\omega_i)cos\theta_id\omega_i \tag {10}</script><p>&emsp;&emsp;结合前面提到的SSAO假设，上式中的$L_i(p,\omega_i)$为指定的某个常量值，BRDF函数$f_r(p,\omega_i,\omega_o)$为diffuse。在RTR领域，有如下的近似公式：</p>
+<script type="math/tex; mode=display">
+\int_{\Omega}f(x)g(x)dx\approx \frac{\int_{\Omega_G}f(x)dx}{\int_{\Omega_G}dx}\cdot \int_{\Omega}g(x)dx</script><p>&emsp;&emsp;这个近似公式在之前的博客已经提到过，不再赘述。把公式$(10)$按照上面的近似公式进行拆分：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+L^{indirect}_o(p,\omega_o)\approx &\frac{\int_{\Omega^+}V(p,\omega_i)cos\theta_id\omega_i}{\int_{\Omega^+}cos\theta_id\omega_i}\cdot\\
+&\int_{\Omega^+}L_i(p,\omega_i)f_r(p,\omega_i,\omega_o)cos\theta_i d\omega_i \tag {11}
+\end{align}</script><p>&emsp;&emsp;上面的公式把$cos\theta_i d\omega_i$看作一个整体（即看成一个整体的积分变量），把可见性项$V(p,\omega_i)$单独拿出来。又因为$L_i$是指定的常量，$f_r$是diffuse材质的，即$f_r=\frac{\rho}{\pi}$，这两个都可以直接提到积分符号外面，所以上面的公式可以进一步简化为：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+L^{indirect}_o(p,\omega_o)\approx&\frac{\int_{\Omega^+}V(p,\omega_i)cos\theta_id\omega_i}{\pi}\cdot L_i(p,\omega_i)\cdot \frac{\rho}{\pi}\cdot \pi\\ 
+\approx&\frac{\int_{\Omega^+}V(p,\omega_i)cos\theta_id\omega_i}{\pi}\cdot L_i(p,\omega_i)\cdot \rho
+\end{align} \tag {12}</script><p>&emsp;&emsp;其中$\rho$就是着色点的反照率。上面的$\int_{\Omega^+}V(p,\omega_i)cos\theta_id\omega_i/\pi$就是AO项，公式$(12)$就是SSAO的核心公式。现在的关键问题就是如何求解AO项的可见性积分$\int_{\Omega^+}V(p,\omega_i)cos\theta_id\omega_i$。SSAO在屏幕空间对AO项积分近似求解。所谓的基于屏幕空间的方法，其实就是后处理方法，因此也是两个Pass。第一个Pass从摄像机角度渲染场景并存储着色点的属性到G-buffer中（深度、顶点、Albeod等）；第二个Pass渲染屏幕空间大小的四边形，根据G-buffer的信息做进一步的处理，从而得到最终的结果。</p>
+<p>&emsp;&emsp;在第二个Pass，SSAO获取G-buffer上的顶点$p$，在以$p$点为球心的球体内部播撒一些采样点（这些采样点也是三维的）。对于每一个采样点$q$，可以通过投影矩阵得到其深度值，将该深度值与$q$点对应的深度贴图上的值进行比较，如果采样点的深度值小于深度贴图上的深度值，那么这个采样点就是可见的（如下图6的绿点），反之则是不可见的（如下图6的红点）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/17.jpg" width="98%"><br>    <center> 图6 SSAO的计算 </center></div></p>
+<p>&emsp;&emsp;最后的AO值就是绿色点数量除以总的采样点数量。这种方法并非物理准确的，例如上图6中间球体最下面的那个小红点，但无伤大雅。在实际的实践中，仅当红点数量过半的时候，才会考虑AO项，否则不考虑AO，这是为了弥补公式$(12)$积分项的半球积分范围（而非球体范围）。SSAO的缺点主要是它在容易在前后不同物体重叠的地方产生了AO现象，这是一个artifact。针对这个问题，一些学者对SSAO进行了改进——提出了HBAO（Horizon Based Ambient Occlusion），HBAO在采样时结合了法线在半球内进行采样。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/18.jpg" width="98%"></div></p>
+<h2 id="五、SSDO"><a href="#五、SSDO" class="headerlink" title="五、SSDO"></a>五、SSDO</h2><p>&emsp;&emsp;SSDO（Screen Space Directional Occlusion）是SSAO的进一步改进。SSAO假设着色点接收到的$L_i$是某个给定的常量值，因此它的AO效果仅仅是变暗。为了产生间接光照的颜色溅射效果，SSDO算法应运而生。同样的，也是两个Pass，而SSDO也主要是在第二个Pass进行处理。如下图所示，SSDO主要考虑下图中的黑色射线打到间接光照效果（而SSAO反过来，考虑通过黄色射线来计算可见性）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/19.jpg" width="50%"></div></p>
+<p>&emsp;&emsp;由此，SSDO的核心理论是如下的两个公式：</p>
+<script type="math/tex; mode=display">
+\begin{align}
+L_o^{dir}(p,\omega_o)=&\int_{\Omega^+\ V=1}L_i^{dir}(p,\omega_i)f_r(p,\omega_i,\omega_o)cos\theta_i d\omega_i\\
+L_o^{indir}(p,\omega_o)=&\int_{\Omega^+\ V=0}L_i^{indir}(p,\omega_i)f_r(p,\omega_i,\omega_o)cos\theta_id\omega_i
+\end{align} \tag {13}</script><p>&emsp;&emsp;上述公式分为两部分，分别是直接光照和间接光照。其中$V=1$表示射线$\omega_i$击中了场景中的其他物体，反之则没有击中。实际上就是把半球的积分区域分成了两部分，结合上图示例，对于黄色射线部分我们计算直接光照部分（当然一般不需要积分，这里仅仅是为了理论严谨），对于黑色射线部分我们计算间接光照部分。因此重点在于公式$(13)$的第二个公式如何计算。</p>
+<p>&emsp;&emsp;与SSAO类似，SSDO从G-buffer取出着色点的顶点和法线，然后在在法线朝向半球范围内播撒采样点，如下图7最左边的图片所示的A、B、C和D点。然后对于每一个采样点$p$，对比该采样点的深度与该采样点对应到的深度贴图上的深度，如果采样点被遮挡了（深度值大于贴图上的深度值），那么就计算遮挡位置的直接光照信息，加到$p$点的间接光照上，如下图7的中间图片所示（例如A点对应的橙色点）。这就是SSDO的算法思想。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/20.jpg" width="90%"><br>      <center> 图7 SSDO的计算 </center></div></p>
+<p>&emsp;&emsp;这种近似的求解当然也不是物理准确的，例如上图7的最右边图片所示，A点对应的$z_1$点并不会对$p$点产生间接弹射的贡献。而且值得一提的是，采样的半球半径限制了弹射范围，只有在半球半径范围内的点才会被考虑进来，因此不会渲染超过一定范围内的间接弹射效果。最后需要注意的就是，SSDO是基于屏幕空间的，因此它所有的间接光照信息都来源于当前摄像机能够看到的，对于那些看不到的面元，自然也就不会贡献间接光照的效果。</p>
+<h2 id="六、SSR"><a href="#六、SSR" class="headerlink" title="六、SSR"></a>六、SSR</h2><p>&emsp;&emsp;与前面的SSAO和SSDO，SSR（Screen Space Ray-tracing/Reflection）同样也是基于两个Pass的。在渲染了第一个Pass的G-buffer之后，SSR尝试根据G-buffer提供的信息找到给定着色点接收的间接光照。SSR并不仅仅局限于镜面反射，对于glossy和diffuse，SSR也可以做间接光照的追踪，因此用Screen Space Ray-tracing来命名更为合适。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/21.jpg" width="40%"></div></p>
+<p>&emsp;&emsp;SSR的核心思路就是追踪当前屏幕空间已有的信息，如上图所示，地面反射的光影效果在当前屏幕上已经存在，因此可以直接进行追踪。事实上，G-buffer存储的深度值可以看成从摄像机角度的SDF（符号距离场），可以近似地当成一种对场景的SDF描述。由此，SSR尝试在屏幕空间上做光线步进（Ray Marching）来找到光线与场景的交点。找到交点之后，根据交点的法线、顶点、反照率等得到交点处的直接光照辐射率，以此作为弹射的间接光照辐射率，从而实现间接光照。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/22.jpg" width="100%"><br>    <center> 图8 SSR算法 </center></div></p>
+<p>&emsp;&emsp;SSR针对不同的材质发射不同数量的追踪光线。对于完美specular的材质，发射一条反射光线；对于glossy的材质，根据glossy材质的粗糙度来计算反射的lobe，在lobe范围内发射一些采样光线；对于diffuse的材质，在半球范围内发射采样的光线。总的来说，对于每一个片元，SSR分为以下三步：</p>
+<ul>
+<li>根据当前片元的顶点、法线，计算反射的采样光线；</li>
+<li>从片元的顶点出发，沿着采样的光线进行光线步进（通过深度缓冲来判断是否发生了相交）；</li>
+<li>如果找到了交点，使用交点处的直接光照效果作为反射颜色；如果步进超过一定的距离（或超出屏幕空间范围）仍没有交点，那么终止步进。</li>
+</ul>
+<p>&emsp;&emsp;第二步的每一次光线步进，我们都会做一次相交判断。相交判断的逻辑为：将当前的步进点$p$的深度值与$p$点对应的深度贴图上的深度值进行大小判断，如果$p$点的深度值大于深度图贴图上的深度值，那么就说明当前步进的点落到某个场景表面之下，这时就发生了相交。最为Naive的光线步进就是Linear Ray-marching，也就是每次步进一小段固定的距离，如下代码所示：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">RayMarch</span><span class="params">(vec3 ori, vec3 dir, out vec3 hitPos)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="keyword">float</span> step = <span class="number">0.5</span>;</span><br><span class="line">      vec3 p = ori + dir * step;</span><br><span class="line">      <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt;= <span class="number">50</span>; ++i)</span><br><span class="line">      &#123;</span><br><span class="line">          vec2 uv = GetScreenCoordinate(p);</span><br><span class="line">          <span class="comment">//out of range</span></span><br><span class="line">          <span class="keyword">if</span>(uv.x &lt; <span class="number">0.0</span> || uv.x &gt; <span class="number">1.0</span> || uv.y &lt; <span class="number">0.0</span> || uv.y &gt; <span class="number">1.0</span>)</span><br><span class="line">              <span class="keyword">break</span>;</span><br><span class="line">          <span class="keyword">float</span> pd = GetDepth(p);</span><br><span class="line">          <span class="keyword">float</span> dd = GetGBufferDepth(uv);</span><br><span class="line">          <span class="keyword">if</span>(pd &gt; dd)</span><br><span class="line">          &#123;</span><br><span class="line">              hitPos = p;</span><br><span class="line">              <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          p += dir * step;</span><br><span class="line">      &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;上面的光线步进是在三维世界空间做的，所以每一次都要把步进的点投影到屏幕上。但是在三维空间做固定长度的光线步进，投影到屏幕上步进的间隔并非均匀的。如下图9所示，三维空间的Linear Ray-marching会出现两个问题，分别是遗漏采样和重复采样（越红代表重复采样的次数越多）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/23.jpg" width="100%"><br>    <center> 图9 三维空间（左）vs屏幕空间（右）Linear Ray-marching </center></div></p>
+<p>&emsp;&emsp;因此，最为理想的情况下当然希望在屏幕空间上实现Linear Ray-marching，不浪费每一次的纹理采样。论文$^{[3]}$提出了基于DDA画线的屏幕空间Ray-marching方法，其本质上就是把三维空间的射线投影到屏幕上，在屏幕上按照固定的步长进行步进。论文$^{[3]}$借助基于DDA的直线光栅化（如图9右）来实现屏幕空间的固定步长的Ray-marching。屏幕空间的Ray-marching需要解决深度的透视纠正的问题，即每步进一定步长的像素之后，我们需要得到步进点像素对应的三维深度值（不是深度贴图上的深度值），这个其实在光栅化线性插值已经解决了，只需将深度值乘以投影之后的$w$。更多细节阅读原文，这里贴一下代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">RayMarch</span><span class="params">(vec3 ori, vec3 dir, out vec3 hitPos)</span> </span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="keyword">float</span> nearPlaneZ = <span class="number">-0.001</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">float</span> maxSteps = <span class="number">50.0</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">float</span> maxRayTraceDistance = <span class="number">50.0</span>;</span><br><span class="line">    <span class="keyword">float</span> stride = <span class="number">3.0</span> * max(<span class="number">1.0</span>/uWidth, <span class="number">1.0</span>/uHeight);</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">float</span> jitterFraction = <span class="number">1.0</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">float</span> csZThickness = <span class="number">0.0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Transform into camera space </span></span><br><span class="line">    vec3 csOrigin = vec3(vViewMatrix * vec4(ori, <span class="number">1.0</span>));</span><br><span class="line">    vec3 csDirection = normalize(vec3(vViewMatrix * vec4(dir, <span class="number">0.0</span>)));</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Clip ray to a near plane in 3D</span></span><br><span class="line">    <span class="keyword">float</span> rayLength = ((csOrigin.z + csDirection.z * maxRayTraceDistance) &gt; nearPlaneZ) ? </span><br><span class="line">                    (nearPlaneZ - csOrigin.z) / csDirection.z : maxRayTraceDistance;</span><br><span class="line">    vec3 csEndPoint = csOrigin + csDirection * rayLength;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Project into screen space</span></span><br><span class="line">    vec4 H0 = vProjectMatrix * vec4(csOrigin, <span class="number">1.0</span>);</span><br><span class="line">    vec4 H1 = vProjectMatrix * vec4(csEndPoint, <span class="number">1.0</span>);</span><br><span class="line">    <span class="keyword">float</span> k0 = <span class="number">1.0</span> / H0.w;</span><br><span class="line">    <span class="keyword">float</span> k1 = <span class="number">1.0</span> / H1.w;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Switch the original points to values that interpolate linearly in 2D</span></span><br><span class="line">    vec3 Q0 = csOrigin * k0; </span><br><span class="line">    vec3 Q1 = csEndPoint * k1;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Screen-space endpoints</span></span><br><span class="line">    vec2 P0 = vec2(H0.xy * k0) * <span class="number">0.5</span> + <span class="number">0.5</span>;</span><br><span class="line">    vec2 P1 = vec2(H1.xy * k1) * <span class="number">0.5</span> + <span class="number">0.5</span>;</span><br><span class="line"></span><br><span class="line">    vec2 hitPixel = vec2(<span class="number">-1.0</span>, <span class="number">-1.0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// If the line is degenerate, make it cover at least one pixel</span></span><br><span class="line">    <span class="comment">// to avoid handling zero-pixel extent as a special case later</span></span><br><span class="line">    P1 += vec2((dot(P0 - P1, P0 - P1) &lt; <span class="number">0.0001</span>) ? <span class="number">0.01</span> : <span class="number">0.0</span>);</span><br><span class="line"></span><br><span class="line">    vec2 delta = P1 - P0;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Permute so that the primary iteration is in x to reduce</span></span><br><span class="line">    <span class="comment">// large branches later</span></span><br><span class="line">    <span class="keyword">bool</span> permute = <span class="literal">false</span>;</span><br><span class="line">	<span class="keyword">if</span> (<span class="built_in">abs</span>(delta.x) &lt; <span class="built_in">abs</span>(delta.y)) </span><br><span class="line">    &#123;</span><br><span class="line">		<span class="comment">// More-vertical line. Create a permutation that swaps x and y in the output</span></span><br><span class="line">		permute = <span class="literal">true</span>;</span><br><span class="line">        <span class="comment">// Directly swizzle the inputs</span></span><br><span class="line">		delta = delta.yx;</span><br><span class="line">		P1 = P1.yx;</span><br><span class="line">		P0 = P0.yx;        </span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// From now on, "x" is the primary iteration direction and "y" is the secondary one</span></span><br><span class="line">    <span class="keyword">float</span> stepDirection = sign(delta.x);</span><br><span class="line">    <span class="keyword">float</span> invdx = stepDirection / delta.x;</span><br><span class="line">    vec2 dP = vec2(stepDirection, invdx * delta.y);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Track the derivatives of Q and k</span></span><br><span class="line">    vec3 dQ = (Q1 - Q0) * invdx;</span><br><span class="line">    <span class="keyword">float</span> dk = (k1 - k0) * invdx;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Scale derivatives by the desired pixel stride</span></span><br><span class="line">	dP *= stride; </span><br><span class="line">    dQ *= stride; </span><br><span class="line">    dk *= stride;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Offset the starting values by the jitter fraction</span></span><br><span class="line">	P0 += dP * jitterFraction; </span><br><span class="line">    Q0 += dQ * jitterFraction; </span><br><span class="line">    k0 += dk * jitterFraction;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Slide P from P0 to P1, (now-homogeneous) Q from Q0 to Q1, and k from k0 to k1</span></span><br><span class="line">    vec3 Q = Q0;</span><br><span class="line">    <span class="keyword">float</span> k = k0;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// We track the ray depth at +/- 1/2 pixel to treat pixels as clip-space solid </span></span><br><span class="line">	<span class="comment">// voxels. Because the depth at -1/2 for a given pixel will be the same as at </span></span><br><span class="line">	<span class="comment">// +1/2 for the previous iteration, we actually only have to compute one value </span></span><br><span class="line">	<span class="comment">// per iteration.</span></span><br><span class="line">	<span class="keyword">float</span> prevZMaxEstimate = csOrigin.z;</span><br><span class="line">    <span class="keyword">float</span> stepCount = <span class="number">0.0</span>;</span><br><span class="line">    <span class="keyword">float</span> rayZMax = prevZMaxEstimate, rayZMin = prevZMaxEstimate;</span><br><span class="line">    <span class="keyword">float</span> sceneZMax = csOrigin.z + <span class="number">1e4</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// P1.x is never modified after this point, so pre-scale it by </span></span><br><span class="line">    <span class="comment">// the step direction for a signed comparison</span></span><br><span class="line">    <span class="keyword">float</span> end = P1.x * stepDirection;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// We only advance the z field of Q in the inner loop, since</span></span><br><span class="line">    <span class="comment">// Q.xy is never used until after the loop terminates.</span></span><br><span class="line">    vec2 P = P0;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; <span class="keyword">int</span>(maxSteps); ++i)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(P.x &lt; <span class="number">0.0</span> || P.x &gt; <span class="number">1.0</span> || P.y &lt; <span class="number">0.0</span> || P.y &gt; <span class="number">1.0</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!(((P.x * stepDirection) &lt;= end) &amp;&amp; </span><br><span class="line">             ((rayZMax &lt; sceneZMax - csZThickness) ||</span><br><span class="line">              (rayZMin &gt; sceneZMax)) &amp;&amp;</span><br><span class="line">             (sceneZMax != <span class="number">0.0</span>)))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        hitPixel = permute ? P.yx : P;</span><br><span class="line">        <span class="comment">// The depth range that the ray covers within this loop</span></span><br><span class="line">        <span class="comment">// iteration.  Assume that the ray is moving in increasing z</span></span><br><span class="line">        <span class="comment">// and swap if backwards.  Because one end of the interval is</span></span><br><span class="line">        <span class="comment">// shared between adjacent iterations, we track the previous</span></span><br><span class="line">        <span class="comment">// value and then swap as needed to ensure correct ordering</span></span><br><span class="line">        rayZMin = prevZMaxEstimate;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Compute the value at 1/2 pixel into the future</span></span><br><span class="line">        rayZMax = (dQ.z * <span class="number">0.5</span> + Q.z) / (dk * <span class="number">0.5</span> + k);</span><br><span class="line">        prevZMaxEstimate = rayZMax;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (rayZMin &gt; rayZMax) </span><br><span class="line">        &#123; </span><br><span class="line">            <span class="comment">// Swap</span></span><br><span class="line">            <span class="keyword">float</span> tmp = rayZMin;</span><br><span class="line">            rayZMin = rayZMax;</span><br><span class="line">            rayZMax = tmp;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Camera-space z of the background</span></span><br><span class="line">        sceneZMax = -texture2D(uGDepth, hitPixel).r;</span><br><span class="line"></span><br><span class="line">        P += dP, Q.z += dQ.z, k += dk, stepCount += <span class="number">1.0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Q.xy += dQ.xy * stepCount;</span><br><span class="line">    hitPos = Q * (<span class="number">1.0</span> / k);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> (rayZMax &gt;= sceneZMax - csZThickness) &amp;&amp; (rayZMin &lt;= sceneZMax);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;关于Linear Ray-march的优化，闫老师提到了基于深度贴图Mip-map的方法，这里偷懒就不说了。SSR的问题源自于它是基于屏幕空间的，屏幕空间的几何信息并不能完全表示整个场景。因此，SSR反射的间接光照信息都是目前屏幕空间上存在的，超出屏幕之外（或者被遮挡）的间接光照无法捕获。所以仔细观察下图SSR实现的效果，地面反射出来的手是不完整的。（基本上基于屏幕空间的方法，都会有这个问题）</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.44/blog/SSR/24.jpg" width="100%"></div></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>$[1]$ Carsten Dachsbacher and Marc Stamminger. 2005. Reflective shadow maps. In <em>Proceedings of the 2005 symposium on Interactive 3D graphics and games</em> (<em>I3D ‘05</em>). Association for Computing Machinery, New York, NY, USA, 203–231.</p>
+<p>$[2]$ Anton Kaplanyan and Carsten Dachsbacher. 2010. Cascaded light propagation volumes for real-time indirect illumination. In <em>Proceedings of the 2010 ACM SIGGRAPH symposium on Interactive 3D Graphics and Games</em> (<em>I3D ‘10</em>). Association for Computing Machinery, New York, NY, USA, 99–107. </p>
+<p>$[3]$ Morgan McGuire and Michael Mara, Efficient GPU Screen-Space Ray Tracing, <em>Journal of Computer Graphics Techniques (JCGT)</em>, vol. 3, no. 4, 73-85, 2014</p>
+<p>$[4]$ <a href="https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html" target="_blank" rel="noopener">GAMES202: 高质量实时渲染</a></p>
+
+        </div>
+        
+          
+
+
+  <section class="meta" id="footer-meta">
+    <hr>
+    <div class="new-meta-box">
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-12T20:23:00+08:00">
+  <a class="notlink">
+    <i class="fas fa-clock" aria-hidden="true"></i>
+    <p>最后更新于 2021年6月12日</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Real-time-Rendering/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Real-time Rendering</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2021/06/12/SSR/&title=高质量实时渲染：实时全局光照 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，这一节的主题为实时全局光照，涉及的技术有RSM（Reflective Shadow Maps）、LPV（Light Propagation Volumes）、VXGI（Voxel Global Illumination）、SSAO（Screen Space Ambient Occlusion）、SSDO（Screen Space Directional Occlusion）以及SSR（Screen Space Reflection/Ray-tracing）。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2021/06/12/SSR/&title=高质量实时渲染：实时全局光照 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，这一节的主题为实时全局光照，涉及的技术有RSM（Reflective Shadow Maps）、LPV（Light Propagation Volumes）、VXGI（Voxel Global Illumination）、SSAO（Screen Space Ambient Occlusion）、SSDO（Screen Space Directional Occlusion）以及SSR（Screen Space Reflection/Ray-tracing）。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2021/06/12/SSR/&title=高质量实时渲染：实时全局光照 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，这一节的主题为实时全局光照，涉及的技术有RSM（Reflective Shadow Maps）、LPV（Light Propagation Volumes）、VXGI（Voxel Global Illumination）、SSAO（Screen Space Ambient Occlusion）、SSDO（Screen Space Directional Occlusion）以及SSR（Screen Space Reflection/Ray-tracing）。
+">
+          
+            <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </section>
+
+
+        
+        
+            <div class="prev-next">
+                
+                
+                    <section class="next">
+                        <span class="art-item-right" aria-hidden="true">
+                            <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
+                            <h4>
+                                <a href="/2021/04/29/PRT/" rel="prev" title="高质量实时渲染：实时环境光">
+                                    
+                                        高质量实时渲染：实时环境光
+                                    
+                                </a>
+                            </h4>
+                            
+                                
+                                <h6 class="tags">
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Real-time-Rendering/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Real-time Rendering</a>
+                                </h6>
+                            
+                        </span>
+                    </section>
+                
+            </div>
+        
+      </section>
+    </article>
+  
+
+  
+    <!-- 显示推荐文章和评论 -->
+
+
+
+  <article class="post white-box comments">
+    <section class="article typo">
+      <h4><i class="fas fa-comments fa-fw" aria-hidden="true"></i>&nbsp;评论</h4>
+      
+      
+        <section id="comments">
+          <div id="lv-container" data-id="city" data-uid="MTAyMC80MzkxOS8yMDQ1NQ==">
+            <noscript><div><i class="fas fa-exclamation-triangle">&nbsp;无法加载Livere评论系统，请确保您的网络能够正常访问。</i></div></noscript>
+          </div>
+        </section>
+      
+      
+      
+    </section>
+  </article>
+
+
+  
+
+
+
+
+<!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+
+  <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": { 
+        preferredFont: "TeX", 
+        availableFonts: ["STIX","TeX"], 
+        linebreaks: { automatic:true }, 
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50) 
+    },
+    tex2jax: { 
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ], 
+        processEscapes: true, 
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {  
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } }, 
+        Macros: { href: "{}" } 
+    },
+    messageStyle: "none"
+    }); 
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+
+  <script>
+    window.subData = {
+      title: '高质量实时渲染：实时全局光照',
+      tools: true
+    }
+  </script>
+
+
+</div>
+<aside class="l_side">
+  
+    
+    
+      
+        
+          
+          
+            <section class="widget author">
+  <div class="content material">
+    
+      <div class="avatar">
+        <fancybox><img class="avatar" src="/image/avator.jpg"></fancybox>
+      </div>
+    
+    
+      <div class="text">
+        
+          <h2>YangWC</h2>
+        
+        
+          <p>A student from Sun Yat-sen University.</p>
+
+        
+        
+      </div>
+    
+    
+      <div class="social-wrapper">
+        
+          
+            <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+          
+            <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+            </a>
+          
+        
+      </div>
+    
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget toc-wrapper">
+    
+<header class="material">
+  <div><i class="fas fa-list fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;本文目录</div>
+  
+    <div class="wrapper"><a class="s-toc rightBtn" rel="external nofollow noopener noreferrer" href="javascript:void(0)"><i class="fas fa-thumbtack fa-fw"></i></a></div>
+  
+</header>
+
+    <div class="content material">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、RSM"><span class="toc-text">一、RSM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、LPV"><span class="toc-text">二、LPV</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、VXGI"><span class="toc-text">三、VXGI</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、SSAO"><span class="toc-text">四、SSAO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#五、SSDO"><span class="toc-text">五、SSDO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#六、SSR"><span class="toc-text">六、SSR</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            <section class="widget plain">
+  
+<header class="material">
+  <div><i class=" fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;欢迎来到YangWC的博客</div>
+  
+</header>
+
+  <div class="content material">
+    <p>本站会记录自己的一些学习内容，如若有错或者乱码，欢迎指正，感谢!</p>
+
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            <section class="widget grid">
+  
+<header class="material">
+  <div><i class="fas fa-map-signs fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;站内导航</div>
+  
+</header>
+
+  <div class="content material">
+    <ul class="grid navgation">
+      
+        <li><a class="flat-box" title="/about/" href="/about/" rel="nofollow" id="about">
+          
+            <i class="fas fa-info-circle fa-fw" aria-hidden="true"></i>
+          
+          关于博主
+        </a></li>
+      
+        <li><a class="flat-box" title="/" href="/" id="home">
+          
+            <i class="fas fa-clock fa-fw" aria-hidden="true"></i>
+          
+          近期文章
+        </a></li>
+      
+        <li><a class="flat-box" title="/archives/" href="/archives/" rel="nofollow" id="archives">
+          
+            <i class="fas fa-archive fa-fw" aria-hidden="true"></i>
+          
+          文章归档
+        </a></li>
+      
+    </ul>
+  </div>
+</section>
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget category">
+    
+<header class="material">
+  <div><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;文章分类</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/categories/" title="categories/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <ul class="entry">
+        
+          <li><a class="flat-box" title="/categories/2D-Rendering/" href="/categories/2D-Rendering/"><div class="name">2D Rendering</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Computer-Graphics/" href="/categories/Computer-Graphics/"><div class="name">Computer Graphics</div><div class="badge">(35)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-Simulation/" href="/categories/Fluid-Simulation/"><div class="name">Fluid Simulation</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Fluid-simulation/" href="/categories/Fluid-simulation/"><div class="name">Fluid  simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Image-processing/" href="/categories/Image-processing/"><div class="name">Image processing</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/N-body/" href="/categories/N-body/"><div class="name">N-body</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physical-simulation/" href="/categories/Physical-simulation/"><div class="name">Physical simulation</div><div class="badge">(1)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Physically-Based-Rendering/" href="/categories/Physically-Based-Rendering/"><div class="name">Physically Based Rendering</div><div class="badge">(2)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Position-Based-Dynamics/" href="/categories/Position-Based-Dynamics/"><div class="name">Position Based Dynamics</div><div class="badge">(3)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Ray-Tracer/" href="/categories/Ray-Tracer/"><div class="name">Ray Tracer</div><div class="badge">(10)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Real-time-Rendering/" href="/categories/Real-time-Rendering/"><div class="name">Real-time Rendering</div><div class="badge">(5)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Soft-Renderer/" href="/categories/Soft-Renderer/"><div class="name">Soft Renderer</div><div class="badge">(4)</div></a></li>
+        
+          <li><a class="flat-box" title="/categories/Voxelization/" href="/categories/Voxelization/"><div class="name">Voxelization</div><div class="badge">(1)</div></a></li>
+        
+      </ul>
+    </div>
+  </section>
+
+
+          
+        
+      
+        
+          
+          
+            
+  <section class="widget tagcloud">
+    
+<header class="material">
+  <div><i class="fas fa-fire fa-fw" aria-hidden="true"></i>&nbsp;&nbsp;热门标签</div>
+  
+    <a class="rightBtn" rel="nofollow" href="/tags/" title="tags/">
+    <i class="fas fa-expand-arrows-alt fa-fw"></i></a>
+  
+</header>
+
+    <div class="content material">
+      <a href="/tags/2D-Rendering/" style="font-size: 14px; color: #bbb">2D Rendering</a> <a href="/tags/3D-Math/" style="font-size: 14px; color: #bbb">3D Math</a> <a href="/tags/3D-pipeline/" style="font-size: 15.67px; color: #c6c6c6">3D pipeline</a> <a href="/tags/Advection/" style="font-size: 14px; color: #bbb">Advection</a> <a href="/tags/Computer-Graphics/" style="font-size: 24px; color: #fff">Computer Graphics</a> <a href="/tags/Fluid-Simulation/" style="font-size: 22.33px; color: #f4f4f4">Fluid Simulation</a> <a href="/tags/Fluid-simulation/" style="font-size: 14px; color: #bbb">Fluid simulation</a> <a href="/tags/Glow-effect/" style="font-size: 14px; color: #bbb">Glow effect</a> <a href="/tags/Image-processing/" style="font-size: 14px; color: #bbb">Image processing</a> <a href="/tags/N-body/" style="font-size: 14px; color: #bbb">N-body</a> <a href="/tags/Naiver-Stokes-Equations/" style="font-size: 14px; color: #bbb">Naiver-Stokes Equations</a> <a href="/tags/Physical-simulation/" style="font-size: 14px; color: #bbb">Physical simulation</a> <a href="/tags/Physically-Based-Rendering/" style="font-size: 15.67px; color: #c6c6c6">Physically Based Rendering</a> <a href="/tags/Position-Based-Dynamics/" style="font-size: 17.33px; color: #d2d2d2">Position Based Dynamics</a> <a href="/tags/Rasterization/" style="font-size: 14px; color: #bbb">Rasterization</a> <a href="/tags/Ray-Tracer/" style="font-size: 22.33px; color: #f4f4f4">Ray Tracer</a> <a href="/tags/Real-time-Rendering/" style="font-size: 20.67px; color: #e8e8e8">Real-time Rendering</a> <a href="/tags/Soft-Renderer/" style="font-size: 19px; color: #ddd">Soft Renderer</a> <a href="/tags/Voxelization/" style="font-size: 14px; color: #bbb">Voxelization</a>
+    </div>
+  </section>
+
+
+          
+        
+      
+    
+
+  
+</aside>
+
+<footer id="footer" class="clearfix">
+  
+  
+    <div class="social-wrapper">
+      
+        
+          <a href="mailto:1579148717@qq.com" class="social fas fa-envelope flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://github.com/ZeusYang" class="social fab fa-github flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+        
+          <a href="https://blog.csdn.net/qq_31615919" class="social fas fa-code-branch flat-btn" target="_blank" rel="external nofollow noopener noreferrer">
+          </a>
+        
+      
+    </div>
+  
+  <br>
+  <div><p>博客内容遵循 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</a></p>
+</div>
+  <div>
+    本站使用
+    <a href="https://xaoxuu.com/wiki/material-x/" target="_blank" class="codename">Material X</a>
+    作为主题
+    
+      ，
+      总访问量为
+      <span id="busuanzi_value_site_pv"><i class="fas fa-spinner fa-spin fa-fw" aria-hidden="true"></i></span>
+      次
+    
+    。
+  </div>
+  
+  <span id="timeDate">载入天数...</span><span id="times">载入时分秒...</span>
+	<script>
+		var now = new Date(); 
+		function createtime() { 
+			var grt= new Date("04/24/2019 18:00:00");//在此处修改你的建站时间
+			now.setTime(now.getTime()+250); 
+			days = (now - grt ) / 1000 / 60 / 60 / 24; dnum = Math.floor(days); 
+			hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum); hnum = Math.floor(hours); 
+			if(String(hnum).length ==1 ){hnum = "0" + hnum;} minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum); 
+			mnum = Math.floor(minutes); if(String(mnum).length ==1 ){mnum = "0" + mnum;} 
+			seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum); 
+			snum = Math.round(seconds); if(String(snum).length ==1 ){snum = "0" + snum;} 
+			document.getElementById("timeDate").innerHTML = "本站已安全运行 "+dnum+" 天 "; 
+			document.getElementById("times").innerHTML = hnum + " 小时 " + mnum + " 分 " + snum + " 秒"; 
+		} 
+	setInterval("createtime()",250);
+   </script>
+   
+   <!-- 根据页面mathjax变量决定是否加载MathJax数学公式js -->
+	
+	
+	<script>setLoadingBarProgress(80);</script>
+</footer>
+
+
+      <script>setLoadingBarProgress(60);</script>
+    </div>
+    <a class="s-top fas fa-arrow-up fa-fw" href='javascript:void(0)'></a>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+
+  <script>
+    var GOOGLE_CUSTOM_SEARCH_API_KEY = "";
+    var GOOGLE_CUSTOM_SEARCH_ENGINE_ID = "";
+    var ALGOLIA_API_KEY = "";
+    var ALGOLIA_APP_ID = "";
+    var ALGOLIA_INDEX_NAME = "";
+    var AZURE_SERVICE_NAME = "";
+    var AZURE_INDEX_NAME = "";
+    var AZURE_QUERY_KEY = "";
+    var BAIDU_API_ID = "";
+    var SEARCH_SERVICE = "hexo" || "hexo";
+    var ROOT = "/"||"/";
+    if(!ROOT.endsWith('/'))ROOT += '/';
+  </script>
+
+<script src="//instant.page/1.2.2" type="module" integrity="sha384-2xV8M5griQmzyiY3CDqh1dn4z3llDVqZDqzjzcY+jCBCk/a5fXJmuZ/40JJAPeoU"></script>
+
+
+  <script async src="https://cdn.jsdelivr.net/npm/scrollreveal@4.0.5/dist/scrollreveal.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      const $reveal = $('.reveal');
+      if ($reveal.length === 0) return;
+      const sr = ScrollReveal({ distance: 0 });
+      sr.reveal('.reveal');
+    });
+  </script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/node-waves@0.7.6/dist/waves.min.js"></script>
+  <script type="text/javascript">
+    $(function() {
+      Waves.attach('.flat-btn', ['waves-button']);
+      Waves.attach('.float-btn', ['waves-button', 'waves-float']);
+      Waves.attach('.float-btn-light', ['waves-button', 'waves-float', 'waves-light']);
+      Waves.attach('.flat-box', ['waves-block']);
+      Waves.attach('.float-box', ['waves-block', 'waves-float']);
+      Waves.attach('.waves-image');
+      Waves.init();
+    });
+  </script>
+
+
+  <script async src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-busuanzi@2.3/js/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+      if (typeof LivereTower === 'function') { return; }
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+      e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  </script>
+
+
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/app.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/gh/xaoxuu/cdn-material-x@19.4.19/js/search.js"></script>
+
+
+
+
+<!-- 复制 -->
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  let COPY_SUCCESS = "复制成功";
+  let COPY_FAILURE = "复制失败";
+  /*页面载入完成后，创建复制按钮*/
+  !function (e, t, a) {
+    /* code */
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '  <i class="fa fa-copy"></i><span>复制</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+
+      clipboard.on('success', function(e) {
+        //您可以加入成功提示
+        console.info('Action:', e.action);
+        console.info('Text:', e.text);
+        console.info('Trigger:', e.trigger);
+        success_prompt(COPY_SUCCESS);
+        e.clearSelection();
+      });
+      clipboard.on('error', function(e) {
+        //您可以加入失败提示
+        console.error('Action:', e.action);
+        console.error('Trigger:', e.trigger);
+        fail_prompt(COPY_FAILURE);
+      });
+    }
+    initCopyCode();
+
+  }(window, document);
+
+  /**
+   * 弹出式提示框，默认1.5秒自动消失
+   * @param message 提示信息
+   * @param style 提示样式，有alert-success、alert-danger、alert-warning、alert-info
+   * @param time 消失时间
+   */
+  var prompt = function (message, style, time)
+  {
+      style = (style === undefined) ? 'alert-success' : style;
+      time = (time === undefined) ? 1500 : time*1000;
+      $('<div>')
+          .appendTo('body')
+          .addClass('alert ' + style)
+          .html(message)
+          .show()
+          .delay(time)
+          .fadeOut();
+  };
+
+  // 成功提示
+  var success_prompt = function(message, time)
+  {
+      prompt(message, 'alert-success', time);
+  };
+
+  // 失败提示
+  var fail_prompt = function(message, time)
+  {
+      prompt(message, 'alert-danger', time);
+  };
+
+  // 提醒
+  var warning_prompt = function(message, time)
+  {
+      prompt(message, 'alert-warning', time);
+  };
+
+  // 信息提示
+  var info_prompt = function(message, time)
+  {
+      prompt(message, 'alert-info', time);
+  };
+
+</script>
+
+
+<!-- fancybox -->
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+<script>
+  let LAZY_LOAD_IMAGE = "";
+  $(".article-entry").find("fancybox").find("img").each(function () {
+      var element = document.createElement("a");
+      $(element).attr("data-fancybox", "gallery");
+      $(element).attr("href", $(this).attr("src"));
+      /* 图片采用懒加载处理时,
+       * 一般图片标签内会有个属性名来存放图片的真实地址，比如 data-original,
+       * 那么此处将原本的属性名src替换为对应属性名data-original,
+       * 修改如下
+       */
+       if (LAZY_LOAD_IMAGE) {
+         $(element).attr("href", $(this).attr("data-original"));
+       }
+      $(this).wrap(element);
+  });
+</script>
+
+
+
+
+
+  
+    <!--数字雨背景-->
+  <canvas id="canvas" width="1440" height="900" ></canvas>
+  <script>
+	var s = window.screen;
+	var width = canvas.width = s.width;
+	var height = canvas.height = s.height;
+	var fontSize = 13;
+	var colunms = Math.floor(width/fontSize);
+	var letters = [];
+    for(var i=0;i<colunms;i++){
+        letters.push(1);
+    }
+	var draw = function () {
+	    canvas.getContext('2d').fillStyle = "rgba(0,0,0,.08)";//遮盖层
+		canvas.getContext('2d').fillRect(0,0,width,height);
+		canvas.getContext('2d').font = "700 " + fontSize +"px  微软雅黑";
+		letters.map(function(y_pos, index){
+		text = String.fromCharCode(34+Math.random()*33);
+		x_pos = index * fontSize;
+		canvas.getContext('2d').fillText(text, x_pos, y_pos);
+		letters[index] = (y_pos > 758 + Math.random() * 1e4) ? 0 : y_pos + 10;
+		canvas.getContext('2d').fillStyle='#'+letters[index];
+	  });
+	};
+	setInterval(draw, 33);
+  </script>
+  
+  <!-- 页面点击出现文字 -->
+  <script type="text/javascript" src="/js/ClickShowText.js"></script>
+  
+  <script>setLoadingBarProgress(100);</script>
+</body>
+</html>
