@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   
-  <title>流体模拟Fluid Simulation：基于窄带的粒子流体表面重建 | YangWC&#39;s Blog</title>
+  <title>高质量实时渲染：实时光线追踪 | YangWC&#39;s Blog</title>
   
   
   <meta name="description" content="Personal blog website.">
@@ -198,8 +198,8 @@
         
   
     <h1 class="title">
-      <a href="/2019/11/10/reviewOfSR/">
-        流体模拟Fluid Simulation：基于窄带的粒子流体表面重建
+      <a href="/2021/08/01/RTRT/">
+        高质量实时渲染：实时光线追踪
       </a>
     </h1>
   
@@ -228,7 +228,7 @@
             <div class="new-meta-item date">
   <a class="notlink">
     <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-    <p>2019-11-10</p>
+    <p>2021-08-01</p>
   </a>
 </div>
 
@@ -238,9 +238,9 @@
             
   
   <div class="new-meta-item category">
-    <a href="/categories/Fluid-Simulation/" rel="nofollow">
+    <a href="/categories/Real-time-Rendering/" rel="nofollow">
       <i class="fas fa-folder-open" aria-hidden="true"></i>
-      <p>Computer Graphics&nbsp;/&nbsp;Fluid Simulation</p>
+      <p>Computer Graphics&nbsp;/&nbsp;Real-time Rendering</p>
     </a>
   </div>
 
@@ -280,79 +280,77 @@
 
       <section class="article typo">
         <div class="article-entry" itemprop="articleBody">
-          <p>在基于粒子的流体模拟中，Marching Cubes$^{[1]}$是常用的、流行的表面重建算法。但在Marching Cubes算法构建表面网格之前需要获得整个流体区域的标量场，这个标量场需要我们根据流体的粒子计算得到，这个标量场的质量好坏与最终重建得到的网格质量好坏息息相关。针对采用Marching Cubes算法重建粒子流体表面网格的方法，学者们都着重关注如何提高重建出来的流体网格质量、如何提高表面重建过程的时间效率和内存效率，因此我们从表面网格质量、重建算法效率两方面着手基于粒子的流体表面重建的综述。</p>
-<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.29/blog/SurfaceReconstruction/ret.jpg" width="99%"></div></p>
+          <p>本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，本次主题是该课程的最后一部分内容——实时光线追踪，这方面的内容主要是关于低采样率下实时光线追踪的时间域降噪算法和空间域降噪算法。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/1.jpg" width="100%"></div></p>
 <a id="more"></a>
-<p>&emsp;&emsp;在基于粒子的流体模拟中，Marching Cubes$^{[1]}$是常用的、流行的表面重建算法。但在Marching Cubes算法构建表面网格之前需要获得整个流体区域的标量场，这个标量场需要我们根据流体的粒子计算得到，这个标量场的质量好坏与最终重建得到的网格质量好坏息息相关。针对采用Marching Cubes算法重建粒子流体表面网格的方法，学者们都着重关注如何提高重建出来的流体网格质量、如何提高表面重建过程的时间效率和内存效率，因此我们从<strong>表面网格质量</strong>、<strong>重建算法效率</strong>两方面着手基于粒子的流体表面重建的综述。</p>
-<h2 id="一、表面网格质量"><a href="#一、表面网格质量" class="headerlink" title="一、表面网格质量"></a>一、表面网格质量</h2><p>&emsp;&emsp;表面网格的质量主要取决于标量场，因为表面网格本质上是从标量场提取出来的，标量场的好坏对表面网格的质量影响重大。这里标量场就是符号距离场，它隐式地表示了流体表面网格，我们必须从这个标量场获取显式的三角形网格用以后续的渲染。为了提高重建出来的表面网格质量，一方面我们可以提高标量场网格的分辨率，随着分辨率的提高我们重建出来的网格能够更多地捕获流体细节，网格更加细致，但随之而来的代价就是庞大的计算量和内存开销；另一方面就是从流体表面的标量场定义函数入手，因为粒子凹凸不平的原因，如果表面函数定义得不好，那么很难重建出平滑、自然的表面网格。</p>
-<p>&emsp;&emsp;针对表面定义函数这一部分，已有不少学者提出了不同的表面函数。</p>
-<h3 id="1、Blinn"><a href="#1、Blinn" class="headerlink" title="1、Blinn"></a>1、Blinn</h3><p>&emsp;&emsp;Blinn等人最早提出了一种表面定义函数$^{[2]}$，其数学定义为：</p>
+<p>&emsp;&emsp;在计算机图形学领域，光线追踪算法是渲染的核心算法，但因其耗时长、计算量大等致命的性能缺陷一直不被实时渲染领域采纳（最多仅用于离线烘焙阶段）。自2018年NVIDIA正式发布了图灵架构的RTX硬件光追显卡起，实时渲染领域才算正式迈出了实时光追（Real-time Ray Tracing，简称RTRT）从零到一的关键一步。对于越来越追求极致渲染的当下来说，实时光线追踪才是未来。</p>
+<h2 id="一、实时光线追踪"><a href="#一、实时光线追踪" class="headerlink" title="一、实时光线追踪"></a>一、实时光线追踪</h2><p>&emsp;&emsp;实时光线追踪并没有新的算法理论内容，它本质上就是离线渲染领域已经发展得非常成熟的路径追踪光路传输算法，并在此基础上做了简化。因此本文这里不会再对路径追踪的算法原理进行赘述。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/2.jpg" width="40%"><br>    <center> 图1 RTX实时光追 </center></div></p>
+<p>&emsp;&emsp;RTX实时光追实际上只做了至多弹射两次的光路追踪。如上图1所示，有两个弹射点。第一个点是射线从摄像机出发打到场景中交点，称之为primary hitpoint；第二个点是从primary hitpoint出发投射追踪光线击中的点，称之为secondary hitpoint。这两个点就是RTX实时光追的路径追踪点。</p>
+<p>&emsp;&emsp;目前显卡为每个像素分配的采样点数为1（即1 Sample Per Pixel，简称1SPP），因此概括起来RTX实时光追做的其实就是1 SPP的Path Tracing，其追踪的路径包含：<strong>1 rasterization（primary）+ 1 ray（primary visibility） + 1 ray（secondary bounce） + 1 ray（secondary visibility）</strong>。</p>
+<p>&emsp;&emsp;其中visibility是Shadow Ray，用于计算采样点到光源之间的可见性。primary hitpoint不需要像离线渲染那样投射光线找到当前像素对应的世界空间下的交点，而是可以直接通过光栅化得到。综合来看，目前RTX实时光追还是非常简陋的，无论是采样数量还是采样路径长度都远远不够（低到令人发指），这种程度的光追必然会产生非常明显的噪声点，正如下图2所示。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/3.jpg" width="100%"><br>    <center> 图2 1SPP RTX实时光追的渲染结果 </center></div></p>
+<p>&emsp;&emsp;因此，当前的实时光追最为关键的反而不是光追算法本身，而是降噪算法，其目的是通过降噪技术来消除渲染结果中的噪声点，使得渲染的结果真正能为人眼所接受。当然引入降噪算法同样需要考量降噪带来的额外性能开销，实时渲染对此有非常严格和明确的性能要求（例如&lt;2ms），因此很多计算量大的降噪算法都被直接被Pass了。目前的实时降噪算法主要从时间域和空间域两个方面展开，以下是这两方面降噪算法的一个简述。</p>
+<h2 id="二、时间域（Temporal）降噪算法"><a href="#二、时间域（Temporal）降噪算法" class="headerlink" title="二、时间域（Temporal）降噪算法"></a>二、时间域（Temporal）降噪算法</h2><p>&emsp;&emsp;降噪的终极方法就是增大采样率，根据奈奎斯特定理可知，当采样频率高于信号最高频率的两倍时，采样的信号能够完美地重建出原始信号。但这样带来的代价就是计算性能急剧下降（离线渲染都不敢设置太高的SPP数，因为计算量实在太大了）。时间域降噪算法本质上也是期望增大每个像素的SPP数，但是它并非直接暴力地在空间中增大采样数，而是把目光投向渲染帧之间的时间轴。</p>
+<p>&emsp;&emsp;时间域降噪算法基于以下的核心思路：</p>
+<ul>
+<li>前一帧已经被降噪好了，并且可以被复用；</li>
+<li>通过运动矢量（motion vectors）找到当前帧的像素点对应到上一帧所在的位置</li>
+<li>通过时间轴的累积来隐式地增大采样SPP数。</li>
+</ul>
+<p>&emsp;&emsp;寻找第$i$帧的像素$x$在第$i-1$帧的世界空间位置，我们称之为后向投影（Back  Projection）。后向投影可以分成如下的几个步骤：</p>
+<ul>
+<li>获取像素$x$的世界空间坐标点$s$，如果有G-buffer，那么可以直接根据像素坐标$x$获取其世界坐标$s$；而如果没有G-buffer，则可以通过逆向变换得到$s$，即有$s=V^{-1}P^{-1}E^{-1}x$，$E$是视口变换矩阵，$x$包含深度值$z$。</li>
+<li>设前一帧$s$点在$s^{prev}$处，若物体没有在世界空间移动，那么motion vector就是零向量；而若物体移动了，设变换矩阵为$T$（即$s=Ts^{prev}$），则有$s^{prev}=T^{-1}s$；</li>
+<li>最后把前一帧的$s^{prev}$通过前一帧的MVP矩阵投影回屏幕空间，得到$x^{prev}=P^{prev}V^{prev}s^{prev}$，从而得到$x$对应前一帧所在的屏幕位置$x^{prev}$。</li>
+</ul>
+<p>&emsp;&emsp;通过上述的后向投影就可以找到前一帧的采样值$C^{(i-1)}$，然后以一定的权重$\alpha$将其与当前帧的采样值$C^{(i)}$进行线性混合，从而得到时间域滤波的结果。即滤波后的结果为$\overline C$，未滤波的结果为$\tilde C$。在时间域滤波之前，通常会对其进行空间域的滤波</p>
 <script type="math/tex; mode=display">
-r_i=\sqrt{(x-x_i)^2+(y-y_i)^2+(z-z_i)^2}\\
-D(x,y,z)=\Sigma_i b_i e^{-a_i r^2_i} \tag {1}</script><p>&emsp;&emsp;上式计算了某一点$(x,y,z)$的密度值，然后表面就被定义为密度值等于某个阈值$T$的等值面：</p>
+\overline C^{(i)}=Filter[\tilde C^{(i)}]</script><p>&emsp;&emsp;最终的滤波结果为：</p>
 <script type="math/tex; mode=display">
-F(x,y,z)=D(x,y,z)-T \tag {2}</script><p>&emsp;&emsp;该方法计算简单，缺点就是<strong>不能够产生平滑的表面网格</strong>，尤其对于那些具有尖锐特征的流体粒子。</p>
-<h3 id="2、Muller"><a href="#2、Muller" class="headerlink" title="2、Müller"></a>2、Müller</h3><p>&emsp;&emsp;接着Müller等人提出了采用周围邻域粒子的加权叠加来计算标量场的值$^{[3]}$，标量场的值依旧是密度值减去给定的阈值，密度值计算采用下面的公式：</p>
+\overline C^{(i)}=\alpha \overline C^{(i)}+(1-\alpha)C^{(i-1)}</script><p>&emsp;&emsp;滤波混合权重通常取$0.1-0.2$，即$80\%$到$90\%$的滤波值来源于前一帧的结果。这种基于时间域的降噪采样方法计算量小、性能高效，而且滤波的结果非常令人惊艳，下图3给出了前面图2的降噪结果，可以看到，降噪滤波后的渲染结果显得非常明亮干净。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/4.jpg" width="100%"><br>    <center> 图3 前面图2的时间域滤波降噪结果 </center></div></p>
+<p>&emsp;&emsp;当然，这种依赖于时间轴连续帧的降噪算法也有自己的弱点，当后向投影超出屏幕空间之外时，也就是说当前帧的内容上一帧还没有，这个时候算法就尴尬了。这个弱点通常暴露在以下三个常见的场景：</p>
+<ul>
+<li>渲染场景的瞬间切换，即相邻两帧之间渲染了完全不同的内容；</li>
+<li>在一个狭长通道（例如走廊），镜头不断往后移动，画面不断涌现通道两边的新内容；</li>
+<li>背景原先被遮挡的地方突然出现（例如前景物体突然消失或光速飞走）。</li>
+</ul>
+<p>&emsp;&emsp;后向投影超出屏幕之外直接不进行时域滤波处理。而对于未超出屏幕之外的情况，如果不对上述的情况做进一步的处理，那么就会出现明显的Artifact——拖影现象（Lagging）。这种拖影现象不仅会出现在场景中移动的物体上，而且也会出现在光照着色发生变化的地方（例如场景中的光源发生了变化，那么场景不同区域的阴影、光照反射均会发生变化，这些变化也会产生拖影现象）。</p>
+<p>&emsp;&emsp;一种解决拖影现象的方案是基于物体检测的方法。对于场景中的物体，我们都给他一个ID值（这个ID信息可以通过光栅化映射到每个像素上），在后向投影时通过比较当前帧当前像素的ID与上一帧像素的ID是否一致来判断是否投影到了其他区域上。如果不一致，那么就可以对混合权重$\alpha$进行调整（相应地增大空间域滤波的比重），但这种方法会在相应的区域重新引入噪声。</p>
+<h2 id="三、空间域（Spatial）降噪算法"><a href="#三、空间域（Spatial）降噪算法" class="headerlink" title="三、空间域（Spatial）降噪算法"></a>三、空间域（Spatial）降噪算法</h2><p>&emsp;&emsp;噪声在图像中通常表现为高频信号（或亮或暗），因此降噪算法本质上就是设计一个低通滤波器（low-pass filter）来去除这些高频噪声。我们记噪声图像为$\tilde C$，空间域滤波核为$K$（滤波核并非一定要固定不变，可针对每个像素使用不同的滤波核），滤波降噪后的图像为$\overline C$。</p>
+<p>&emsp;&emsp;空间域滤波本质就是卷积，即对每个像素的周围邻域的像素做一个加权平均的过程，非常简单（伪代码如下所示）。权重之和<code>sum_of_weights</code>是为了最后的归一化，防止能量不守恒。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">For each pixel i</span><br><span class="line">	sum_of_weights = sum_of_weighted_values = <span class="number">0.0</span></span><br><span class="line">	For each pixel j around i</span><br><span class="line">		Calculate the weight w_ij = G(|i - j|, sigma)</span><br><span class="line">		sum_of_weighted_values += w_ij * C^&#123;input&#125;[j]</span><br><span class="line">		sum_of_weights += w_ij</span><br><span class="line">	C^&#123;output&#125;[I] = sum_of_weighted_values / sum_of_weights</span><br></pre></td></tr></table></figure>
+<p>&emsp;&emsp;在低通滤波器中，传统的高斯滤波器是一种常见的滤波器。虽然能够显著地去除高频噪声，但该滤波器带来的过度模糊的效应使得其在降噪领域并不是太受欢迎。对于高频的信号，高斯滤波器一视同仁，导致滤波的结果亦丢失了其他非噪声的高频信息，表现为图像中的物体边界被平滑掉了。</p>
+<p>&emsp;&emsp;相比之下，一种更为好用的降噪滤波器是双边滤波器（Bilateral filtering）。不难观察到，物体的边界处颜色会产生剧烈的变化。为了保持边界，双边滤波器利用了这个信息。双边滤波器的滤波核计算公式为：</p>
 <script type="math/tex; mode=display">
-\rho(r)=\Sigma_j W(r-r_j,h) \tag {3}</script><p>&emsp;&emsp;其中，$r$是标量场中的要计算标量值的一点，$h$是光滑核半径，$W$是权重函数。这种计算标量场的方法虽然在一定程度上优于了Blin$^{[2]}$等人提出的方法，但<strong>重建出来的网格依旧不够平滑</strong>。</p>
-<h3 id="3、Zhu-and-Bridson"><a href="#3、Zhu-and-Bridson" class="headerlink" title="3、Zhu and Bridson"></a>3、Zhu and Bridson</h3><p>&emsp;&emsp;为了进一步提升平滑性，Zhu和Bridson等人提出了采用粒子的符号距离场来定义流体的表面标量场$^{[4]}$，其数学定义如下所示：</p>
+w(i,j,k,l)=\exp (-\frac{(i-k)^2+(j-l)^2}{2\sigma^2_d}-\frac{||I(i,j)-I(k,l)||^2}{2\sigma^2_r})</script><p>&emsp;&emsp;其中，$(i,j)$是滤波中心坐标，$(k,l)$是邻域像素坐标，$I(i,j)$是指$(i,j)$处的像素取值。可以看到，双边滤波器综合考虑了像素坐标的空间距离和像素颜色的差距，比高斯滤波器考虑了更多的因素，这也正是双边滤波器能够滤波保边的原因。下图4给出了双边滤波的滤波效果对比，滤波后图像中物体的边缘能够保持得非常不错。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/5.jpg" width="70%"><br>    <center> 图4 双边滤波前后对比 </center></div></p>
+<p>&emsp;&emsp;无论是高斯滤波器还是双边滤波器，他们都是一种纯粹的图像处理方法。其中高斯滤波器考虑了像素坐标的空间距离，双边滤波器在此基础上进一步引入了像素颜色差距的考量指标（metric），使得降噪的效果更上一层。受此启发，我们可以利用更多的因素来设计更好的降噪滤波核。图形渲染比之于图像处理，其最大的不同就是图形渲染是已知物体的三维空间信息的，因此一种利用更多三维信息的滤波器——联合双边滤波器（Joint/Cross Bilateral filtering）被提出并应用到路径追踪渲染的降噪实现中。</p>
+<p>&emsp;&emsp;所谓的联合双边滤波器，其实就是在双边滤波器的基础上，引入了更多的考量指标，这些指标包括法线向量、深度值、世界空间坐标甚至物体表面的Albeo等三维几何信息。在图形渲染中，这些三维几何信息可以很容易地通过光栅化的方式获取，然后用G-buffer将这些信息缓存下来，需要时可以直接根据像素坐标进行读取。这是图形渲染特有的优势！而且值得一提的是，这些G-buffer信息本身不会有任何噪声点，因此可以放心地使用。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/6.jpg" width="40%"></div></p>
+<p>&emsp;&emsp;联合双边滤波器不难理解。例如深度值指标，我们可以在滤波器公式中加入两个像素之间的深度值差异来使得滤波核在深度变化剧烈的地方取值较小（因为深度差异大意味着很有可能这两个像素在不同的物体上，因此为了保持边缘，需要消减滤波权重）。其他的考量指标例如法线向量（法线向量的差异可以通过点乘来度量）、物体Albeo等亦是以类似的方式融入到滤波核公式中。</p>
+<p>&emsp;&emsp;值得注意的是，高斯形状的滤波核分布并非是唯一的选择，类似的指数分布和余弦分布也是可选的分布函数。他们的区别在于中心向周围过渡时的变化剧烈程度，指数分布变化剧烈，而余弦分布变化较缓。关于联合双边滤波器的更多细节可移步到参考资料$^{[1]}$。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/7.jpg" width="100%"></div></p>
+<p>&emsp;&emsp;滤波通常需要对周围邻域的纹素进行采样，采样的数量取决于滤波核的大小。纹理采样是一个非常耗时的操作，因此对于大滤波器，实时渲染领域通常会用一些技巧来降低滤波所需的纹理采样数量。一种技巧就是将二维的滤波拆分为两个一维的滤波过程，从而使得滤波采样的数量从$N^2$降低到$2N$（其中$N$是滤波核大小）。以高斯滤波器为例，一个二维的高斯滤波器可以被拆分成水平方向和垂直方向的一维高斯滤波器：</p>
 <script type="math/tex; mode=display">
-\Phi(x) = |x-\overline x| - \overline x\\
-\overline x = \Sigma_jw_jx_j\\
-\overline r = \Sigma_j w_jr_j\\
-w_j=\frac{k(|x-x_j|/R)}{\Sigma_j k(|x-x_j|/R)}\\
-k(s)=max(0,(1-s^2)^3) \tag {4}</script><p>&emsp;&emsp;其中的$\Phi(x)$就是流体的标量场函数，$\overline x$和$\overline r$是平均位置和平均半径。该方法构建出来的网格已经很平滑了，但是有个致命的缺点，那就是在高曲率的地方质心容易被甩出流体区域，造成了失真。</p>
-<h3 id="4、Adams"><a href="#4、Adams" class="headerlink" title="4、Adams"></a>4、Adams</h3><p>&emsp;&emsp;Adams等人采用了一种完全不同的策略来重建流体表面$^{[5]}$，他们提出在模拟初始时为每个粒子计算其到表面的距离并保存，在后续的模拟过程中更新这个距离（redistancing）。给定每个粒子$i$的到表面的距离$d_i$，流体表面就定义为下面水平集函数$\phi(x)$的零等值面：</p>
+G_{2D}(x,y)=G_{1D}(x)\cdot G_{1D}(y)</script><p>&emsp;&emsp;上述公式成立是因为：</p>
 <script type="math/tex; mode=display">
-\phi(x)=d(x)-||a(x)-x|| \\
-a(x)=\Sigma_i w_i(x)x_i/\Sigma_i w_i(x)\\
-d(x)=\Sigma_i w_i(x)d_i/\Sigma_i w_i(x) \tag {5}</script><p>&emsp;&emsp;其中的$w_i(x)$是光滑的对称权重函数。该方法采用了新奇的思路来重建流体表面，与Zhu Bridson等人的方法相比，能够重建出更加平滑的流体表面，但<strong>算法比较复杂，计算量也比较大，更适用于自适应采样的粒子流体模拟方法</strong>。</p>
-<h3 id="5、Solenthaler"><a href="#5、Solenthaler" class="headerlink" title="5、Solenthaler"></a>5、Solenthaler</h3><p>&emsp;&emsp;针对Zhu Bridson等人的缺点，Solenthaler等人在他们的基础上做了改进$^{[6]}$。Solenthaler等人将前面的公式$(4)$改成如下的形式：</p>
+\int \int F(x_0,y_0)G_{2D}(x_0-x,y_0-y)dxdy =\int(\int F(x_0,y_0)G_{1D}(x_0-x)dx)G_{1D}(y_0-y)dy</script><p>&emsp;&emsp;即高斯滤波器是可拆分的，左右两边是完全等价的。但对于双边滤波器，理论上其并没有可拆分的良好性质，但实际上工业界会强行拆分从而提升滤波效率，强行拆分的代价就是产生了一些Artifacts。这些Artifacts一定程度上可以接受，这种trade-off技巧在工业界很常见。</p>
+<p>&emsp;&emsp;除了二维拆分成一维的方法，另一种技巧就是以固定大小的滤波器多次滤波、依次逐渐增大滤波器的滤波范围来实现超大滤波器的滤波过程。例如，假设我们固定滤波器大小为$5\times 5$，而真正想要实现的滤波范围是$64\times 64$，那么用$5\times 5$大小的滤波器滤波$5$次，每次滤波采样之间间隔为$2^i$（其中$i$是迭代次数，从$0$开始）。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/8.jpg" width="100%"></div></p>
+<p>&emsp;&emsp;上图展示了一维情况下的多次滤波过程。每次采样的点固定为$5$个，但采样点的间隔会随着迭代次数的增加而增大（上图中黑色的点就是采样点）。通过这种方式来近似实现$64\times 64$滤波器，而实际的开销仅为$5^2\times 5$，这是一个非常明显的采样开销优化。</p>
+<p>&emsp;&emsp;关于空间域滤波就简单总结到这里，而空间域滤波SOTA方法SVGF（Spatiotemporal Variance-Guided Filter）以后涉及到了再详细总结一下。</p>
+<h2 id="四、Outlier噪点去除"><a href="#四、Outlier噪点去除" class="headerlink" title="四、Outlier噪点去除"></a>四、Outlier噪点去除</h2><p>&emsp;&emsp;大部分情况下，降噪滤波的效果非常明显，图像变得非常干净。但有时滤波之后图像依旧存在一些噪声点，这些噪声点表现为强烈明亮的白色，如下图5所示。这是因为这些噪点的取值已经远远超过像素常见的取值，滤波降噪的加权平均在绝对大的取值面前也显得无能为力。这种噪声点被称为Outlier。</p>
+<p><div align="center"><img src="https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.146/blog/RTRT/9.jpg" width="100%"><br>    <center> 图5 滤波后图像依旧存在Outlier噪点 </center></div></p>
+<p>&emsp;&emsp;Outlier噪点不能通过滤波器去掉，必须要通过一些手段识别出这些噪点，然后再针对性地去除。识别检测的算法很简单，其核心的思路可以总结为：对于每个像素$(x,y)$，对以该像素$(x,y)$为中心的邻域（例如$7\times 7$大小的邻域范围）统计像素的均值$\mu$和方差$\sigma$，像素取值$I(x,y)$超出$[\mu-k\sigma,\mu+k\sigma]$范围的就是Outlier噪点！其中$k$是可调整的参数，可以通过该参数来调整区间范围。</p>
+<p>&emsp;&emsp;对于超过$[\mu-k\sigma,\mu+k\sigma]$范围的像素，直接令像素值Clamp到$[\mu-k\sigma,\mu+k\sigma]$范围内即可（例如大于$\mu+k\sigma$，那么令像素取值为$\mu+k\sigma$）。这种Clamp方法在也被应用到时间域降噪算法中解决拖影问题。在时间域滤波中，滤波公式为：</p>
 <script type="math/tex; mode=display">
-\Phi(x)=|x-\overline x|-\overline rf \tag {6}</script><p>&emsp;&emsp;与原来的公式相比，多了一个因子$f$，其计算公式如下：</p>
+\overline C^{(i)}=\alpha \overline C^{(i)}+(1-\alpha)C^{(i-1)}</script><p>&emsp;&emsp;拖影现象产生的根源来自于$C^{(i-1)}$与$C^{(i)}$并非是同一个着色点，因此Clamp方法就是对$C^{(i-1)}$做限制：</p>
 <script type="math/tex; mode=display">
-\lambda=\frac{t_{high}-EV_{max}}{t_{high}-t_{low}} \\
-f=
-\begin{cases}
-1\ \ \  \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ EV_{max}< t_{low}\\
-\lambda^3-3\lambda^2+3\lambda \ \ \ \ otherwise 
-\end{cases} \tag {7}</script><p>&emsp;&emsp;其中的$t_{high}$和$t_{low}$分别是设定的参数，取值分别为$3.5$和$0.4$。而公式$(7)$中的$EV_{max}$是$3\times 3$雅可比矩阵$\nabla_x(\overline x(x))$的最大特征值。<strong>这种方法考虑了高曲率区域质心被甩出流体外的情况，显著改善了Zhu Bridson等人的方法存在的缺点</strong>。</p>
-<h3 id="6、Yu-and-Turk"><a href="#6、Yu-and-Turk" class="headerlink" title="6、Yu and Turk"></a>6、Yu and Turk</h3><p>&emsp;&emsp;目前效果最好的方法当属Yu和Turk等人提出的基于各向异性核的粒子流体表面重建方法$^{[7]}$。他们利用了加权主成分分析法，为了每个流体粒子计算一个协方差矩阵$C_{i}$并对其做奇异值分解，根据得到的特征值和特征向量计算变换矩阵$G_i$。最后通过这个变换矩阵将原本球形的光滑核变换成有偏向性的椭球形。</p>
-<script type="math/tex; mode=display">
-x_i^{\omega}=\frac{\Sigma_j \omega_{ij}x_j}{\Sigma_j \omega_{ij}}\\
-C_i=\Sigma_j \omega_{ij}(x_j-x_i^\omega)(x_j-x_i^\omega)^T/\Sigma_j \omega_{ij} \tag {8}</script><p>&emsp;&emsp;对协方差矩阵$C_i$做奇异值分解（简称SVD），得到特征值和特征向量：</p>
-<script type="math/tex; mode=display">
-C=R\Sigma R^T\\
-\Sigma=diag(\sigma_1, ...,\sigma_d) \tag {9}</script><p>&emsp;&emsp;每个粒子的各向异性变换矩阵$G_i$就为：</p>
-<script type="math/tex; mode=display">
-G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后标量场的计算公式如下：</p>
-<script type="math/tex; mode=display">
-\phi(x)=\Sigma_j \frac{m_j}{\rho_j}W(x-\overline x_j, G_j) \tag {11}</script><p>&emsp;&emsp;在标量场计算之前他们还对流体粒子做了一个拉普拉斯平滑处理，使得流体粒子整体上向内部收缩了一些。<strong>可以看到，该方法计算量极大，相比先前的方法多了不少数学运算，但不得不说目前这种方法重建出来的表面网格质量最佳</strong>。</p>
-<p>&emsp;&emsp;总的来说，由于表面函数与重建网格的质量关系密切，因此不少学者围绕这方面的问题做了不少的研究，目前最好的方法已经可以重建出来质量极高的表面网格了，但高质量的方法普遍的缺点就是计算量大，算法相比之下实现起来也比较复杂。因此，如何在保证质量的前提下减少算法的计算量或许是个值得探究的课题。</p>
-<h2 id="二、重建算法效率"><a href="#二、重建算法效率" class="headerlink" title="二、重建算法效率"></a>二、重建算法效率</h2><p>&emsp;&emsp;表面重建这一步介于流体模拟和流体渲染之间，是尤为重要的一步，与后续的渲染质量息息相关。但是由于表面重建过程不仅涉及到MC三角化，还涉及到标量场的计算，其中标量场的计算是整个重建过程最为耗时的部分。目前已有不少学者围绕重建效率展开相关的研究，提出了一些高速并行的高效算法。</p>
-<h3 id="1、Muller"><a href="#1、Muller" class="headerlink" title="1、Müller"></a>1、Müller</h3><p>&emsp;&emsp;Müller等人早之前已经提出了窄带的思想$^{[3]}$，他们指出可以先找出在流体表面区域附近的标量场格子，然后仅仅在这些格子上执行Marching Cubes算法。<strong>然而Müller等人只是顺带一提，并没有给出具体的解决可能存在的”双层“问题和可行的并行方案</strong>。</p>
-<h3 id="2、Bridson"><a href="#2、Bridson" class="headerlink" title="2、Bridson"></a>2、Bridson</h3><p>&emsp;&emsp;针对传统八叉树的效率问题，Bridson提出了一种稀疏块网格结构$^{[8]}$，只有在窄带区域这些块才存在并可以细分成更加精细的均匀网格。他们的方法本质上就是采用了两重不同分辨率的空间网格，先用较为粗糙的稀疏网格找出窄带区域，然后在窄带区域做进一步的细分，以此大大节省了内存空间占用。</p>
-<h3 id="3、Houston"><a href="#3、Houston" class="headerlink" title="3、Houston"></a>3、Houston</h3><p>&emsp;&emsp;Houston等人设计了一种新颖的稀疏水平集结构$^{[9]}$，他们的方法采用了游程编码（run-length encoding），根据到窄带区域的距离对流体区域进行编码，可扩展性强。算法效率有所提升，但很难设计成高速并行的程序结构。</p>
-<h3 id="4、Nielsen"><a href="#4、Nielsen" class="headerlink" title="4、Nielsen"></a>4、Nielsen</h3><p>&emsp;&emsp;Nielsen等人提出了一种动态管网的网格数据结构（DT-grid）$^{[10]}$，与八叉树不同，这种结构是非层次的，能够大大提升内存效率。之后为了提高高分辨率下的效率，Nielsen等人又提出了一种不同的结合了压缩策略的技术$^{[11]}$。同样地，他们的方法都难以高速并行化，因为这些方法被设计出来时就没有考虑过并行。</p>
-<h3 id="5、Akinci"><a href="#5、Akinci" class="headerlink" title="5、Akinci"></a>5、Akinci</h3><p>&emsp;&emsp;注意到先前的方法在高速并行化方面做的工作较少，Akinci等人开始着手重建过程的GPU并行化工作，围绕基于窄带的表面重建这个主题，他们设计了一种高速并行化的表面重建管线$^{[12]}$，整个管线大致分成两个阶段，分别是标量场的计算和MC三角化。相比之前串行的方法，他们的算法获得非常高的加速比，但是整个重建过程并没有被完全并行化，为了避免可能潜在的线程竞争有一些阶段还是需要串行执行。此外，他们的表面粒子提取方法不是很好。</p>
-<h3 id="6、Wu"><a href="#6、Wu" class="headerlink" title="6、Wu"></a>6、Wu</h3><p>&emsp;&emsp;继Akinci等人之后，Wu等人针对Akinci等人方法的内存效率问题做了一些改进$^{[13]}$，他们利用一种并行高效的布谷鸟哈希表替换原本的均匀网格，从而减少无用的内存空间耗费，提升了内存效率。但在并行管线上与原来相比并没有太大的改变，依旧没有实现完全并行化。</p>
-<h3 id="7、Kanai"><a href="#7、Kanai" class="headerlink" title="7、Kanai"></a>7、Kanai</h3><p>&emsp;&emsp;在追求高速并行化的同时，也有研究者研究如何减少重建出来网格的三角形数量，这是因为在一些平坦的区域我们没有必要生成那么多的三角形，在曲率比较高的区域可以生成更多的三角形以捕获更多的细节。但是由于我们目前采用的方案都是均匀的空间网格，因此无论是平坦区域还是复杂区域我们都生成了同样数量的三角形。Kanai 等人综合考虑了并行化和自适应网格，他们将Akinci等人提出的三层网格自适应表面重建的方案$^{[15]}$进行了并行化，并针对不同分辨率的网格之间存在的裂缝问题进行了修补$^{[14]}$。但该方法因为需要考虑如何进行修补裂缝，算法比较复杂，并行方案相对于基于窄带的并行算法速度要慢一些。</p>
-<p>&emsp;&emsp;总的来说，目前GPU并行化还存在一些问题。基于窄带的方案应该是目前最佳的，但是受限于一些潜在的竞争条件不能完全地将整个过程并行化，表面窄带的构建算法也值得探讨是否能够重新调整一下。</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p>$[1]$  Lorensen W E, Cline H E. Marching cubes: A high resolution 3D surface construction algorithm[C]//ACM siggraph computer graphics. ACM, 1987, 21(4): 163-169. </p>
-<p>$[2]$  Blinn J F. A generalization of algebraic surface drawing[J]. ACM transactions on graphics (TOG), 1982, 1(3): 235-256. </p>
-<p>$[3]$  Müller M, Charypar D, Gross M. Particle-based fluid simulation for interactive applications[C]//Proceedings of the 2003 ACM SIGGRAPH/Eurographics symposium on Computer animation. Eurographics Association, 2003: 154-159. </p>
-<p>$[4]$  Zhu Y, Bridson R. Animating sand as a fluid[J]. ACM Transactions on Graphics (TOG), 2005, 24(3): 965-972. </p>
-<p>$[5]$  Adams B, Pauly M, Keiser R, et al. Adaptively sampled particle fluids[C]//ACM Transactions on Graphics (TOG). Acm, 2007, 26(3): 48. </p>
-<p>$[6]$  Solenthaler B, Schläfli J, Pajarola R. A unified particle model for fluid–solid interactions[J]. Computer Animation and Virtual Worlds, 2007, 18(1): 69-82. </p>
-<p>$[7]$  Yu J, Turk G. Reconstructing surfaces of particle-based fluids using anisotropic kernels[J]. ACM Transactions on Graphics (TOG), 2013, 32(1): 5. </p>
-<p>$[8]$  Bridson R E, Fedkiw R. Computational aspects of dynamic surfaces[D]. stanford university, 2003. </p>
-<p>$[9]$  Houston B, Wiebe M, Batty C. RLE sparse level sets[C]//ACM SIGGRAPH 2004 Sketches. ACM, 2004: 137. </p>
-<p>$[10]$  Nielsen M B, Museth K. Dynamic Tubular Grid: An efficient data structure and algorithms for high resolution level sets[J]. Journal of Scientific Computing, 2006, 26(3): 261-299. </p>
-<p>$[11]$  Nielsen M B, Nilsson O, Söderström A, et al. Out-of-core and compressed level set methods[J]. ACM Transactions on Graphics (TOG), 2007, 26(4): 16. </p>
-<p>$[12]$  Akinci G, Ihmsen M, Akinci N, et al. Parallel surface reconstruction for particle‐based fluids[C]//Computer Graphics Forum. Oxford, UK: Blackwell Publishing Ltd, 2012, 31(6): 1797-1809. </p>
-<p>$[13]$  Wu W, Li H, Su T, et al. GPU-accelerated SPH fluids surface reconstruction using two-level spatial uniform grids[J]. The Visual Computer, 2017, 33(11): 1429-1442. </p>
-<p>$[14]$  Du S, Kanai T. Gpu-based adaptive surface reconstruction for real-time sph fluids[J]. 2014. </p>
-<p>$[15]$ Akinci G, Akinci N, Oswald E, et al. Adaptive surface reconstruction for SPH using 3-level uniform grids[J]. 2013.</p>
+\mathbf{clamp}(C^{(i-1)},\mu-k\sigma,\mu+k\sigma)</script><p>&emsp;&emsp;其中$\mu$和$\sigma$是当前帧$C^{(i)}$邻域范围内的像素均值和方差。这种方法使得$C^{(i-1)}$和$C^{(i)}$不至于差距过大，一定程度上解决了时间域滤波的拖影问题。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>$[1]$ Johannes Kopf, Michael F. Cohen, Dani Lischinski, and Matt Uyttendaele. 2007. Joint bilateral upsampling. ACM Trans. Graph. 26, 3 (July 2007), 96–es.</p>
+<p>$[2]$ <a href="https://sites.cs.ucsb.edu/~lingqi/teaching/games202.html" target="_blank" rel="noopener">GAMES202: 高质量实时渲染</a></p>
 
         </div>
         
@@ -364,10 +362,10 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
     <div class="new-meta-box">
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2020-01-10T10:44:37+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-08-01T17:49:31+08:00">
   <a class="notlink">
     <i class="fas fa-clock" aria-hidden="true"></i>
-    <p>最后更新于 2020年1月10日</p>
+    <p>最后更新于 2021年8月1日</p>
   </a>
 </div>
 
@@ -376,7 +374,7 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
         
           
   
-  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Fluid-Simulation/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Fluid Simulation</p></a></div>
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Computer-Graphics/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Computer Graphics</p></a></div> <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Real-time-Rendering/" rel="nofollow"><i class="fas fa-hashtag" aria-hidden="true"></i>&nbsp;<p>Real-time Rendering</p></a></div>
 
 
         
@@ -387,7 +385,7 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
   <div class="-mob-share-list share-body">
     
       
-        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2019/11/10/reviewOfSR/&title=流体模拟Fluid Simulation：基于窄带的粒子流体表面重建 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=在基于粒子的流体模拟中，Marching Cubes$^{[1]}$是常用的、流行的表面重建算法。但在Marching Cubes算法构建表面网格之前需要获得整个流体区域的标量场，这个标量场需要我们根据流体的粒子计算得到，这个标量场的质量好坏与最终重建得到的网格质量好坏息息相关。针对采用Marching Cubes算法重建粒子流体表面网格的方法，学者们都着重关注如何提高重建出来的流体网格质量、如何提高表面重建过程的时间效率和内存效率，因此我们从表面网格质量、重建算法效率两方面着手基于粒子的流体表面重建的综述。
+        <a class="-mob-share-qq" title="QQ好友" rel="external nofollow noopener noreferrer" href="http://connect.qq.com/widget/shareqq/index.html?url=https://yangwc.com/2021/08/01/RTRT/&title=高质量实时渲染：实时光线追踪 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，本次主题是该课程的最后一部分内容——实时光线追踪，这方面的内容主要是关于低采样率下实时光线追踪的时间域降噪算法和空间域降噪算法。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qq.png">
@@ -396,7 +394,7 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
       
     
       
-        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2019/11/10/reviewOfSR/&title=流体模拟Fluid Simulation：基于窄带的粒子流体表面重建 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=在基于粒子的流体模拟中，Marching Cubes$^{[1]}$是常用的、流行的表面重建算法。但在Marching Cubes算法构建表面网格之前需要获得整个流体区域的标量场，这个标量场需要我们根据流体的粒子计算得到，这个标量场的质量好坏与最终重建得到的网格质量好坏息息相关。针对采用Marching Cubes算法重建粒子流体表面网格的方法，学者们都着重关注如何提高重建出来的流体网格质量、如何提高表面重建过程的时间效率和内存效率，因此我们从表面网格质量、重建算法效率两方面着手基于粒子的流体表面重建的综述。
+        <a class="-mob-share-qzone" title="QQ空间" rel="external nofollow noopener noreferrer" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=https://yangwc.com/2021/08/01/RTRT/&title=高质量实时渲染：实时光线追踪 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，本次主题是该课程的最后一部分内容——实时光线追踪，这方面的内容主要是关于低采样率下实时光线追踪的时间域降噪算法和空间域降噪算法。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/qzone.png">
@@ -405,7 +403,7 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
       
     
       
-        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2019/11/10/reviewOfSR/&title=流体模拟Fluid Simulation：基于窄带的粒子流体表面重建 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=在基于粒子的流体模拟中，Marching Cubes$^{[1]}$是常用的、流行的表面重建算法。但在Marching Cubes算法构建表面网格之前需要获得整个流体区域的标量场，这个标量场需要我们根据流体的粒子计算得到，这个标量场的质量好坏与最终重建得到的网格质量好坏息息相关。针对采用Marching Cubes算法重建粒子流体表面网格的方法，学者们都着重关注如何提高重建出来的流体网格质量、如何提高表面重建过程的时间效率和内存效率，因此我们从表面网格质量、重建算法效率两方面着手基于粒子的流体表面重建的综述。
+        <a class="-mob-share-weibo" title="微博" rel="external nofollow noopener noreferrer" href="http://service.weibo.com/share/share.php?url=https://yangwc.com/2021/08/01/RTRT/&title=高质量实时渲染：实时光线追踪 | YangWC's Blog&pics=https://cdn.jsdelivr.net/gh/ZeusYang/CDN-for-yangwc.com@1.1.42/blog/TinySoftRenderer/renderer2.jpg&summary=本文是闫令琪老师GAMES202高质量实时渲染课程的学习笔记和总结，本次主题是该课程的最后一部分内容——实时光线追踪，这方面的内容主要是关于低采样率下实时光线追踪的时间域降噪算法和空间域降噪算法。
 ">
           
             <img src="https://cdn.jsdelivr.net/gh/xaoxuu/assets@19.1.9/logo/128/weibo.png">
@@ -428,40 +426,21 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
         
             <div class="prev-next">
                 
-                    <section class="prev">
-                        <span class="art-item-left">
-                            <h6><i class="fas fa-chevron-left" aria-hidden="true"></i>&nbsp;上一页</h6>
-                            <h4>
-                                <a href="/2020/01/10/Octree/" rel="prev" title="空间管理Space management：四叉树 &amp; 八叉树">
-                                  
-                                      空间管理Space management：四叉树 &amp; 八叉树
-                                  
-                                </a>
-                            </h4>
-                            
-                                
-                                <h6 class="tags">
-                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Ray-Tracer/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Ray Tracer</a>
-                                </h6>
-                            
-                        </span>
-                    </section>
-                
                 
                     <section class="next">
                         <span class="art-item-right" aria-hidden="true">
                             <h6>下一页&nbsp;<i class="fas fa-chevron-right" aria-hidden="true"></i></h6>
                             <h4>
-                                <a href="/2019/10/24/FFT/" rel="prev" title="频域处理Frequency domain processing：傅里叶变换">
+                                <a href="/2021/06/29/PBRM/" rel="prev" title="高质量实时渲染：基于物理的BRDF材质">
                                     
-                                        频域处理Frequency domain processing：傅里叶变换
+                                        高质量实时渲染：基于物理的BRDF材质
                                     
                                 </a>
                             </h4>
                             
                                 
                                 <h6 class="tags">
-                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Image-processing/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Image processing</a>
+                                    <a class="tag" href="/tags/Computer-Graphics/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Computer Graphics</a> <a class="tag" href="/tags/Real-time-Rendering/"><i class="fas fa-tag fa-fw" aria-hidden="true"></i>Real-time Rendering</a>
                                 </h6>
                             
                         </span>
@@ -542,7 +521,7 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
 
   <script>
     window.subData = {
-      title: '流体模拟Fluid Simulation：基于窄带的粒子流体表面重建',
+      title: '高质量实时渲染：实时光线追踪',
       tools: true
     }
   </script>
@@ -616,7 +595,7 @@ G_i=\frac1h_i R\overline \Sigma^{-1}R^T \tag {10}</script><p>&emsp;&emsp;最后�
 </header>
 
     <div class="content material">
-      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、表面网格质量"><span class="toc-text">一、表面网格质量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Blinn"><span class="toc-text">1、Blinn</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、Muller"><span class="toc-text">2、Müller</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、Zhu-and-Bridson"><span class="toc-text">3、Zhu and Bridson</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、Adams"><span class="toc-text">4、Adams</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、Solenthaler"><span class="toc-text">5、Solenthaler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、Yu-and-Turk"><span class="toc-text">6、Yu and Turk</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、重建算法效率"><span class="toc-text">二、重建算法效率</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、Muller"><span class="toc-text">1、Müller</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、Bridson"><span class="toc-text">2、Bridson</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、Houston"><span class="toc-text">3、Houston</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、Nielsen"><span class="toc-text">4、Nielsen</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5、Akinci"><span class="toc-text">5、Akinci</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6、Wu"><span class="toc-text">6、Wu</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7、Kanai"><span class="toc-text">7、Kanai</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文献"><span class="toc-text">参考文献</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、实时光线追踪"><span class="toc-text">一、实时光线追踪</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、时间域（Temporal）降噪算法"><span class="toc-text">二、时间域（Temporal）降噪算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、空间域（Spatial）降噪算法"><span class="toc-text">三、空间域（Spatial）降噪算法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、Outlier噪点去除"><span class="toc-text">四、Outlier噪点去除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
